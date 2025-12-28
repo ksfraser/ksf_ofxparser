@@ -1,5 +1,5 @@
 {
-    "name": "asgrim/ofxparser",
+    "name": "ksfraser/ksf_ofxparser",
     "description": "Simple OFX file parser",
     "keywords": ["ofx", "open financial exchange", "finance", "parser"],
     "license": "MIT",
@@ -17,6 +17,11 @@
         {
             "name": "Oliver Lowe",
             "email": "mrtriangle@gmail.com"
+        },
+        {
+            "name": "Kevin Fraser",
+            "email": "kevin@ksfraser.com",
+            "homepage": "http://ksfraser.ca/"
         }
     ],
     "require": {
@@ -28,7 +33,7 @@
     },
     "autoload":     {
         "psr-0": {
-            "OfxParser": "lib/"
+            "OfxParser": "src/Ksfraser"
         }
     }
 }
