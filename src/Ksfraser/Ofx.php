@@ -10,6 +10,7 @@ use OfxParser\Entities\SignOn;
 use OfxParser\Entities\Statement;
 use OfxParser\Entities\Status;
 use OfxParser\Entities\Transaction;
+use OfxParser\Entities\Payee;
 
 /**
  * The OFX object
