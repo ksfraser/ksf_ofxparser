@@ -1,6 +1,6 @@
 {
-    "name": "ksfraser/ksf_ofxparser",
-    "description": "Simple OFX file parser",
+    "name": "gitmathias/ofxparser",
+    "description": "OFX file parser with Investments support",
     "keywords": ["ofx", "open financial exchange", "finance", "parser"],
     "license": "MIT",
     "authors": [
@@ -19,21 +19,22 @@
             "email": "mrtriangle@gmail.com"
         },
         {
-            "name": "Kevin Fraser",
-            "email": "kevin@ksfraser.com",
-            "homepage": "http://ksfraser.ca/"
+            "name": "Mathias Gran",
+            "email": "gitmathias@users.noreply.github.com"
         }
     ],
     "require": {
-        "php": "~5.6|~7.0"
+        "php": ">=7.3"
     },
     "require-dev": {
-        "phpunit/phpunit": "~5.5",
-        "squizlabs/php_codesniffer": "~2.6"
+        "phpunit/phpunit": "^9.5"
     },
-    "autoload":     {
-        "psr-0": {
-            "OfxParser": "src/Ksfraser"
+    "autoload": {
+        "psr-4": {
+            "OfxParser\\": "lib/OfxParser/"
         }
+    },
+    "scripts": {
+        "test": "vendor/bin/phpunit"
     }
 }
