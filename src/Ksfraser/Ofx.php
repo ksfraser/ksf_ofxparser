@@ -264,9 +264,16 @@ class Ofx
             $transaction->amount = $this->createAmountFromStr($t->TRNAMT);
             $transaction->uniqueId = (string)$t->FITID;
             $transaction->name = (string)$t->NAME;
-            $transaction->memo = (string)$t->MEMO;
+			//Original
+            //$transaction->memo = (string)$t->MEMO;
+			//From DevCapere
+			$memo = [];
+            foreach ($t->MEMO as $m) {
+                $memo[] = (string)$m;
+            }
+			$transaction->memo = implode(' ', $memo);
             $transaction->sic = $t->SIC;
-            $transaction->checkNumber = $t->CHECKNUM;
+            $transaction->checkNumber = (string)$t->CHECKNUM;
             $return[] = $transaction;
         }
 
