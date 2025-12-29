@@ -62,7 +62,10 @@ class Parser
      */
     public function loadFromString($ofxContent)
     {
-        $ofxContent = utf8_encode($ofxContent);
+		//utf8_encode is depreciated in php8.2 and will be removed in 9
+        //$ofxContent = utf8_encode($ofxContent);
+		//From DevCapere - php8?
+		$ofxContent = mb_convert_encoding($ofxContent, "UTF-8", mb_detect_encoding($ofxContent));
         $ofxContent = $this->conditionallyAddNewlines($ofxContent);
 
         $sgmlStart = stripos($ofxContent, '<OFX>');
