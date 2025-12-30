@@ -285,6 +285,12 @@ class Ofx
 			$transaction->memo = implode(' ', $memo);
             $transaction->sic = $t->SIC;
             $transaction->checkNumber = (string)$t->CHECKNUM;
+            $transaction->refNumber = (string) $t->REFNUM;
+            $transaction->nameExtended = (string) $t->EXTDNAME;
+            $transaction->payeeId = (string) $t->PAYEEID;
+            if(isset($t->PAYEE)) $transaction->payee = $this->buildPayee($t->PAYEE);
+            if(isset($t->BANKACCTTO)) $transaction->bankAccountTo = $this->buildBankAccountTo($t->BANKACCTTO);
+            if(isset($t->CCACCTTO)) $transaction->cardAccountTo = $this->buildCardAccountTo($t->CCACCTTO);
             $return[] = $transaction;
         }
 
@@ -518,5 +524,74 @@ class Ofx
         }
 
         return (float)$amountString;
+    }
+    /**
+     * Builds payee of transaction
+     * 
+     *  Out of Okonst repo
+     * 
+     * @param SimpleXMLElement $xml
+     * @return Payee
+     */
+    private function buildPayee(SimpleXMLElement $xml)
+    {
+        $payee = new Payee();
+        // name
+        $payee->name = (string) $xml->NAME;
+        // address
+        $address = [];
+        if((string) $xml->ADDR1) $address[] = (string) $xml->ADDR1;
+        if((string) $xml->ADDR2) $address[] = (string) $xml->ADDR2;
+        if((string) $xml->ADDR3) $address[] = (string) $xml->ADDR3;
+        if(count($address) > 0) $payee->address = $address;
+
+        $payee->city = (string) $xml->CITY;
+        $payee->state = (string) $xml->STATE;
+        $payee->postalCode = (string) $xml->POSTALCODE;
+        $payee->country = (string) $xml->COUNTRY;
+        $payee->phone = (string) $xml->PHONE;
+
+        return $payee;
+    }
+
+    /**
+     * Builds corresponding bank account of transaction
+     * 
+     *  Out of Okonst repo
+     * 
+     * @param SimpleXMLElement $xml
+     * @return BankAccount
+     */
+    public function buildBankAccountTo(SimpleXMLElement $xml)
+    {
+        $bankAccountTo = new BankAccount();
+        $bankAccountTo->routingNumber = (string) $xml->BANKID;
+        $bankAccountTo->agencyNumber = (string) $xml->BRANCHID;
+        $bankAccountTo->accountNumber = (string) $xml->ACCTID;
+        $bankAccountTo->accountType = (string) $xml->ACCTTYPE;
+
+        // remove other attrs
+        unset($bankAccountTo->balance, $bankAccountTo->balanceDate, $bankAccountTo->statement, $bankAccountTo->transactionUid);
+
+        return $bankAccountTo;
+    }
+
+    /**
+     * Builds corresponding credit card account of transaction
+     * 
+     *  Out of Okonst repo
+     * 
+     * @param SimpleXMLElement $xml
+     * @return BankAccount
+     */
+    public function buildCardAccountTo(SimpleXMLElement $xml)
+    {
+        $cardAccountTo = new BankAccount();
+        $cardAccountTo->accountNumber = (string) $xml->ACCTID;
+
+        // remove other attrs
+        unset($cardAccountTo->routingNumber, $cardAccountTo->agencyNumber, $cardAccountTo->accountType, $cardAccountTo->balance, $cardAccountTo->balanceDate, $cardAccountTo->statement, $cardAccountTo->transactionUid);
+
+        return $cardAccountTo;
     }
 }

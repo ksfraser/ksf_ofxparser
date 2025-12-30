@@ -26,50 +26,92 @@ class Transaction extends AbstractEntity
 
     /**
      * @var string
+     * <TRNTYPE>
      */
     public $type;
 
     /**
-     * Date the transaction was posted
+     * Date the transaction was posted <DTPOSTED>
      * @var \DateTimeInterface
      */
     public $date;
 
     /**
-     * Date the user initiated the transaction, if known
+     * Date the user initiated the transaction, if known  <DTUSER>
      * @var \DateTimeInterface|null
      */
     public $userInitiatedDate;
 
     /**
      * @var float
+     * <TRNAMT>
      */
     public $amount;
 
     /**
      * @var string
+     * <FITID>
      */
     public $uniqueId;
 
     /**
      * @var string
+     * <NAME>
      */
     public $name;
 
     /**
      * @var string
+     * <MEMO>
      */
     public $memo;
 
     /**
      * @var string
+     * <SIC>
      */
     public $sic;
 
     /**
      * @var string
+     * <CHECKNUM>
      */
     public $checkNumber;
+       /**
+     * <REFNUM>
+     * @var string
+     */
+    public $refNumber;
+
+    /**
+     * Extended name or description <EXTDNAME>
+     * @var string
+     */
+    public $nameExtended;
+
+    /**
+     * Payee Id <PAYEEID>
+     * @var string
+     */
+    Public $payeeId;
+
+    /**
+     * Payee requisites <PAYEE>
+     * @var 
+     */
+    public $payee;
+
+    /**
+     * Bank account of counterparty
+     * @var 
+     */
+    public $bankAccountTo;
+
+    /**
+     * Credit card account of counterparty
+     * @var 
+     */
+    public $cardAccountTo;
 
     /**
      * Get the associated type description
