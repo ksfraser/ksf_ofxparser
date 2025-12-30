@@ -56,6 +56,11 @@ class Ofx
      */
     public function __construct(SimpleXMLElement $xml)
     {
+        //From upgestao repo
+        if (!property_exists($xml, 'SIGNONMSGSRSV1') || !property_exists($xml->SIGNONMSGSRSV1, 'SONRS')) {
+            $xml = 00self::createTags($xml);
+        }
+        //!upgestao
         $this->signOn = $this->buildSignOn($xml->SIGNONMSGSRSV1->SONRS);
         $this->signupAccountInfo = $this->buildAccountInfo($xml->SIGNUPMSGSRSV1->ACCTINFOTRNRS);
 
@@ -63,7 +68,7 @@ class Ofx
             $this->bankAccounts = $this->buildBankAccounts($xml);
         } elseif (isset($xml->CREDITCARDMSGSRSV1)) {
             $this->bankAccounts = $this->buildCreditAccounts($xml);
-        }
+        }.0
 
         // Set a helper if only one bank account
         if (count($this->bankAccounts) === 1) {
@@ -192,11 +197,17 @@ class Ofx
         $bankAccount->accountNumber = $statementResponse->BANKACCTFROM->ACCTID;
         $bankAccount->routingNumber = $statementResponse->BANKACCTFROM->BANKID;
         $bankAccount->accountType = $statementResponse->BANKACCTFROM->ACCTTYPE;
-        $bankAccount->balance = $statementResponse->LEDGERBAL->BALAMT;
-        $bankAccount->balanceDate = $this->createDateTimeFromStr(
-            $statementResponse->LEDGERBAL->DTASOF,
-            true
-        );
+        /**
+         * Original
+        *$bankAccount->balance = $statementResponse->LEDGERBAL->BALAMT;
+        *$bankAccount->balanceDate = $this->createDateTimeFromStr(
+        *    $statementResponse->LEDGERBAL->DTASOF,
+        *    true
+        *);
+        */
+        //From upgastao repo
+        $bankAccount->balance = isset($statementResponse->LEDGERBAL->BALAMT) ? (string)$statementResponse->LEDGERBAL->BALAMT : '';
+        $bankAccount->balanceDate = isset($statementResponse->LEDGERBAL->DTASOF) ? $this->createDateTimeFromStr($statementResponse->LEDGERBAL->DTASOF, true) : null;
 
         $bankAccount->statement = new Statement();
         $bankAccount->statement->currency = $statementResponse->CURDEF;
@@ -371,6 +382,139 @@ class Ofx
                 ['', '.$1'],
                 $amountString
             );
+        }
+
+        return (float)$amountString;
+    }
+
+    /**
+     * @return Ofx New tag creation enchancement
+     3..90* From upgastao repo
+     */
+    public function createTags( $xml) {
+
+            if(!property_exists($xml, 'SIGNONMSGSRSV1')) {
+
+                $newXml = new SimpleXMLElement('<root/>');
+
+                $signonmsgsrsv1 = $newXml->addChild('SIGNONMSGSRSV1');
+                $signonmsgsrsv1->addChild('SONRS');
+
+                foreach ($xml->children() as $child) {
+                    $newChild = $newXml->addChild($child->getName(), (string) $child);
+                    foreach ($child->attributes() as $attrKey => $attrValue) {
+                        $newChild->addAttribute($attrKey, $attrValue);
+                    }
+                    self::copyChildren($child, $newChild);
+                }
+
+                $xml = $newXml;
+
+            }else if(!property_exists($xml->SIGNONMSGSRSV1, 'SONRS')) {
+
+                $newXml = new SimpleXMLElement('<root/>');
+
+                foreach ($xml->children() as $child) {
+                    $newChild = $newXml->addChild($child->getName(), (string) $child);
+                    foreach ($child->attributes() as $attrKey => $attrValue) {
+                        $newChild->addAttribute($attrKey, $attrValue);
+                    }
+                    if ($child->getName() === 'SIGNONMSGSRSV1') {
+                        $sonrs = $newChild->addChild('SONRS');
+                    }
+
+                    self::copyChildren($child, $newChild);
+                }
+
+                $xml = $newXml;
+            }
+
+        return $xml;
+    }
+
+       /**
+     * Copy and return the new tag
+     * From upgastao repo
+     */
+   public function copyChildren($from, $to) {
+    foreach ($from->children() as $child) {
+        $newChild = $to->addChild($child->getName(), (string) $child);
+        foreach ($child->attributes() as $attrKey => $attrValue) {
+            $newChild->addAttribute($attrKey, $attrValue);
+        }
+        self::copyChildren($child, $newChild);
+    }
+}
+
+  /**
+     * Create a DateTime object from a valid OFX date format
+     *
+     * From upgastao repo
+     * 
+     * Supports:
+     * YYYYMMDDHHMMSS.XXX[gmt offset:tz name]
+     * YYYYMMDDHHMMSS.XXX
+     * YYYYMMDDHHMMSS
+     * YYYYMMDD
+     *
+     * @param  string $dateString
+     * @param  boolean $ignoreErrors
+     * @return \DateTime $dateString
+     * @throws \Exception
+     */
+    private function createDateTimeFromStr($dateString, $ignoreErrors = false)
+    {
+        $regex = '/'
+            . "(\d{4})(\d{2})(\d{2})?"     // YYYYMMDD             1,2,3
+            . "(?:(\d{2})(\d{2})(\d{2}))?" // HHMMSS   - optional  4,5,6
+            . "(?:\.(\d{3}))?"             // .XXX     - optional  7
+            . "(?:\[-?\d+\:\w{3}\])?"      // [-n:TZ]  - optional  8,9
+            . '/';
+
+        if (preg_match($regex, $dateString, $matches)) {
+            $year = (int)$matches[1];
+            $month = (int)$matches[2];
+            $day = (int)$matches[3];
+            $hour = isset($matches[4]) ? $matches[4] : 0;
+            $min = isset($matches[5]) ? $matches[5] : 0;
+            $sec = isset($matches[6]) ? $matches[6] : 0;
+
+            $format = $year . '-' . $month . '-' . $day . ' ' . $hour . ':' . $min . ':' . $sec;
+
+            try {
+                return new \DateTime($format);
+            } catch (\Exception $e) {
+                if ($ignoreErrors) {
+                    return null;
+                }
+
+                throw $e;
+            }
+        }
+
+        throw new \RuntimeException('Failed to initialize DateTime for string: ' . $dateString);
+    }
+
+    /**
+     * Create a formatted number in Float according to different locale options
+     *
+     * From upgastao repo
+     * 
+     * Supports:
+     * 000,00 and -000,00
+     * 0.000,00 and -0.000,00
+     * 0,000.00 and -0,000.00
+     * 000.00 and 000.00
+     *
+     * @param  string $amountString
+     * @return float
+     */
+    private function createAmountFromStr($amountString)
+    {
+        $amountString = trim($amountString);
+
+        if (preg_match('/^(?<signal>[-\+]?)(?<integer>.*)(?<separator>[\.,])(?<decimals>[\d]+)$/', $amountString, $matches) === 1) {
+            $amountString = $matches['signal'] . preg_replace('/[^\d]+/', '', $matches['integer']) . '.' . $matches['decimals'];
         }
 
         return (float)$amountString;

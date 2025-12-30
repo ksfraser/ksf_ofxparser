@@ -47,6 +47,15 @@ class Utils
             $year = (int)$matches[1];
             $month = (int)$matches[2];
             $day = (int)$matches[3];
+            /* From upgestao Repo
+             *   Not sure of what it is actually doing so commented out
+             *      Not sure why [3][0] isn't that trimming a 2 digit date to 1?
+             * 
+             * if ($day >31) {
+             *   $correctDate = $matches[3][0];
+             *   $day =(int)$correctDate;
+             *}
+                */
             $hour = isset($matches[4]) ? $matches[4] : 0;
             $min = isset($matches[5]) ? $matches[5] : 0;
             $sec = isset($matches[6]) ? $matches[6] : 0;
