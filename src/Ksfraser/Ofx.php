@@ -58,7 +58,7 @@ class Ofx
     {
         //From upgestao repo
         if (!property_exists($xml, 'SIGNONMSGSRSV1') || !property_exists($xml->SIGNONMSGSRSV1, 'SONRS')) {
-            $xml = 00self::createTags($xml);
+            $xml = self::createTags($xml);
         }
         //!upgestao
         $this->signOn = $this->buildSignOn($xml->SIGNONMSGSRSV1->SONRS);
