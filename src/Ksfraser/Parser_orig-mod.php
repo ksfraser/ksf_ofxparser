@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace OfxParser;
 
@@ -64,7 +64,6 @@ class Parser
     {
         if (preg_match('/<OFX>.*<\/OFX>/', $ofxContent) === 1) {
             $ofxContent =  str_replace('<', "\n<", $ofxContent); // add line breaks to allow XML to parse
-		var_dump( $ofxContent );
             //return str_replace('<', "\n<", $ofxContent); // add line breaks to allow XML to parse
         }
 
@@ -164,7 +163,6 @@ class Parser
         $tags = [];
 
         foreach ($lines as $i => &$line) {
-		var_dump( $line );
             $line = trim($this->closeUnclosedXmlTags($line)) . "\n";
 
             // Matches tags like <SOMETHING> or </SOMETHING>

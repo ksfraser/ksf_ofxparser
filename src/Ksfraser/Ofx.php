@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace OfxParser;
 
@@ -58,7 +58,7 @@ class Ofx
     {
         //From upgestao repo
         if (!property_exists($xml, 'SIGNONMSGSRSV1') || !property_exists($xml->SIGNONMSGSRSV1, 'SONRS')) {
-            $xml = 00self::createTags($xml);
+            $xml = self::createTags($xml);
         }
         //!upgestao
         $this->signOn = $this->buildSignOn($xml->SIGNONMSGSRSV1->SONRS);
@@ -68,7 +68,7 @@ class Ofx
             $this->bankAccounts = $this->buildBankAccounts($xml);
         } elseif (isset($xml->CREDITCARDMSGSRSV1)) {
             $this->bankAccounts = $this->buildCreditAccounts($xml);
-        }.0
+        }
 
         // Set a helper if only one bank account
         if (count($this->bankAccounts) === 1) {
@@ -106,12 +106,6 @@ class Ofx
         	$signOn->institute->id = $xml->FI->FID;
 	else
 	{
-/* * /
-		var_dump( __LINE__ );
-		var_dump( $xml );
-		var_dump( $xml["INTU.BID"] );
-		var_dump( $xml->{'INTU.BID'} );
-/* */
 		if( isset( $xml->{'INTU.BID'} ) )
 		{
 			//var_dump( __LINE__ );
@@ -125,7 +119,6 @@ class Ofx
 /* */
 	}
 
-	var_dump( __LINE__ );
         return $signOn;
     }
 

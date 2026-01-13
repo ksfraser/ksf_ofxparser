@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /******************************************
 *	20240708 Incorporate from OKONST Parser...
@@ -198,21 +198,12 @@ class Parser
 	 *************************/
 	function extract_tag( $line )
 	{
-/* Logging * /
-		var_dump( __LINE__ . " Extract_Tag" );
-		var_dump( $line );
-/* */
-
         	$tag = ltrim(
 			substr(	$line, 
 				1, 
 				strpos($line, '>') - 1
 			), 
 			'/' );
-/* Logging * /
-		var_dump( __LINE__ . " END Extract_Tag::" . $tag . "::" );
-		//var_dump( $tag );
-/* */
 		return $tag;
 	}
     /**
@@ -281,14 +272,6 @@ class Parser
 				$popcount = 0;
 				while (($last = array_pop($tags)) && $last[1] != $tag) {
 					$popcount++;
-/* Logging * /
-					var_dump( __FILE__ . "::" . __LINE__ . " while pop(tags) [1] != CLOSE tag:: " . $last[1] . " :: " . $tag . " ::" ); 
-	                		var_dump(  $tags );
-					//var_dump( __LINE__ . " Display LINES" ); 
-	                		//var_dump(  $lines );
-					var_dump( __FILE__ . "::" . __LINE__ . " tags compared against last (below) and tag (above)" ); 
-	                		var_dump(  $last );
-/* */
 					//IF we are here, and the last[2] <> CLOSED, that tag needs to be closed.  How do we find it in LINES?
 				//This is replacing things like <OFX>\n with <OFX/>\n
 	                    		//$lines[$last[0]] = "<{$last[1]}/>";
@@ -296,10 +279,6 @@ class Parser
 	                		//var_dump(  $lines );
 	                	}
 					//$last[1] == $tag.  But so what??
-/* Logging * /
-				var_dump( __FILE__ . "::" . __LINE__ . " Pop Count::" . $popcount ); 
-				var_dump( __FILE__ . "::" . __LINE__ . " last == tag::" . $last[1] . "::" . $tag ); 
-/* */
 				if( isset(  $last[2] ) AND $last[2] == "CLOSED" )
 				{
 					//We closed this tag so this found CLOSE tag is redundant
@@ -313,12 +292,6 @@ class Parser
 				$previousline = $linenumber - 1;
 				if( $depth == 1 )
 				{
-/* Logging * /
-						var_dump( __FILE__ . "::" . __LINE__ . " Depth == 1.  Previous line should be DATA to this TAG and closed!" );
-							var_dump( __FILE__ . "::" . __LINE__ . "::" . $previousline );
-							var_dump( $lines[ $previousline] );
-							var_dump( $line );
-/* */
 						if( $this->extract_tag( $line ) == $this->extract_tag( $lines[ $previousline ] ) )
 						{
 							//var_dump( __FILE__ . "::" . __LINE__ . " Cleearing close tag, resetting depth"  );
@@ -346,13 +319,7 @@ class Parser
         $imploded = implode("\n", $mapped);
         $imploded = str_replace(["\r\n", "\r", "\n\n"], "\n", $imploded);
         $imploded = str_replace(["\n\n"], "\n", $imploded);
-/*
-	if( $debug )
-	{
-		var_dump( __FILE__ . "::" . __LINE__  );
-		var_dump( $imploded );
-	}
-*/
+
         return $imploded;
         //return implode("\n", array_map('trim', $lines));
     }
