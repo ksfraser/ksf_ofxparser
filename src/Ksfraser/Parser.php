@@ -15,6 +15,9 @@ use OfxParser\Metrics\ParsingMetrics;
 use OfxParser\Metrics\ParsingResult;
 use OfxParser\Extraction\FieldExtractor;
 use OfxParser\Builder\TransactionBuilder;
+use OfxParser\Loaders\OfxLoaderInterface;
+use OfxParser\Loaders\XmlOfxLoader;
+use OfxParser\Loaders\SgmlOfxLoader;
 
 //use SimpleXMLElement;
 
@@ -45,6 +48,25 @@ class Parser
     /** @var TransactionBuilder|null */
     private ?TransactionBuilder $transactionBuilder = null;
     
+    /** @var string|null Track which parser path was used */
+    private ?string $parserPathUsed = null;
+    
+    /** @var string|null Track the detected OFX version */
+    private ?string $ofxVersionDetected = null;
+    
+    /** @var OfxLoaderInterface[] Available loaders */
+    private array $loaders = [];
+    
+    /**
+     * Constructor - optionally inject custom loaders
+     * 
+     * @param OfxLoaderInterface[] $loaders Custom loaders (empty = use defaults)
+     */
+    public function __construct(array $loaders = [])
+    {
+        $this->loaders = $loaders;
+    }
+    
     /**
      * Enable defensive parsing with optional configuration
      * 
@@ -73,6 +95,39 @@ class Parser
     public function isDefensiveParsingEnabled(): bool
     {
         return $this->config !== null;
+    }
+    
+    /**
+     * Check if XML parser path was used
+     * 
+     * @return bool
+     */
+    public function usedXmlPath(): bool
+    {
+        return $this->parserPathUsed === 'xml';
+    }
+    
+    /**
+     * Check if SGML parser path was used
+     * 
+     * @return bool
+     */
+    public function usedSgmlPath(): bool
+    {
+        return $this->parserPathUsed === 'sgml';
+    }
+    
+    /**
+     * Get information about the parsing path used
+     * 
+     * @return array
+     */
+    public function getParsingPathInfo(): array
+    {
+        return [
+            'parser_used' => $this->parserPathUsed,
+            'version_detected' => $this->ofxVersionDetected,
+        ];
     }
 
     /**
@@ -111,9 +166,10 @@ class Parser
 
     /**
      * Load an OFX by directly using the text content
+     * Auto-detects XML vs SGML and routes to appropriate loader
      *
      * @param string $ofxContent
-     * @return  Ofx
+     * @return  Ofx|ParsingResult
      * @throws \Exception
      */
     public function loadFromString($ofxContent)
@@ -122,48 +178,55 @@ class Parser
         //$ofxContent = utf8_encode($ofxContent);
 		//From DevCapere - php8?
 		$ofxContent = mb_convert_encoding($ofxContent, "UTF-8", mb_detect_encoding($ofxContent));
-        $ofxContent = $this->conditionallyAddNewlines($ofxContent);
-
+        
         $sgmlStart = stripos($ofxContent, '<OFX>');
         if ($sgmlStart === false) {
             throw new \InvalidArgumentException('OFX tag not found');
         }
         
-        $ofxSgml = trim(substr($ofxContent, $sgmlStart));
-
- 	$ofxHeader =  trim(substr($ofxContent, 0, $sgmlStart));
-        $header = $this->parseHeader($ofxHeader);
-
-       $ofxSgml = trim(substr($ofxContent, $sgmlStart));
-        if (stripos($ofxHeader, '<?xml') === 0) {
-            $ofxXml = $ofxSgml;
-        } else {
-            //$ofxSgml = $this->conditionallyAddNewlines($ofxSgml);
-            $ofxXml = $this->convertSgmlToXml($ofxSgml);
+        $ofxHeader = trim(substr($ofxContent, 0, $sgmlStart));
+        $ofxBody = trim(substr($ofxContent, $sgmlStart));
+        
+        // Get available loaders (use defaults if none injected)
+        $loaders = $this->getLoaders();
+        
+        // Find a loader that can handle this content
+        foreach ($loaders as $loader) {
+            if ($loader->canHandle($ofxHeader, $ofxBody)) {
+                $this->parserPathUsed = $loader->getFormatName();
+                $this->ofxVersionDetected = $loader->getVersion();
+                
+                return $loader->load($ofxHeader, $ofxBody);
+            }
         }
-
-
-        $xml = $this->xmlLoadString($ofxXml);
-
-        if (empty($xml) || is_null($xml)) {
-            throw new \InvalidArgumentException('Content is not valid ofx schema, please visit https://www.ofx.net/downloads.html and check valid schemas.');
+        
+        throw new \InvalidArgumentException('No suitable loader found for OFX content. Format not recognized.');
+    }
+    
+    /**
+     * Get available loaders (creates defaults if none injected)
+     * 
+     * @return OfxLoaderInterface[]
+     */
+    private function getLoaders(): array
+    {
+        if (empty($this->loaders)) {
+            // Create default loaders
+            $this->loaders = [
+                new XmlOfxLoader(
+                    $this->transactionBuilder,
+                    $this->fieldExtractor,
+                    $this->metrics
+                ),
+                new SgmlOfxLoader(
+                    $this->transactionBuilder,
+                    $this->fieldExtractor,
+                    $this->metrics
+                ),
+            ];
         }
-
-        // Validate that the XML contains expected OFX structure
-        if (!isset($xml->SIGNONMSGSRSV1) && !isset($xml->BANKMSGSRSV1) && 
-            !isset($xml->CREDITCARDMSGSRSV1) && !isset($xml->INVSTMTMSGSRSV1)) {
-            throw new \InvalidArgumentException('Content is not valid ofx schema');
-        }
-
-        $ofx = $this->createOfx($xml);
-        $ofx->buildHeader($header);
-
-        // Return ParsingResult if defensive parsing is enabled
-        if ($this->isDefensiveParsingEnabled()) {
-            return new ParsingResult($ofx, $this->metrics);
-        }
-
-        return $ofx;
+        
+        return $this->loaders;
     }
 
     /**
