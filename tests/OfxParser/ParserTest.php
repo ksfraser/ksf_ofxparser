@@ -3,11 +3,12 @@
 namespace OfxParserTest;
 
 use OfxParser\Parser;
+use PHPUnit\Framework\TestCase;
 
 /**
  * @covers OfxParser\Parser
  */
-class ParserTest extends \PHPUnit_Framework_TestCase
+class ParserTest extends TestCase
 {
     public function testCreditCardStatementTransactionsAreLoaded()
     {
@@ -20,22 +21,14 @@ class ParserTest extends \PHPUnit_Framework_TestCase
 
     public function testXmlLoadStringThrowsExceptionWithInvalidXml()
     {
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('Failed to parse OFX');
+        
         $invalidXml = '<invalid xml>';
 
         $method = new \ReflectionMethod(Parser::class, 'xmlLoadString');
         $method->setAccessible(true);
-
-        try {
-            $method->invoke(new Parser(), $invalidXml);
-        } catch (\Exception $e) {
-            if (stripos($e->getMessage(), 'Failed to parse OFX') !== false) {
-                return true;
-            }
-
-            throw $e;
-        }
-
-        self::fail('Method xmlLoadString did not raise an expected exception parsing an invalid XML string');
+        $method->invoke(new Parser(), $invalidXml);
     }
 
     public function testXmlLoadStringLoadsValidXml()
@@ -125,7 +118,12 @@ HERE
         $method = new \ReflectionMethod(Parser::class, 'convertSgmlToXml');
         $method->setAccessible(true);
 
-        self::assertEquals($expected, $method->invoke(new Parser, $sgml));
+        $actual = $method->invoke(new Parser, $sgml);
+        // Normalize line endings for cross-platform compatibility
+        $actual = str_replace("\r\n", "\n", $actual);
+        $expected = str_replace("\r\n", "\n", $expected);
+        
+        self::assertEquals($expected, $actual);
     }
 
     public function testLoadFromFileWhenFileDoesNotExist()
@@ -184,6 +182,152 @@ HERE
         $content = file_get_contents($filename);
 
         $parser = new Parser();
+        $ofx = $parser->loadFromString($content);
+        
+        self::assertInstanceOf(\OfxParser\Ofx::class, $ofx);
+        self::assertNotNull($ofx->signOn);
+    }
+
+    public function testLoadFromStringWithEmptyContent()
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('OFX tag not found');
+        
+        $parser = new Parser();
+        $parser->loadFromString('');
+    }
+
+    public function testLoadFromStringWithNoOFXTag()
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('OFX tag not found');
+        
+        $parser = new Parser();
+        $parser->loadFromString('SOME HEADER\nBUT NO OFX TAG');
+    }
+
+    public function testLoadFromStringWithInvalidOfxSchema()
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('Content is not valid ofx schema');
+        
+        $content = "OFXHEADER:100\nDATA:OFXSGML\n<OFX><INVALID>data</INVALID></OFX>";
+        
+        $parser = new Parser();
         $parser->loadFromString($content);
     }
-}
+
+    public function testParseHeaderWithXmlStyle()
+    {
+        $header = '<?xml version="1.0" encoding="UTF-8"?>';
+        
+        $method = new \ReflectionMethod(Parser::class, 'parseHeader');
+        $method->setAccessible(true);
+        
+        $result = $method->invoke(new Parser(), $header);
+        
+        self::assertIsArray($result);
+        self::assertEmpty($result);
+    }
+
+    public function testParseHeaderWithSGMLStyleColonSeparated()
+    {
+        $header = "OFXHEADER:100\nDATA:OFXSGML\nVERSION:102\nSECURITY:NONE\nENCODING:USASCII\nCHARSET:1252\nCOMPRESSION:NONE\nOLDFILEUID:NONE\nNEWFILEUID:NONE";
+        
+        $method = new \ReflectionMethod(Parser::class, 'parseHeader');
+        $method->setAccessible(true);
+        
+        $result = $method->invoke(new Parser(), $header);
+        
+        self::assertIsArray($result);
+        self::assertEquals('100', $result['OFXHEADER']);
+        self::assertEquals('OFXSGML', $result['DATA']);
+        self::assertEquals('102', $result['VERSION']);
+        self::assertEquals('NONE', $result['SECURITY']);
+    }
+
+    public function testParseHeaderWithSGMLStyleEqualsSeparated()
+    {
+        $header = '<?OFX OFXHEADER="200" VERSION="220" SECURITY="NONE" OLDFILEUID="NONE" NEWFILEUID="NONE"?>';
+        
+        $method = new \ReflectionMethod(Parser::class, 'parseHeader');
+        $method->setAccessible(true);
+        
+        $result = $method->invoke(new Parser(), $header);
+        
+        self::assertIsArray($result);
+        self::assertEquals('200', $result['OFXHEADER']);
+        self::assertEquals('220', $result['VERSION']);
+        self::assertEquals('NONE', $result['SECURITY']);
+    }
+
+    public function testParseHeaderWithMalformedData()
+    {
+        $header = "MALFORMED\nNO_SEPARATOR\nVALID:DATA";
+        
+        $method = new \ReflectionMethod(Parser::class, 'parseHeader');
+        $method->setAccessible(true);
+        
+        $result = $method->invoke(new Parser(), $header);
+        
+        self::assertIsArray($result);
+        self::assertEquals('DATA', $result['VALID']);
+        self::assertArrayNotHasKey('MALFORMED', $result);
+        self::assertArrayNotHasKey('NO_SEPARATOR', $result);
+    }
+
+    public function testConvertSgmlToXmlHandlesMultipleLines()
+    {
+        $sgml = "<OFX>\n<SIGNONMSGSRSV1>\n<SONRS>\n<STATUS>\n<CODE>0\n<SEVERITY>INFO\n</STATUS>\n</SONRS>\n</SIGNONMSGSRSV1>\n</OFX>";
+        
+        $method = new \ReflectionMethod(Parser::class, 'convertSgmlToXml');
+        $method->setAccessible(true);
+        
+        $result = $method->invoke(new Parser(), $sgml);
+        
+        self::assertStringContainsString('<CODE>0</CODE>', $result);
+        self::assertStringContainsString('<SEVERITY>INFO</SEVERITY>', $result);
+    }
+
+    public function testConvertSgmlToXmlHandlesNestedUnclosedTags()
+    {
+        $sgml = "<ROOT>\n<PARENT>\n<CHILD>value\n</PARENT>\n</ROOT>";
+        
+        $method = new \ReflectionMethod(Parser::class, 'convertSgmlToXml');
+        $method->setAccessible(true);
+        
+        $result = $method->invoke(new Parser(), $sgml);
+        
+        self::assertStringContainsString('<CHILD>value</CHILD>', $result);
+    }
+
+    public function testLoadFromFilePreservesHeader()
+    {
+        $parser = new Parser();
+        $ofx = $parser->loadFromFile(__DIR__ . '/../fixtures/ofxdata.ofx');
+        
+        self::assertNotEmpty($ofx->header);
+        self::assertIsArray($ofx->header);
+        self::assertArrayHasKey('OFXHEADER', $ofx->header);
+    }
+
+    public function testLoadFromFileHandlesMultipleBankAccounts()
+    {
+        $parser = new Parser();
+        $ofx = $parser->loadFromFile(__DIR__ . '/../fixtures/ofxdata-bb-two-stmtrs.ofx');
+        
+        self::assertIsArray($ofx->bankAccounts);
+        self::assertGreaterThanOrEqual(2, count($ofx->bankAccounts));
+    }
+
+    public function testCreateOfxCallsCorrectParser()
+    {
+        $xmlWithInvestment = simplexml_load_string('<OFX><INVSTMTMSGSRSV1><INVSTMTTRNRS><TRNUID>1</TRNUID></INVSTMTTRNRS></INVSTMTMSGSRSV1></OFX>');
+        
+        $method = new \ReflectionMethod(Parser::class, 'createOfx');
+        $method->setAccessible(true);
+        
+        $ofx = $method->invoke(new Parser(), $xmlWithInvestment);
+        
+        self::assertInstanceOf(\OfxParser\Ofx::class, $ofx);
+    }}

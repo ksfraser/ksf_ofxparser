@@ -29,7 +29,7 @@ class SellStock extends SellSecurity
      * @param SimpleXMLElement $node
      * @return $this
      */
-    public function loadOfx(SimpleXMLElement $node)
+    public function loadOfx(SimpleXMLElement $node): self
     {
         parent::loadOfx($node);
         $this->loadSellType($node);

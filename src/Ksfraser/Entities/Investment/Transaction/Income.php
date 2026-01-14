@@ -47,7 +47,7 @@ class Income extends Investment
      * @param SimpleXMLElement $node
      * @return $this
      */
-    public function loadOfx(SimpleXMLElement $node)
+    public function loadOfx(SimpleXMLElement $node): self
     {
         // Transaction data is in the root
         $this->loadInvTran($node->INVTRAN)

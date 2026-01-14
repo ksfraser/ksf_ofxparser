@@ -3,18 +3,19 @@
 namespace OfxParserTest;
 
 use OfxParser\Ofx;
+use PHPUnit\Framework\TestCase;
 
 /**
  * @covers OfxParser\Ofx
  */
-class OfxTest extends \PHPUnit_Framework_TestCase
+class OfxTest extends TestCase
 {
     /**
      * @var \SimpleXMLElement
      */
     protected $ofxData;
 
-    public function setUp()
+    public function setUp(): void
     {
         $ofxFile = dirname(__DIR__).'/fixtures/ofxdata-xml.ofx';
 
@@ -37,7 +38,7 @@ class OfxTest extends \PHPUnit_Framework_TestCase
             '-1.000,00' => ['-1.000,00', -1000.0],
             '1' => ['1', 1.0],
             '10' => ['10', 10.0],
-            '100' => ['100', 1.0], // @todo this is weird behaviour, should not really expect this
+            '100' => ['100', 100.0], // Fixed: was expecting 1.0 which was a bug in old implementation
             '+1' => ['+1', 1.0],
             '+10' => ['+10', 10.0],
             '+1000.00' => ['+1000.00', 1000.0],
@@ -182,5 +183,239 @@ class OfxTest extends \PHPUnit_Framework_TestCase
             self::assertInstanceOf('DateTime', $transaction->date);
             self::assertInstanceOf('DateTime', $transaction->userInitiatedDate);
         }
+    }
+
+    public function testBuildHeaderSetsHeaderProperty()
+    {
+        $headerData = [
+            'OFXHEADER' => '100',
+            'DATA' => 'OFXSGML',
+            'VERSION' => '102',
+            'SECURITY' => 'NONE',
+            'ENCODING' => 'USASCII',
+            'CHARSET' => '1252',
+            'COMPRESSION' => 'NONE',
+            'OLDFILEUID' => 'NONE',
+            'NEWFILEUID' => 'NONE'
+        ];
+        
+        $ofx = new \OfxParser\Ofx($this->ofxData);
+        $ofx->buildHeader($headerData);
+        
+        self::assertIsArray($ofx->header);
+        self::assertEquals('100', $ofx->header['OFXHEADER']);
+        self::assertEquals('OFXSGML', $ofx->header['DATA']);
+        self::assertEquals('102', $ofx->header['VERSION']);
+    }
+
+    public function testBuildHeaderWithEmptyArray()
+    {
+        $ofx = new \OfxParser\Ofx($this->ofxData);
+        $result = $ofx->buildHeader([]);
+        
+        self::assertInstanceOf(\OfxParser\Ofx::class, $result);
+        self::assertIsArray($ofx->header);
+        self::assertEmpty($ofx->header);
+    }
+
+    public function testCreateTagsAddsMissingSignonMsgsrsv1()
+    {
+        $xmlWithoutSignOn = simplexml_load_string('<OFX><BANKMSGSRSV1><STMTTRNRS><TRNUID>1</TRNUID></STMTTRNRS></BANKMSGSRSV1></OFX>');
+        
+        $ofx = new \OfxParser\Ofx($this->ofxData);
+        $result = $ofx->createTags($xmlWithoutSignOn);
+        
+        self::assertTrue(property_exists($result, 'SIGNONMSGSRSV1'));
+        self::assertTrue(property_exists($result->SIGNONMSGSRSV1, 'SONRS'));
+    }
+
+    public function testCreateTagsAddsMissingSonrs()
+    {
+        $xmlWithoutSonrs = simplexml_load_string('<OFX><SIGNONMSGSRSV1></SIGNONMSGSRSV1><BANKMSGSRSV1><STMTTRNRS><TRNUID>1</TRNUID></STMTTRNRS></BANKMSGSRSV1></OFX>');
+        
+        $ofx = new \OfxParser\Ofx($this->ofxData);
+        $result = $ofx->createTags($xmlWithoutSonrs);
+        
+        self::assertTrue(property_exists($result->SIGNONMSGSRSV1, 'SONRS'));
+    }
+
+    public function testCreateTagsDoesNotModifyCompleteXml()
+    {
+        $completeXml = simplexml_load_string('<OFX><SIGNONMSGSRSV1><SONRS></SONRS></SIGNONMSGSRSV1></OFX>');
+        
+        $ofx = new \OfxParser\Ofx($this->ofxData);
+        $result = $ofx->createTags($completeXml);
+        
+        self::assertEquals('OFX', $result->getName());
+    }
+
+    public function testBuildTransactionsHandlesEmptyTransactions()
+    {
+        $emptyTransactions = simplexml_load_string('<STMTTRN></STMTTRN>');
+        
+        $method = new \ReflectionMethod(\OfxParser\Ofx::class, 'buildTransactions');
+        $method->setAccessible(true);
+        
+        $ofx = new \OfxParser\Ofx($this->ofxData);
+        
+        // Empty transaction should throw RuntimeException when trying to parse empty date
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('Failed to initialize DateTime for string:');
+        $method->invoke($ofx, $emptyTransactions);
+    }
+
+    public function testBuildTransactionsWithPayee()
+    {
+        $transactionWithPayee = simplexml_load_string(
+            '<STMTTRN><TRNTYPE>DEBIT</TRNTYPE><DTPOSTED>20200101</DTPOSTED><TRNAMT>-100.00</TRNAMT><FITID>123</FITID><NAME>Test</NAME><MEMO>Test memo</MEMO><PAYEE><NAME>Payee Name</NAME><CITY>City</CITY><STATE>ST</STATE><POSTALCODE>12345</POSTALCODE><PHONE>1234567890</PHONE></PAYEE></STMTTRN>'
+        );
+        
+        $method = new \ReflectionMethod(\OfxParser\Ofx::class, 'buildTransactions');
+        $method->setAccessible(true);
+        
+        $ofx = new \OfxParser\Ofx($this->ofxData);
+        $transactions = $method->invoke($ofx, $transactionWithPayee);
+        
+        self::assertCount(1, $transactions);
+        self::assertNotNull($transactions[0]->payee);
+        self::assertEquals('Payee Name', $transactions[0]->payee->name);
+        self::assertEquals('City', $transactions[0]->payee->city);
+    }
+
+    public function testBuildTransactionsWithBankAccountTo()
+    {
+        $transactionWithBankTo = simplexml_load_string(
+            '<STMTTRN><TRNTYPE>XFER</TRNTYPE><DTPOSTED>20200101</DTPOSTED><TRNAMT>-100.00</TRNAMT><FITID>123</FITID><NAME>Transfer</NAME><BANKACCTTO><BANKID>123456</BANKID><ACCTID>9876543210</ACCTID><ACCTTYPE>CHECKING</ACCTTYPE></BANKACCTTO></STMTTRN>'
+        );
+        
+        $method = new \ReflectionMethod(\OfxParser\Ofx::class, 'buildTransactions');
+        $method->setAccessible(true);
+        
+        $ofx = new \OfxParser\Ofx($this->ofxData);
+        $transactions = $method->invoke($ofx, $transactionWithBankTo);
+        
+        self::assertCount(1, $transactions);
+        self::assertNotNull($transactions[0]->bankAccountTo);
+        self::assertEquals('123456', $transactions[0]->bankAccountTo->routingNumber);
+        self::assertEquals('9876543210', $transactions[0]->bankAccountTo->accountNumber);
+    }
+
+    public function testBuildTransactionsWithCardAccountTo()
+    {
+        $transactionWithCardTo = simplexml_load_string(
+            '<STMTTRN><TRNTYPE>XFER</TRNTYPE><DTPOSTED>20200101</DTPOSTED><TRNAMT>-100.00</TRNAMT><FITID>123</FITID><NAME>Transfer</NAME><CCACCTTO><ACCTID>1234567890123456</ACCTID></CCACCTTO></STMTTRN>'
+        );
+        
+        $method = new \ReflectionMethod(\OfxParser\Ofx::class, 'buildTransactions');
+        $method->setAccessible(true);
+        
+        $ofx = new \OfxParser\Ofx($this->ofxData);
+        $transactions = $method->invoke($ofx, $transactionWithCardTo);
+        
+        self::assertCount(1, $transactions);
+        self::assertNotNull($transactions[0]->cardAccountTo);
+        self::assertEquals('1234567890123456', $transactions[0]->cardAccountTo->accountNumber);
+    }
+
+    public function testBuildStatusWithAllFields()
+    {
+        $statusXml = simplexml_load_string('<STATUS><CODE>0</CODE><SEVERITY>INFO</SEVERITY><MESSAGE>Success</MESSAGE></STATUS>');
+        
+        $method = new \ReflectionMethod(\OfxParser\Ofx::class, 'buildStatus');
+        $method->setAccessible(true);
+        
+        $ofx = new \OfxParser\Ofx($this->ofxData);
+        $status = $method->invoke($ofx, $statusXml);
+        
+        self::assertInstanceOf(\OfxParser\Entities\Status::class, $status);
+        self::assertEquals(0, $status->code);
+        self::assertEquals('INFO', $status->severity);
+        self::assertEquals('Success', $status->message);
+    }
+
+    public function testBuildPayeeWithAllFields()
+    {
+        $payeeXml = simplexml_load_string(
+            '<PAYEE><NAME>John Doe</NAME><ADDR1>123 Main St</ADDR1><ADDR2>Apt 4B</ADDR2><ADDR3>Building C</ADDR3><CITY>Springfield</CITY><STATE>IL</STATE><POSTALCODE>62701</POSTALCODE><PHONE>555-1234</PHONE></PAYEE>'
+        );
+        
+        $method = new \ReflectionMethod(\OfxParser\Ofx::class, 'buildPayee');
+        $method->setAccessible(true);
+        
+        $ofx = new \OfxParser\Ofx($this->ofxData);
+        $payee = $method->invoke($ofx, $payeeXml);
+        
+        self::assertInstanceOf(\OfxParser\Entities\Payee::class, $payee);
+        self::assertEquals('John Doe', $payee->name);
+        self::assertIsArray($payee->address);
+        self::assertCount(3, $payee->address);
+        self::assertEquals('Springfield', $payee->city);
+        self::assertEquals('IL', $payee->state);
+        self::assertEquals('62701', $payee->postalCode);
+        self::assertEquals('555-1234', $payee->phone);
+    }
+
+    public function testBuildPayeeWithMinimalFields()
+    {
+        $payeeXml = simplexml_load_string('<PAYEE><NAME>Minimal Payee</NAME></PAYEE>');
+        
+        $method = new \ReflectionMethod(\OfxParser\Ofx::class, 'buildPayee');
+        $method->setAccessible(true);
+        
+        $ofx = new \OfxParser\Ofx($this->ofxData);
+        $payee = $method->invoke($ofx, $payeeXml);
+        
+        self::assertInstanceOf(\OfxParser\Entities\Payee::class, $payee);
+        self::assertEquals('Minimal Payee', $payee->name);
+        self::assertNull($payee->address);
+    }
+
+    public function testCreateAmountFromStrWithScientificNotation()
+    {
+        $method = new \ReflectionMethod(\OfxParser\Ofx::class, 'createAmountFromStr');
+        $method->setAccessible(true);
+        
+        $ofx = new \OfxParser\Ofx($this->ofxData);
+        
+        self::assertEquals(1000.0, $method->invoke($ofx, '1e3'));
+        self::assertEquals(0.01, $method->invoke($ofx, '1e-2'));
+    }
+
+    public function testCreateDateTimeFromStrWithTimezone()
+    {
+        $method = new \ReflectionMethod(\OfxParser\Ofx::class, 'createDateTimeFromStr');
+        $method->setAccessible(true);
+        
+        $ofx = new \OfxParser\Ofx($this->ofxData);
+        
+        $date = $method->invoke($ofx, '20200101120000[-5:EST]');
+        
+        self::assertInstanceOf(\DateTime::class, $date);
+        self::assertEquals('2020-01-01', $date->format('Y-m-d'));
+    }
+
+    public function testCreateDateTimeFromStrWithMilliseconds()
+    {
+        $method = new \ReflectionMethod(\OfxParser\Ofx::class, 'createDateTimeFromStr');
+        $method->setAccessible(true);
+        
+        $ofx = new \OfxParser\Ofx($this->ofxData);
+        
+        $date = $method->invoke($ofx, '20200101120000.123');
+        
+        self::assertInstanceOf(\DateTime::class, $date);
+        self::assertEquals('2020-01-01 12:00:00', $date->format('Y-m-d H:i:s'));
+    }
+
+    public function testCreateDateTimeFromStrReturnsNullOnInvalidDate()
+    {
+        $method = new \ReflectionMethod(\OfxParser\Ofx::class, 'createDateTimeFromStr');
+        $method->setAccessible(true);
+        
+        $ofx = new \OfxParser\Ofx($this->ofxData);
+        
+        $date = $method->invoke($ofx, 'invalid', true);
+        
+        self::assertNull($date);
     }
 }

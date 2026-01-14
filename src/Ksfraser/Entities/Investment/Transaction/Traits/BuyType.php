@@ -16,7 +16,7 @@ trait BuyType
      * @param SimpleXMLElement $node
      * @return $this for chaining
      */
-    protected function loadBuyType(SimpleXMLElement $node)
+    protected function loadBuyType(SimpleXMLElement $node): self
     {
         $this->buyType = (string) $node->BUYTYPE;
 

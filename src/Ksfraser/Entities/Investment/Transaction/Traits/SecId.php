@@ -26,7 +26,7 @@ trait SecId
      * @param SimpleXMLElement $node
      * @return $this for chaining
      */
-    protected function loadSecId(SimpleXMLElement $node)
+    protected function loadSecId(SimpleXMLElement $node): self
     {
         // <SECID>
         //  - REQUIRED: <UNIQUEID>, <UNIQUEIDTYPE>

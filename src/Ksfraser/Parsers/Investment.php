@@ -13,8 +13,13 @@ class Investment extends Parser
      * @param SimpleXMLElement $xml
      * @return InvestmentOfx
      */
-    protected function createOfx(SimpleXMLElement $xml)
+    protected function createOfx($xml): InvestmentOfx
     {
-        return new InvestmentOfx($xml);
+        return new InvestmentOfx(
+            $xml,
+            $this->transactionBuilder ?? null,
+            $this->fieldExtractor ?? null,
+            $this->metrics ?? null
+        );
     }
 }

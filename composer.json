@@ -37,8 +37,13 @@
         "squizlabs/php_codesniffer": "~2.6"
     },
     "autoload": {
-        "psr-0": {
-            "OfxParser": "src/Ksfraser"
+        "psr-4": {
+            "OfxParser\\": "src/Ksfraser/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "OfxParserTest\\": "tests/OfxParser/"
         }
     },
     "scripts": {

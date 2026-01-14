@@ -11,7 +11,7 @@ abstract class AbstractEntity
      * @param $name
      * @return mixed|bool
      */
-    public function __get($name)
+    public function __get(string $name)
     {
         if (method_exists($this, lcfirst($name))) {
             return $this->{$name}();

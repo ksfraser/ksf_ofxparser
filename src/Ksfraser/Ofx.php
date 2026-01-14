@@ -11,6 +11,9 @@ use OfxParser\Entities\Statement;
 use OfxParser\Entities\Status;
 use OfxParser\Entities\Transaction;
 use OfxParser\Entities\Payee;
+use OfxParser\Builder\TransactionBuilder;
+use OfxParser\Extraction\FieldExtractor;
+use OfxParser\Metrics\ParsingMetrics;
 
 /**
  * The OFX object
@@ -28,6 +31,28 @@ use OfxParser\Entities\Payee;
  */
 class Ofx
 {
+    /**
+     * OFX Header - contains file metadata like version, encoding, charset
+     * Example: ['OFXHEADER' => '100', 'VERSION' => '102', 'ENCODING' => 'USASCII', ...]
+     * @var array
+     */
+    public $header = [];
+    
+    /**
+     * @var TransactionBuilder|null
+     */
+    private ?TransactionBuilder $transactionBuilder = null;
+    
+    /**
+     * @var FieldExtractor|null
+     */
+    private ?FieldExtractor $fieldExtractor = null;
+    
+    /**
+     * @var ParsingMetrics|null
+     */
+    private ?ParsingMetrics $metrics = null;
+
     /**
      * @var SignOn
      */
@@ -52,10 +77,21 @@ class Ofx
 
     /**
      * @param SimpleXMLElement $xml
+     * @param TransactionBuilder|null $transactionBuilder Optional defensive transaction builder
+     * @param FieldExtractor|null $fieldExtractor Optional defensive field extractor
+     * @param ParsingMetrics|null $metrics Optional metrics tracker
      * @throws \Exception
      */
-    public function __construct(SimpleXMLElement $xml)
-    {
+    public function __construct(
+        SimpleXMLElement $xml,
+        ?TransactionBuilder $transactionBuilder = null,
+        ?FieldExtractor $fieldExtractor = null,
+        ?ParsingMetrics $metrics = null
+    ) {
+        $this->transactionBuilder = $transactionBuilder;
+        $this->fieldExtractor = $fieldExtractor;
+        $this->metrics = $metrics;
+        
         //From upgestao repo
         if (!property_exists($xml, 'SIGNONMSGSRSV1') || !property_exists($xml->SIGNONMSGSRSV1, 'SONRS')) {
             $xml = self::createTags($xml);
@@ -82,9 +118,30 @@ class Ofx
      * @return array
      * @deprecated This will be removed in future versions
      */
-    public function getTransactions()
+    public function getTransactions(): array
     {
         return $this->bankAccount->statement->transactions;
+    }
+
+    /**
+     * Store the OFX header information (file metadata)
+     * 
+     * The header contains important metadata about the OFX file:
+     * - OFXHEADER: OFX specification version (e.g., "100")
+     * - VERSION: OFX version number (e.g., "102", "202")
+     * - DATA: Data format (e.g., "OFXSGML", "OFXXML")
+     * - ENCODING: Character encoding (e.g., "USASCII", "UTF-8")
+     * - CHARSET: Character set (e.g., "1252", "NONE")
+     * - COMPRESSION: Compression method (e.g., "NONE")
+     * - OLDFILEUID/NEWFILEUID: Unique file identifiers
+     * 
+     * @param array $header Associative array of header key-value pairs
+     * @return self For method chaining
+     */
+    public function buildHeader(array $header): self
+    {
+        $this->header = $header;
+        return $this;
     }
 
     /**
@@ -92,18 +149,18 @@ class Ofx
      * @return SignOn
      * @throws \Exception
      */
-    private function buildSignOn(SimpleXMLElement $xml)
+    protected function buildSignOn(SimpleXMLElement $xml): SignOn
     {
         $signOn = new SignOn();
         $signOn->status = $this->buildStatus($xml->STATUS);
-        $signOn->date = $this->createDateTimeFromStr($xml->DTSERVER, true);
-        $signOn->language = $xml->LANGUAGE;
+        $signOn->date = $this->createDateTimeFromStr((string)$xml->DTSERVER, true);
+        $signOn->language = (string)$xml->LANGUAGE;
 
         $signOn->institute = new Institute();
-        $signOn->institute->name = $xml->FI->ORG;
+        $signOn->institute->name = (string)$xml->FI->ORG;
 //20240721 MANU files don't have an FI sectuib in the signog.
 	if( isset( $xml->FI->FID ) )
-        	$signOn->institute->id = $xml->FI->FID;
+        	$signOn->institute->id = (string)$xml->FI->FID;
 	else
 	{
 		if( isset( $xml->{'INTU.BID'} ) )
@@ -126,7 +183,7 @@ class Ofx
      * @param SimpleXMLElement|null $xml
      * @return array AccountInfo
      */
-    private function buildAccountInfo(SimpleXMLElement $xml = null)
+    private function buildAccountInfo(?SimpleXMLElement $xml = null): array
     {
         if (null === $xml || !isset($xml->ACCTINFO)) {
             return [];
@@ -135,8 +192,8 @@ class Ofx
         $accounts = [];
         foreach ($xml->ACCTINFO as $account) {
             $accountInfo = new AccountInfo();
-            $accountInfo->desc = $account->DESC;
-            $accountInfo->number = $account->ACCTID;
+            $accountInfo->desc = (string)$account->DESC;
+            $accountInfo->number = (string)$account->ACCTID;
             $accounts[] = $accountInfo;
         }
 
@@ -148,7 +205,7 @@ class Ofx
      * @return array
      * @throws \Exception
      */
-    private function buildCreditAccounts(SimpleXMLElement $xml)
+    private function buildCreditAccounts(SimpleXMLElement $xml): array
     {
         // Loop through the bank accounts
         $bankAccounts = [];
@@ -164,13 +221,13 @@ class Ofx
      * @return array
      * @throws \Exception
      */
-    private function buildBankAccounts(SimpleXMLElement $xml)
+    private function buildBankAccounts(SimpleXMLElement $xml): array
     {
         // Loop through the bank accounts
         $bankAccounts = [];
         foreach ($xml->BANKMSGSRSV1->STMTTRNRS as $accountStatement) {
             foreach ($accountStatement->STMTRS as $statementResponse) {
-                $bankAccounts[] = $this->buildBankAccount($accountStatement->TRNUID, $statementResponse);
+                $bankAccounts[] = $this->buildBankAccount((string)$accountStatement->TRNUID, $statementResponse);
             }
         }
         return $bankAccounts;
@@ -182,14 +239,14 @@ class Ofx
      * @return BankAccount
      * @throws \Exception
      */
-    private function buildBankAccount($transactionUid, SimpleXMLElement $statementResponse)
+    private function buildBankAccount(string $transactionUid, SimpleXMLElement $statementResponse): BankAccount
     {
         $bankAccount = new BankAccount();
         $bankAccount->transactionUid = $transactionUid;
-        $bankAccount->agencyNumber = $statementResponse->BANKACCTFROM->BRANCHID;
-        $bankAccount->accountNumber = $statementResponse->BANKACCTFROM->ACCTID;
-        $bankAccount->routingNumber = $statementResponse->BANKACCTFROM->BANKID;
-        $bankAccount->accountType = $statementResponse->BANKACCTFROM->ACCTTYPE;
+        $bankAccount->agencyNumber = (string)$statementResponse->BANKACCTFROM->BRANCHID;
+        $bankAccount->accountNumber = (string)$statementResponse->BANKACCTFROM->ACCTID;
+        $bankAccount->routingNumber = (string)$statementResponse->BANKACCTFROM->BANKID;
+        $bankAccount->accountType = (string)$statementResponse->BANKACCTFROM->ACCTTYPE;
         /**
          * Original
         *$bankAccount->balance = $statementResponse->LEDGERBAL->BALAMT;
@@ -200,17 +257,17 @@ class Ofx
         */
         //From upgastao repo
         $bankAccount->balance = isset($statementResponse->LEDGERBAL->BALAMT) ? (string)$statementResponse->LEDGERBAL->BALAMT : '';
-        $bankAccount->balanceDate = isset($statementResponse->LEDGERBAL->DTASOF) ? $this->createDateTimeFromStr($statementResponse->LEDGERBAL->DTASOF, true) : null;
+        $bankAccount->balanceDate = isset($statementResponse->LEDGERBAL->DTASOF) ? $this->createDateTimeFromStr((string)$statementResponse->LEDGERBAL->DTASOF, true) : null;
 
         $bankAccount->statement = new Statement();
-        $bankAccount->statement->currency = $statementResponse->CURDEF;
+        $bankAccount->statement->currency = (string)$statementResponse->CURDEF;
 
         $bankAccount->statement->startDate = $this->createDateTimeFromStr(
-            $statementResponse->BANKTRANLIST->DTSTART
+            (string)$statementResponse->BANKTRANLIST->DTSTART
         );
 
         $bankAccount->statement->endDate = $this->createDateTimeFromStr(
-            $statementResponse->BANKTRANLIST->DTEND
+            (string)$statementResponse->BANKTRANLIST->DTEND
         );
 
         $bankAccount->statement->transactions = $this->buildTransactions(
@@ -225,7 +282,7 @@ class Ofx
      * @return BankAccount
      * @throws \Exception
      */
-    private function buildCreditAccount(SimpleXMLElement $xml)
+    private function buildCreditAccount(SimpleXMLElement $xml): BankAccount
     {
         $nodeName = 'CCACCTFROM';
         if (!isset($xml->CCSTMTRS->$nodeName)) {
@@ -234,17 +291,17 @@ class Ofx
 
         $creditAccount = new BankAccount();
         $creditAccount->transactionUid = $xml->TRNUID;
-        $creditAccount->agencyNumber = $xml->CCSTMTRS->$nodeName->BRANCHID;
-        $creditAccount->accountNumber = $xml->CCSTMTRS->$nodeName->ACCTID;
-        $creditAccount->routingNumber = $xml->CCSTMTRS->$nodeName->BANKID;
-        $creditAccount->accountType = $xml->CCSTMTRS->$nodeName->ACCTTYPE;
-        $creditAccount->balance = $xml->CCSTMTRS->LEDGERBAL->BALAMT;
-        $creditAccount->balanceDate = $this->createDateTimeFromStr($xml->CCSTMTRS->LEDGERBAL->DTASOF, true);
+        $creditAccount->agencyNumber = (string)$xml->CCSTMTRS->$nodeName->BRANCHID;
+        $creditAccount->accountNumber = (string)$xml->CCSTMTRS->$nodeName->ACCTID;
+        $creditAccount->routingNumber = (string)$xml->CCSTMTRS->$nodeName->BANKID;
+        $creditAccount->accountType = (string)$xml->CCSTMTRS->$nodeName->ACCTTYPE;
+        $creditAccount->balance = (float)$xml->CCSTMTRS->LEDGERBAL->BALAMT;
+        $creditAccount->balanceDate = $this->createDateTimeFromStr((string)$xml->CCSTMTRS->LEDGERBAL->DTASOF, true);
 
         $creditAccount->statement = new Statement();
-        $creditAccount->statement->currency = $xml->CCSTMTRS->CURDEF;
-        $creditAccount->statement->startDate = $this->createDateTimeFromStr($xml->CCSTMTRS->BANKTRANLIST->DTSTART);
-        $creditAccount->statement->endDate = $this->createDateTimeFromStr($xml->CCSTMTRS->BANKTRANLIST->DTEND);
+        $creditAccount->statement->currency = (string)$xml->CCSTMTRS->CURDEF;
+        $creditAccount->statement->startDate = $this->createDateTimeFromStr((string)$xml->CCSTMTRS->BANKTRANLIST->DTSTART);
+        $creditAccount->statement->endDate = $this->createDateTimeFromStr((string)$xml->CCSTMTRS->BANKTRANLIST->DTEND);
         $creditAccount->statement->transactions = $this->buildTransactions($xml->CCSTMTRS->BANKTRANLIST->STMTTRN);
 
         return $creditAccount;
@@ -255,17 +312,23 @@ class Ofx
      * @return array
      * @throws \Exception
      */
-    private function buildTransactions(SimpleXMLElement $transactions)
+    private function buildTransactions(SimpleXMLElement $transactions): array
     {
+        // Use defensive parsing if available
+        if ($this->transactionBuilder !== null) {
+            return $this->transactionBuilder->buildTransactions($transactions);
+        }
+        
+        // Original implementation (backward compatibility)
         $return = [];
         foreach ($transactions as $t) {
             $transaction = new Transaction();
             $transaction->type = (string)$t->TRNTYPE;
-            $transaction->date = $this->createDateTimeFromStr($t->DTPOSTED);
+            $transaction->date = $this->createDateTimeFromStr((string)$t->DTPOSTED);
             if ('' !== (string)$t->DTUSER) {
-                $transaction->userInitiatedDate = $this->createDateTimeFromStr($t->DTUSER);
+                $transaction->userInitiatedDate = $this->createDateTimeFromStr((string)$t->DTUSER);
             }
-            $transaction->amount = $this->createAmountFromStr($t->TRNAMT);
+            $transaction->amount = $this->createAmountFromStr((string)$t->TRNAMT);
             $transaction->uniqueId = (string)$t->FITID;
             $transaction->name = (string)$t->NAME;
 			//Original
@@ -276,7 +339,7 @@ class Ofx
                 $memo[] = (string)$m;
             }
 			$transaction->memo = implode(' ', $memo);
-            $transaction->sic = $t->SIC;
+            $transaction->sic = (string)$t->SIC;
             $transaction->checkNumber = (string)$t->CHECKNUM;
             $transaction->refNumber = (string) $t->REFNUM;
             $transaction->nameExtended = (string) $t->EXTDNAME;
@@ -294,12 +357,12 @@ class Ofx
      * @param SimpleXMLElement $xml
      * @return Status
      */
-    private function buildStatus(SimpleXMLElement $xml)
+    private function buildStatus(SimpleXMLElement $xml): Status
     {
         $status = new Status();
-        $status->code = $xml->CODE;
-        $status->severity = $xml->SEVERITY;
-        $status->message = $xml->MESSAGE;
+        $status->code = (int)$xml->CODE;
+        $status->severity = (string)$xml->SEVERITY;
+        $status->message = (string)$xml->MESSAGE;
 
         return $status;
     }
@@ -318,7 +381,7 @@ class Ofx
      * @return \DateTime $dateString
      * @throws \Exception
      */
-    private function createDateTimeFromStr($dateString, $ignoreErrors = false)
+    private function createDateTimeFromStr(string $dateString, bool $ignoreErrors = false): ?\DateTime
     {
         $regex = '/'
             . "(\d{4})(\d{2})(\d{2})?"     // YYYYMMDD             1,2,3
@@ -354,6 +417,8 @@ class Ofx
     /**
      * Create a formatted number in Float according to different locale options
      *
+     * From upgastao repo - more robust implementation
+     * 
      * Supports:
      * 000,00 and -000,00
      * 0.000,00 and -0.000,00
@@ -363,24 +428,12 @@ class Ofx
      * @param  string $amountString
      * @return float
      */
-    private function createAmountFromStr($amountString)
+    private function createAmountFromStr(string $amountString): float
     {
-        // Decimal mark style (UK/US): 000.00 or 0,000.00
-        if (preg_match('/^(-|\+)?([\d,]+)(\.?)([\d]{2})$/', $amountString) === 1) {
-            return (float)preg_replace(
-                ['/([,]+)/', '/\.?([\d]{2})$/'],
-                ['', '.$1'],
-                $amountString
-            );
-        }
+        $amountString = trim($amountString);
 
-        // European style: 000,00 or 0.000,00
-        if (preg_match('/^(-|\+)?([\d\.]+,?[\d]{2})$/', $amountString) === 1) {
-            return (float)preg_replace(
-                ['/([\.]+)/', '/,?([\d]{2})$/'],
-                ['', '.$1'],
-                $amountString
-            );
+        if (preg_match('/^(?<signal>[-\+]?)(?<integer>.*)(?<separator>[\.,])(?<decimals>[\d]+)$/', $amountString, $matches) === 1) {
+            $amountString = $matches['signal'] . preg_replace('/[^\d]+/', '', $matches['integer']) . '.' . $matches['decimals'];
         }
 
         return (float)$amountString;
@@ -390,7 +443,7 @@ class Ofx
      * @return Ofx New tag creation enchancement
      3..90* From upgastao repo
      */
-    public function createTags( $xml) {
+    public function createTags(SimpleXMLElement $xml): SimpleXMLElement {
 
             if(!property_exists($xml, 'SIGNONMSGSRSV1')) {
 
@@ -435,7 +488,7 @@ class Ofx
      * Copy and return the new tag
      * From upgastao repo
      */
-   public function copyChildren($from, $to) {
+   public function copyChildren(SimpleXMLElement $from, SimpleXMLElement $to): void {
     foreach ($from->children() as $child) {
         $newChild = $to->addChild($child->getName(), (string) $child);
         foreach ($child->attributes() as $attrKey => $attrValue) {
@@ -444,80 +497,6 @@ class Ofx
         self::copyChildren($child, $newChild);
     }
 }
-
-  /**
-     * Create a DateTime object from a valid OFX date format
-     *
-     * From upgastao repo
-     * 
-     * Supports:
-     * YYYYMMDDHHMMSS.XXX[gmt offset:tz name]
-     * YYYYMMDDHHMMSS.XXX
-     * YYYYMMDDHHMMSS
-     * YYYYMMDD
-     *
-     * @param  string $dateString
-     * @param  boolean $ignoreErrors
-     * @return \DateTime $dateString
-     * @throws \Exception
-     */
-    private function createDateTimeFromStr($dateString, $ignoreErrors = false)
-    {
-        $regex = '/'
-            . "(\d{4})(\d{2})(\d{2})?"     // YYYYMMDD             1,2,3
-            . "(?:(\d{2})(\d{2})(\d{2}))?" // HHMMSS   - optional  4,5,6
-            . "(?:\.(\d{3}))?"             // .XXX     - optional  7
-            . "(?:\[-?\d+\:\w{3}\])?"      // [-n:TZ]  - optional  8,9
-            . '/';
-
-        if (preg_match($regex, $dateString, $matches)) {
-            $year = (int)$matches[1];
-            $month = (int)$matches[2];
-            $day = (int)$matches[3];
-            $hour = isset($matches[4]) ? $matches[4] : 0;
-            $min = isset($matches[5]) ? $matches[5] : 0;
-            $sec = isset($matches[6]) ? $matches[6] : 0;
-
-            $format = $year . '-' . $month . '-' . $day . ' ' . $hour . ':' . $min . ':' . $sec;
-
-            try {
-                return new \DateTime($format);
-            } catch (\Exception $e) {
-                if ($ignoreErrors) {
-                    return null;
-                }
-
-                throw $e;
-            }
-        }
-
-        throw new \RuntimeException('Failed to initialize DateTime for string: ' . $dateString);
-    }
-
-    /**
-     * Create a formatted number in Float according to different locale options
-     *
-     * From upgastao repo
-     * 
-     * Supports:
-     * 000,00 and -000,00
-     * 0.000,00 and -0.000,00
-     * 0,000.00 and -0,000.00
-     * 000.00 and 000.00
-     *
-     * @param  string $amountString
-     * @return float
-     */
-    private function createAmountFromStr($amountString)
-    {
-        $amountString = trim($amountString);
-
-        if (preg_match('/^(?<signal>[-\+]?)(?<integer>.*)(?<separator>[\.,])(?<decimals>[\d]+)$/', $amountString, $matches) === 1) {
-            $amountString = $matches['signal'] . preg_replace('/[^\d]+/', '', $matches['integer']) . '.' . $matches['decimals'];
-        }
-
-        return (float)$amountString;
-    }
     /**
      * Builds payee of transaction
      * 
@@ -526,7 +505,7 @@ class Ofx
      * @param SimpleXMLElement $xml
      * @return Payee
      */
-    private function buildPayee(SimpleXMLElement $xml)
+    private function buildPayee(SimpleXMLElement $xml): Payee
     {
         $payee = new Payee();
         // name
@@ -555,7 +534,7 @@ class Ofx
      * @param SimpleXMLElement $xml
      * @return BankAccount
      */
-    public function buildBankAccountTo(SimpleXMLElement $xml)
+    public function buildBankAccountTo(SimpleXMLElement $xml): BankAccount
     {
         $bankAccountTo = new BankAccount();
         $bankAccountTo->routingNumber = (string) $xml->BANKID;
@@ -577,7 +556,7 @@ class Ofx
      * @param SimpleXMLElement $xml
      * @return BankAccount
      */
-    public function buildCardAccountTo(SimpleXMLElement $xml)
+    public function buildCardAccountTo(SimpleXMLElement $xml): BankAccount
     {
         $cardAccountTo = new BankAccount();
         $cardAccountTo->accountNumber = (string) $xml->ACCTID;

@@ -46,7 +46,7 @@ class InvestmentValid extends InvestmentNoLoadOfx
      * @param SimpleXMLElement $node
      * @return $this
      */
-    public function loadOfx(SimpleXMLElement $node)
+    public function loadOfx(SimpleXMLElement $node): self
     {
         // No-op: just need to test the exception
         return $this;

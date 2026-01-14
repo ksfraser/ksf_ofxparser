@@ -29,7 +29,7 @@ class BuyStock extends BuySecurity
      * @param SimpleXMLElement $node
      * @return $this
      */
-    public function loadOfx(SimpleXMLElement $node)
+    public function loadOfx(SimpleXMLElement $node): self
     {
         parent::loadOfx($node);
         $this->loadBuyType($node);

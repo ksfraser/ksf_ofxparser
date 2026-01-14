@@ -22,6 +22,7 @@ class Transaction extends AbstractEntity
         'DIRECTDEBIT' => 'Merchant initiated debit',
         'REPEATPMT' => 'Repeating payment/standing order',
         'OTHER' => 'Other',
+        'UNKNOWN' => 'Unknown',
     ];
 
     /**
@@ -118,7 +119,7 @@ class Transaction extends AbstractEntity
      *
      * @return string
      */
-    public function typeDesc()
+    public function typeDesc(): string
     {
         // Cast SimpleXMLObject to string
         $type = (string)$this->type;

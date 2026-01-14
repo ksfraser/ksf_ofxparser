@@ -21,7 +21,7 @@ trait IncomeType
      * @param SimpleXMLElement $node
      * @return $this for chaining
      */
-    protected function loadIncomeType(SimpleXMLElement $node)
+    protected function loadIncomeType(SimpleXMLElement $node): self
     {
         $this->incomeType = (string) $node->INCOMETYPE;
 

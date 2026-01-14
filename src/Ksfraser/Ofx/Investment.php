@@ -16,15 +16,32 @@ use OfxParser\Entities\Investment\Transaction\Reinvest;
 use OfxParser\Entities\Investment\Transaction\SellMutualFund;
 use OfxParser\Entities\Investment\Transaction\SellSecurity;
 use OfxParser\Entities\Investment\Transaction\SellStock;
+use OfxParser\Builder\TransactionBuilder;
+use OfxParser\Extraction\FieldExtractor;
+use OfxParser\Metrics\ParsingMetrics;
 
 class Investment extends Ofx
 {
     /**
      * @param SimpleXMLElement $xml
+     * @param TransactionBuilder|null $transactionBuilder Optional defensive transaction builder
+     * @param FieldExtractor|null $fieldExtractor Optional defensive field extractor
+     * @param ParsingMetrics|null $metrics Optional metrics tracker
      * @throws \Exception
      */
-    public function __construct(SimpleXMLElement $xml)
-    {
+    public function __construct(
+        SimpleXMLElement $xml,
+        ?TransactionBuilder $transactionBuilder = null,
+        ?FieldExtractor $fieldExtractor = null,
+        ?ParsingMetrics $metrics = null
+    ) {
+        // Call parent constructor to set defensive parsing dependencies
+        parent::__construct($xml, $transactionBuilder, $fieldExtractor, $metrics);
+        
+        // Investment-specific initialization (override parent's bank account setup)
+        $this->bankAccounts = [];
+        $this->bankAccount = null;
+        
         $this->signOn = $this->buildSignOn($xml->SIGNONMSGSRSV1->SONRS);
 
         if (isset($xml->INVSTMTMSGSRSV1)) {
@@ -42,13 +59,13 @@ class Investment extends Ofx
      * @return array Array of InvestmentAccount enities
      * @throws \Exception
      */
-    protected function buildAccounts(SimpleXMLElement $xml)
+    protected function buildAccounts(SimpleXMLElement $xml): array
     {
         // Loop through the bank accounts
         $accounts = [];
         foreach ($xml->INVSTMTMSGSRSV1->INVSTMTTRNRS as $accountStatement) {
             foreach ($accountStatement->INVSTMTRS as $statementResponse) {
-                $accounts[] = $this->buildAccount($accountStatement->TRNUID, $statementResponse);
+                $accounts[] = $this->buildAccount(trim((string)$accountStatement->TRNUID), $statementResponse);
             }
         }
         return $accounts;
@@ -60,7 +77,7 @@ class Investment extends Ofx
      * @return InvestmentAccount
      * @throws \Exception
      */
-    protected function buildAccount($transactionUid, SimpleXMLElement $statementResponse)
+    protected function buildAccount(string $transactionUid, SimpleXMLElement $statementResponse): InvestmentAccount
     {
         $account = new InvestmentAccount();
         $account->transactionUid = (string) $transactionUid;
@@ -72,11 +89,11 @@ class Investment extends Ofx
 
         if (@count($statementResponse->INVTRANLIST)) {
             $account->statement->startDate = Utils::createDateTimeFromStr(
-                $statementResponse->INVTRANLIST->DTSTART
+                (string)$statementResponse->INVTRANLIST->DTSTART
             );
 
             $account->statement->endDate = Utils::createDateTimeFromStr(
-                $statementResponse->INVTRANLIST->DTEND
+                (string)$statementResponse->INVTRANLIST->DTEND
             );
 
             $account->statement->transactions = $this->buildTransactions(
@@ -98,7 +115,7 @@ class Investment extends Ofx
      * @return array
      * @throws \Exception
      */
-    protected function buildTransactions(SimpleXMLElement $transactions)
+    protected function buildTransactions(SimpleXMLElement $transactions): array
     {
         $activity = [];
 

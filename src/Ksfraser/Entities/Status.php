@@ -36,7 +36,7 @@ class Status extends AbstractEntity
      *
      * @return string
      */
-    public function codeDesc()
+    public function codeDesc(): string
     {
         // Cast code to string from SimpleXMLObject
         $code = (string)$this->code;

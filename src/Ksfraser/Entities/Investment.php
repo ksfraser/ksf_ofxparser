@@ -23,7 +23,7 @@ abstract class Investment extends AbstractEntity implements Inspectable, OfxLoad
      *
      * @return array array('prop_name' => 'prop_name', ...)
      */
-    public function getProperties()
+    public function getProperties(): array
     {
         $props = array_keys(get_object_vars($this));
 
@@ -36,9 +36,9 @@ abstract class Investment extends AbstractEntity implements Inspectable, OfxLoad
      * @return $this For chaining
      * @throws \Exception
      */
-    public function loadOfx(SimpleXMLElement $node)
+    public function loadOfx(SimpleXMLElement $node): self
     {
-        throw new \Exception('loadOfx method not defined in class "' . get_class() . '"');
+        throw new \Exception('loadOfx method not defined in class "' . get_class($this) . '"');
     }
    /**
      * Populates instance properties from a node for the map provided.
@@ -49,13 +49,14 @@ abstract class Investment extends AbstractEntity implements Inspectable, OfxLoad
      * @param SimpleXMLElement $node
      * @return $this
      */
-    public function loadMap($map, $node)
+    public function loadMap(array $map, SimpleXMLElement $node): self
     {
         foreach ($map as $propName => $nodeName) {
             if (@count($node->{$nodeName}) > 0) {
                 $this->{$propName} = (string) $node->{$nodeName};
             }
         }
+        return $this;
     }
 }
 

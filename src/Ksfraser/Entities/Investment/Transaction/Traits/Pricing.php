@@ -42,7 +42,7 @@ trait Pricing
      * @param SimpleXMLElement $node
      * @return $this for chaining
      */
-    protected function loadPricing(SimpleXMLElement $node)
+    protected function loadPricing(SimpleXMLElement $node): self
     {
         $this->units = (string) $node->UNITS;
         $this->unitPrice = (string) $node->UNITPRICE;

@@ -1,0 +1,26 @@
+DELETED FILE: jacques-ofxparser/lib/OfxParser/Utils.php
+DELETED FILE: ofx4/lib/OfxParser/Utils.php
+DELETED FILE: jacques-ofxparser/lib/OfxParser/Entities/Transaction.php
+DELETED FILE: ofx4/lib/OfxParser/Entities/Transaction.php
+DELETED FILE: ofx2/lib/OfxParser/Entities/Transaction.php
+DELETED FILE: memhetcoban-ofxparser/lib/OfxParser/Entities/Transaction.php
+DELETED FILE: jacques-ofxparser/lib/OfxParser/Entities/Status.php
+DELETED FILE: ofx4/lib/OfxParser/Entities/Status.php
+DELETED FILE: ofx2/lib/OfxParser/Entities/Status.php
+DELETED FILE: memhetcoban-ofxparser/lib/OfxParser/Entities/Status.php
+DELETED FILE: jacques-ofxparser/lib/OfxParser/Entities/BankAccount.php
+DELETED FILE: ofx4/lib/OfxParser/Entities/BankAccount.php
+DELETED FILE: ofx2/lib/OfxParser/Entities/BankAccount.php
+DELETED FILE: memhetcoban-ofxparser/lib/OfxParser/Entities/BankAccount.php
+DELETED FILE: jacques-ofxparser/lib/OfxParser/Entities/Investment.php
+DELETED FILE: ofx4/lib/OfxParser/Entities/Investment.php
+CLEANED: jacques-ofxparser/lib/OfxParser/Parser.php - deleted 6 methods
+CLEANED: ofx4/lib/OfxParser/Parser.php - deleted 6 methods
+CLEANED: ofx2/lib/OfxParser/Parser.php - deleted 7 methods
+CLEANED: memhetcoban-ofxparser/lib/OfxParser/Parser.php - deleted 7 methods
+CLEANED: jacques-ofxparser/lib/OfxParser/Ofx.php - deleted 9 methods
+CLEANED: ofx4/lib/OfxParser/Ofx.php - deleted 11 methods
+CLEANED: ofx2/lib/OfxParser/Ofx.php - deleted 9 methods
+CLEANED: memhetcoban-ofxparser/lib/OfxParser/Ofx.php - deleted 10 methods
+DELETED EMPTY: jacques-ofxparser/lib/OfxParser/Ofx/Investment.php
+DELETED EMPTY: ofx4/lib/OfxParser/Ofx/Investment.php

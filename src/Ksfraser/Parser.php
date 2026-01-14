@@ -9,6 +9,13 @@
 
 namespace OfxParser;
 
+use OfxParser\Config\DefensiveParsingConfig;
+use OfxParser\Recovery\RecoveryContext;
+use OfxParser\Metrics\ParsingMetrics;
+use OfxParser\Metrics\ParsingResult;
+use OfxParser\Extraction\FieldExtractor;
+use OfxParser\Builder\TransactionBuilder;
+
 //use SimpleXMLElement;
 
 
@@ -23,6 +30,50 @@ namespace OfxParser;
  */
 class Parser
 {
+    /** @var DefensiveParsingConfig|null */
+    private ?DefensiveParsingConfig $config = null;
+    
+    /** @var RecoveryContext|null */
+    private ?RecoveryContext $recoveryContext = null;
+    
+    /** @var ParsingMetrics|null */
+    private ?ParsingMetrics $metrics = null;
+    
+    /** @var FieldExtractor|null */
+    private ?FieldExtractor $fieldExtractor = null;
+    
+    /** @var TransactionBuilder|null */
+    private ?TransactionBuilder $transactionBuilder = null;
+    
+    /**
+     * Enable defensive parsing with optional configuration
+     * 
+     * @param DefensiveParsingConfig|null $config Configuration (null = default)
+     * @return self
+     */
+    public function withDefensiveParsing(?DefensiveParsingConfig $config = null): self
+    {
+        $this->config = $config ?? DefensiveParsingConfig::createDefault();
+        $this->metrics = new ParsingMetrics();
+        $this->recoveryContext = new RecoveryContext($this->config);
+        $this->fieldExtractor = new FieldExtractor($this->recoveryContext, $this->metrics);
+        $this->transactionBuilder = new TransactionBuilder(
+            $this->fieldExtractor,
+            $this->recoveryContext,
+            $this->metrics
+        );
+        return $this;
+    }
+    
+    /**
+     * Check if defensive parsing is enabled
+     * 
+     * @return bool
+     */
+    public function isDefensiveParsingEnabled(): bool
+    {
+        return $this->config !== null;
+    }
 
     /**
      * Factory to extend support for OFX document structures.
@@ -34,7 +85,12 @@ class Parser
     //protected function createOfx(SimpleXMLElement $xml)
     protected function createOfx($xml)
     {
-        return new Ofx($xml);
+        return new Ofx(
+            $xml,
+            $this->transactionBuilder,
+            $this->fieldExtractor,
+            $this->metrics
+        );
     }
 
     /**
@@ -69,6 +125,10 @@ class Parser
         $ofxContent = $this->conditionallyAddNewlines($ofxContent);
 
         $sgmlStart = stripos($ofxContent, '<OFX>');
+        if ($sgmlStart === false) {
+            throw new \InvalidArgumentException('OFX content does not contain <OFX> tag');
+        }
+        
         $ofxSgml = trim(substr($ofxContent, $sgmlStart));
 
  	$ofxHeader =  trim(substr($ofxContent, 0, $sgmlStart));
@@ -92,6 +152,11 @@ class Parser
         $ofx = $this->createOfx($xml);
 	//I haven't updated OFX yet so buildHeader isn't there
         //$ofx->buildHeader($header);
+
+        // Return ParsingResult if defensive parsing is enabled
+        if ($this->isDefensiveParsingEnabled()) {
+            return new ParsingResult($ofx, $this->metrics);
+        }
 
         return $ofx;
 //        return new Ofx($xml);
@@ -348,7 +413,9 @@ class Parser
 
             foreach ($ofxHeaderLine as $value) {
                 $tag = explode('=', $value);
-                $header[$tag[0]] = $tag[1];
+                if (isset($tag[1])) {
+                    $header[$tag[0]] = $tag[1];
+                }
             }
 
             return $header;
@@ -357,7 +424,9 @@ class Parser
         $ofxHeaderLines = explode("\n", $ofxHeader);
         foreach ($ofxHeaderLines as $value) {
             $tag = explode(':', $value);
-            $header[$tag[0]] = $tag[1];
+            if (isset($tag[1])) {
+                $header[$tag[0]] = $tag[1];
+            }
         }
 
         return $header;

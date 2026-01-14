@@ -31,7 +31,7 @@ class Banking extends BaseTransaction implements OfxLoadable, Inspectable
      * Get a list of properties defined for this entity.
      * @return array array('prop_name' => 'prop_name', ...)
      */
-    public function getProperties()
+    public function getProperties(): array
     {
         $props = array_keys(get_object_vars($this));
 
@@ -43,12 +43,12 @@ class Banking extends BaseTransaction implements OfxLoadable, Inspectable
      * @param SimpleXMLElement $node
      * @return $this
      */
-    public function loadOfx(SimpleXMLElement $node)
+    public function loadOfx(SimpleXMLElement $node): self
     {
         // Duplication of code in Ofx::buildTransactions()
         $this->type = (string) $node->STMTTRN->TRNTYPE;
-        $this->date = Utils::createDateTimeFromStr($node->STMTTRN->DTPOSTED);
-        $this->amount = Utils::createAmountFromStr($node->STMTTRN->TRNAMT);
+        $this->date = Utils::createDateTimeFromStr((string) $node->STMTTRN->DTPOSTED);
+        $this->amount = Utils::createAmountFromStr((string) $node->STMTTRN->TRNAMT);
         $this->uniqueId = (string) $node->STMTTRN->FITID;
 
         // Could put this in another trait.

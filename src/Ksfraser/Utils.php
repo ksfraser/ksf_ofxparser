@@ -30,14 +30,14 @@ class Utils
      * @return \DateTime $dateString
      * @throws \Exception
      */
-    public static function createDateTimeFromStr($dateString, $ignoreErrors = false)
+    public static function createDateTimeFromStr(string $dateString, bool $ignoreErrors = false): ?\DateTime
     {
         if (!isset($dateString) || trim($dateString) === '') {
             return null;
         }
         
         $regex = '/'
-            . "(\d{4})(\d{2})(\d{2})?"     // YYYYMMDD             1,2,3
+            . "(\d{4})(\d{2})(\d{2})"      // YYYYMMDD             1,2,3 (all required)
             . "(?:(\d{2})(\d{2})(\d{2}))?" // HHMMSS   - optional  4,5,6
             . "(?:\.(\d{3}))?"             // .XXX     - optional  7
             . "(?:\[(-?\d+)\:(\w{3}\]))?"  // [-n:TZ]  - optional  8,9
@@ -95,7 +95,7 @@ class Utils
      * @param  string $amountString
      * @return float
      */
-    public static function createAmountFromStr($amountString)
+    public static function createAmountFromStr(string $amountString): float
     {
         // This assumes that all supported currency will have no more than
         // 2 decimal places! The tell is the thousands separator, followed

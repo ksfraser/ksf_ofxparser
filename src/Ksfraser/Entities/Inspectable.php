@@ -11,5 +11,5 @@ interface Inspectable
      * Get a list of properties defined for this entity.
      * @return array array('prop_name' => 'prop_name', ...)
      */
-    public function getProperties();
+    public function getProperties(): array;
 }

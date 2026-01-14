@@ -34,7 +34,7 @@ trait LoaderTrait
      * @param SimpleXMLElement $node
      * @return $this
      */
-    public function loadMap($map, $node)
+    public function loadMap(array $map, SimpleXMLElement $node): self
     {
         foreach ($map as $propName => $detail) {
             $default = null;

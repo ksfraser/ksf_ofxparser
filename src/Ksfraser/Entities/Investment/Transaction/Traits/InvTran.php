@@ -42,15 +42,15 @@ trait InvTran
      * @param SimpleXMLElement $node
      * @return $this for chaining
      */
-    protected function loadInvTran(SimpleXMLElement $node)
+    protected function loadInvTran(SimpleXMLElement $node): self
     {
         // <INVTRAN>
         //  - REQUIRED: <FITID>, <DTTRADE>
         //  - all others optional
         $this->uniqueId = (string) $node->FITID;
-        $this->tradeDate = Utils::createDateTimeFromStr($node->DTTRADE);
+        $this->tradeDate = Utils::createDateTimeFromStr((string)$node->DTTRADE);
         if (isset($node->DTSETTLE)) {
-            $this->settlementDate = Utils::createDateTimeFromStr($node->DTSETTLE);
+            $this->settlementDate = Utils::createDateTimeFromStr((string)$node->DTSETTLE);
         }
         if (isset($node->MEMO)) {
             $this->memo = (string) $node->MEMO;
