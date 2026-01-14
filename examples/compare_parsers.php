@@ -149,7 +149,7 @@ class ParserComparison
             if ($bankAccounts) {
                 foreach ($bankAccounts as $account) {
                     $data['accounts'][] = [
-                        'bank_id' => $account->bankId ?? null,
+                        'bank_id' => $account->routingNumber ?? null,
                         'account_number' => $account->accountNumber ?? null,
                         'account_type' => $account->accountType ?? null,
                         'routing_number' => $account->routingNumber ?? null,
