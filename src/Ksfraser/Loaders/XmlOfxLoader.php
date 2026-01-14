@@ -41,7 +41,7 @@ class XmlOfxLoader implements OfxLoaderInterface
     /**
      * {@inheritdoc}
      */
-    public function load(string $ofxHeader, string $ofxBody)
+    public function load(string $ofxHeader, string $ofxBody): array
     {
         $header = $this->parseHeader($ofxHeader);
         
@@ -58,20 +58,11 @@ class XmlOfxLoader implements OfxLoaderInterface
             throw new \InvalidArgumentException('Content is not valid OFX schema - missing required message sets');
         }
 
-        $ofx = new Ofx(
-            $xml,
-            $this->transactionBuilder,
-            $this->fieldExtractor,
-            $this->metrics
-        );
-        $ofx->buildHeader($header);
-
-        // Return ParsingResult if defensive parsing is enabled
-        if ($this->metrics !== null) {
-            return new ParsingResult($ofx, $this->metrics);
-        }
-
-        return $ofx;
+        // Return parsed element and header for Parser to instantiate correct type
+        return [
+            'element' => $xml,
+            'header' => $header
+        ];
     }
     
     /**

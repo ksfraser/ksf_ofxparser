@@ -44,7 +44,7 @@ class SgmlOfxLoader implements OfxLoaderInterface
     /**
      * {@inheritdoc}
      */
-    public function load(string $ofxHeader, string $ofxBody)
+    public function load(string $ofxHeader, string $ofxBody): array
     {
         // Track SGML path usage
         if ($this->metrics) {
@@ -58,16 +58,11 @@ class SgmlOfxLoader implements OfxLoaderInterface
         $sgmlParser = new Sgml\Parser();
         $sgmlElement = $sgmlParser->parse($ofxBody);
         
-        // Build Ofx entities directly from SGML
-        $builder = new \OfxParser\Builders\SgmlOfxBuilder();
-        $ofx = $builder->buildOfx($sgmlElement, $header);
-        
-        // Return ParsingResult if defensive parsing is enabled
-        if ($this->metrics !== null) {
-            return new ParsingResult($ofx, $this->metrics);
-        }
-
-        return $ofx;
+        // Return parsed element and header for Parser to instantiate correct type
+        return [
+            'element' => $sgmlElement,
+            'header' => $header
+        ];
     }
     
     /**

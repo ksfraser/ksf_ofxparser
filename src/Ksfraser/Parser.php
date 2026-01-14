@@ -40,13 +40,13 @@ class Parser
     private ?RecoveryContext $recoveryContext = null;
     
     /** @var ParsingMetrics|null */
-    private ?ParsingMetrics $metrics = null;
+    protected ?ParsingMetrics $metrics = null;
     
     /** @var FieldExtractor|null */
-    private ?FieldExtractor $fieldExtractor = null;
+    protected ?FieldExtractor $fieldExtractor = null;
     
     /** @var TransactionBuilder|null */
-    private ?TransactionBuilder $transactionBuilder = null;
+    protected ?TransactionBuilder $transactionBuilder = null;
     
     /** @var string|null Track which parser path was used */
     private ?string $parserPathUsed = null;
@@ -137,15 +137,39 @@ class Parser
      * @param SimpleXMLElement $xml
      * @return Ofx
      */
-    //protected function createOfx(SimpleXMLElement $xml)
-    protected function createOfx($xml)
+    /**
+     * Create an instance of the Ofx object.
+     * 
+     * Factory method that subclasses can override to create different Ofx types
+     * (e.g., InvestmentParser creates InvestmentOfx).
+     *
+     * @param \SimpleXMLElement|\OfxParser\Sgml\Elements\Element $element Parsed OFX element
+     * @param array $header Parsed OFX header
+     * @return Ofx|ParsingResult
+     */
+    protected function createOfx($element, array $header)
     {
-        return new Ofx(
-            $xml,
-            $this->transactionBuilder,
-            $this->fieldExtractor,
-            $this->metrics
-        );
+        // Handle SGML Elements - use builder pattern
+        if ($element instanceof \OfxParser\Sgml\Elements\Element) {
+            $builder = new \OfxParser\Builders\SgmlOfxBuilder();
+            $ofx = $builder->buildOfx($element, $header);
+        } else {
+            // Handle SimpleXMLElement - traditional constructor
+            $ofx = new Ofx(
+                $element,
+                $this->transactionBuilder,
+                $this->fieldExtractor,
+                $this->metrics
+            );
+            $ofx->buildHeader($header);
+        }
+        
+        // Return ParsingResult if defensive parsing is enabled
+        if ($this->metrics !== null) {
+            return new \OfxParser\Metrics\ParsingResult($ofx, $this->metrics);
+        }
+
+        return $ofx;
     }
 
     /**
@@ -196,7 +220,9 @@ class Parser
                 $this->parserPathUsed = $loader->getFormatName();
                 $this->ofxVersionDetected = $loader->getVersion();
                 
-                return $loader->load($ofxHeader, $ofxBody);
+                // Loader returns parsed element, we create the appropriate Ofx type
+                $result = $loader->load($ofxHeader, $ofxBody);
+                return $this->createOfx($result['element'], $result['header']);
             }
         }
         

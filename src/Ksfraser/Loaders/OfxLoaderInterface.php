@@ -2,13 +2,15 @@
 
 namespace OfxParser\Loaders;
 
-use OfxParser\Ofx;
-use OfxParser\Metrics\ParsingResult;
+use SimpleXMLElement;
+use OfxParser\Sgml\Elements\Element;
 
 /**
  * Interface for OFX content loaders
  * 
- * Supports both XML (OFX v2+) and SGML (OFX v1) formats
+ * Loaders handle FORMAT parsing (XML vs SGML) and return parsed elements.
+ * The Parser class uses these to get elements, then instantiates the 
+ * appropriate Ofx TYPE (bank statement, investment, etc.).
  */
 interface OfxLoaderInterface
 {
@@ -24,12 +26,15 @@ interface OfxLoaderInterface
     /**
      * Load and parse the OFX content
      * 
+     * Returns parsed element structure (not Ofx objects) to allow
+     * Parser subclasses to instantiate the correct Ofx type.
+     * 
      * @param string $ofxHeader The OFX header section
      * @param string $ofxBody The OFX body content (starting with <OFX>)
-     * @return Ofx|ParsingResult
+     * @return array{element: SimpleXMLElement|Element, header: array}
      * @throws \Exception
      */
-    public function load(string $ofxHeader, string $ofxBody);
+    public function load(string $ofxHeader, string $ofxBody): array;
     
     /**
      * Get the format identifier (e.g., 'xml', 'sgml')
