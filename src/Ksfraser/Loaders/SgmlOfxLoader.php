@@ -46,31 +46,22 @@ class SgmlOfxLoader implements OfxLoaderInterface
      */
     public function load(string $ofxHeader, string $ofxBody)
     {
+        // Track SGML path usage
+        if ($this->metrics) {
+            $this->metrics->recordParsingPath('sgml');
+        }
+        
+        // Parse header
         $header = $this->parseHeader($ofxHeader);
         
-        // Use the existing, tested SGML to XML conversion
-        // TODO: Future enhancement - parse SGML natively without conversion
-        $ofxXml = $this->convertSgmlToXml($ofxBody);
-        $xml = $this->xmlLoadString($ofxXml);
+        // Use SGML parser directly (NO XML conversion!)
+        $sgmlParser = new Sgml\Parser();
+        $sgmlElement = $sgmlParser->parse($ofxBody);
         
-        if (empty($xml) || is_null($xml)) {
-            throw new \InvalidArgumentException('Content is not valid OFX schema');
-        }
-
-        // Validate that the XML contains expected OFX structure
-        if (!isset($xml->SIGNONMSGSRSV1) && !isset($xml->BANKMSGSRSV1) && 
-            !isset($xml->CREDITCARDMSGSRSV1) && !isset($xml->INVSTMTMSGSRSV1)) {
-            throw new \InvalidArgumentException('Content is not valid OFX schema - missing required message sets');
-        }
-
-        $ofx = new Ofx(
-            $xml,
-            $this->transactionBuilder,
-            $this->fieldExtractor,
-            $this->metrics
-        );
-        $ofx->buildHeader($header);
-
+        // Build Ofx entities directly from SGML
+        $builder = new \OfxParser\Builders\SgmlOfxBuilder();
+        $ofx = $builder->buildOfx($sgmlElement, $header);
+        
         // Return ParsingResult if defensive parsing is enabled
         if ($this->metrics !== null) {
             return new ParsingResult($ofx, $this->metrics);

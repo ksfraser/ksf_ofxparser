@@ -76,14 +76,14 @@ class Ofx
     public $bankAccount;
 
     /**
-     * @param SimpleXMLElement $xml
+     * @param SimpleXMLElement|null $xml Optional XML element to parse (null for SGML builder path)
      * @param TransactionBuilder|null $transactionBuilder Optional defensive transaction builder
      * @param FieldExtractor|null $fieldExtractor Optional defensive field extractor
      * @param ParsingMetrics|null $metrics Optional metrics tracker
      * @throws \Exception
      */
     public function __construct(
-        SimpleXMLElement $xml,
+        ?SimpleXMLElement $xml = null,
         ?TransactionBuilder $transactionBuilder = null,
         ?FieldExtractor $fieldExtractor = null,
         ?ParsingMetrics $metrics = null
@@ -92,13 +92,24 @@ class Ofx
         $this->fieldExtractor = $fieldExtractor;
         $this->metrics = $metrics;
         
+        // If no XML provided, allow direct population (for SGML builder)
+        if ($xml === null) {
+            return;
+        }
+        
         //From upgestao repo
         if (!property_exists($xml, 'SIGNONMSGSRSV1') || !property_exists($xml->SIGNONMSGSRSV1, 'SONRS')) {
             $xml = self::createTags($xml);
         }
         //!upgestao
         $this->signOn = $this->buildSignOn($xml->SIGNONMSGSRSV1->SONRS);
-        $this->signupAccountInfo = $this->buildAccountInfo($xml->SIGNUPMSGSRSV1->ACCTINFOTRNRS);
+        
+        // Handle optional SIGNUPMSGSRSV1
+        if (isset($xml->SIGNUPMSGSRSV1) && isset($xml->SIGNUPMSGSRSV1->ACCTINFOTRNRS)) {
+            $this->signupAccountInfo = $this->buildAccountInfo($xml->SIGNUPMSGSRSV1->ACCTINFOTRNRS);
+        } else {
+            $this->signupAccountInfo = [];
+        }
 
         if (isset($xml->BANKMSGSRSV1)) {
             $this->bankAccounts = $this->buildBankAccounts($xml);
@@ -224,8 +235,11 @@ class Ofx
     private function buildBankAccounts(SimpleXMLElement $xml): array
     {
         // Loop through the bank accounts
+        // Note: OFX spec uses STMTRNRS (not STMTTRNRS with extra T)
         $bankAccounts = [];
-        foreach ($xml->BANKMSGSRSV1->STMTTRNRS as $accountStatement) {
+        $tagName = isset($xml->BANKMSGSRSV1->STMTRNRS) ? 'STMTRNRS' : 'STMTTRNRS';
+        
+        foreach ($xml->BANKMSGSRSV1->$tagName as $accountStatement) {
             foreach ($accountStatement->STMTRS as $statementResponse) {
                 $bankAccounts[] = $this->buildBankAccount((string)$accountStatement->TRNUID, $statementResponse);
             }
