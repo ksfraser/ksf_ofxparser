@@ -2,6 +2,8 @@
 
 namespace OfxParser\Sgml\Elements;
 
+use OfxParser\Sgml\DateFormatter;
+
 /**
  * Element that contains only text value (no child elements)
  * Examples: TRNTYPE, DTPOSTED, TRNAMT, FITID, NAME, MEMO
@@ -113,9 +115,7 @@ class ValueElement extends Element
      */
     private function validateDateTime(string $value): bool
     {
-        // OFX date format: YYYYMMDD or YYYYMMDDHHMMSS with optional milliseconds and timezone
-        $pattern = '/^\d{8}(\d{6})?(\.\d{3})?([\[\-\+]\d+(\:\w+)?\]?)?$/';
-        return preg_match($pattern, $value) === 1;
+        return DateFormatter::isValid($value);
     }
 
     /**
@@ -123,31 +123,7 @@ class ValueElement extends Element
      */
     private function parseDateTime(string $value): ?\DateTime
     {
-        // Use Utils::createDateTimeFromStr for compatibility
-        try {
-            $regex = '/'
-                . "(\d{4})(\d{2})(\d{2})"      // YYYYMMDD
-                . "(?:(\d{2})(\d{2})(\d{2}))?" // HHMMSS - optional
-                . "(?:\.(\d{3}))?"             // .XXX - optional
-                . "(?:\[(-?\d+)\:(\w{3}\]))?"  // [-n:TZ] - optional
-                . '/';
-
-            if (preg_match($regex, $value, $matches)) {
-                $year = (int)$matches[1];
-                $month = (int)$matches[2];
-                $day = (int)$matches[3];
-                $hour = isset($matches[4]) ? $matches[4] : 0;
-                $min = isset($matches[5]) ? $matches[5] : 0;
-                $sec = isset($matches[6]) ? $matches[6] : 0;
-
-                $format = $year . '-' . $month . '-' . $day . ' ' . $hour . ':' . $min . ':' . $sec;
-                return new \DateTime($format);
-            }
-        } catch (\Exception $e) {
-            // Return null on parse error
-        }
-
-        return null;
+        return DateFormatter::parseToDateTime($value);
     }
 
     /**
