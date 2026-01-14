@@ -12,7 +12,7 @@ use OfxParser\Sgml\DateFormatter;
 echo "\n=== OFX Parser Comparison ===\n\n";
 
 $qfxDir = __DIR__ . '/../../../qfx_files';
-$files = glob($qfxDir . '/*.{ofx,qfx,OFX,QFX}', GLOB_BRACE);
+$files = glob($qfxDir . '/*.{ofx,qfx,qbo,OFX,QFX,QBO}', GLOB_BRACE);
 
 if (empty($files)) {
     die("No files found in $qfxDir\n");
@@ -46,11 +46,20 @@ foreach ($files as $file) {
         $ofx = $parser->loadFromFile($file);
         $oldTime = microtime(true) - $start;
         
+        // Count transactions from bank accounts
         foreach ($ofx->bankAccounts as $account) {
             if ($statement = $account->statement) {
                 $oldTxnCount += count($statement->transactions);
             }
         }
+        
+        // Count transactions from credit card accounts
+        foreach (($ofx->creditCardAccounts ?? []) as $account) {
+            if ($statement = $account->statement) {
+                $oldTxnCount += count($statement->transactions);
+            }
+        }
+        
         $oldSuccess = true;
     } catch (Exception $e) {
         $oldError = substr($e->getMessage(), 0, 30);
@@ -71,14 +80,26 @@ foreach ($files as $file) {
             $root = $parser->parse($sgmlBody);
             $sgmlTime = microtime(true) - $start;
             
+            // Count transactions from bank accounts (BANKMSGSRSV1)
             $stmtrs = $root->BANKMSGSRSV1->STMTTRNRS->STMTRS ?? null;
             if ($stmtrs) {
                 $tranList = $stmtrs->BANKTRANLIST ?? null;
                 if ($tranList) {
                     $transactions = $tranList->getChildrenByTag('STMTTRN');
-                    $sgmlTxnCount = count($transactions);
+                    $sgmlTxnCount += count($transactions);
                 }
             }
+            
+            // Count transactions from credit card accounts (CREDITCARDMSGSRSV1)
+            $ccstmtrs = $root->CREDITCARDMSGSRSV1->CCSTMTTRNRS->CCSTMTRS ?? null;
+            if ($ccstmtrs) {
+                $tranList = $ccstmtrs->BANKTRANLIST ?? null;
+                if ($tranList) {
+                    $transactions = $tranList->getChildrenByTag('STMTTRN');
+                    $sgmlTxnCount += count($transactions);
+                }
+            }
+            
             $sgmlSuccess = true;
         }
     } catch (Exception $e) {
