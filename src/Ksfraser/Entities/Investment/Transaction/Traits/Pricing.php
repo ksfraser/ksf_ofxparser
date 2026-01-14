@@ -44,11 +44,12 @@ trait Pricing
      */
     protected function loadPricing(SimpleXMLElement $node): self
     {
-        $this->units = (string) $node->UNITS;
-        $this->unitPrice = (string) $node->UNITPRICE;
-        $this->total = (string) $node->TOTAL;
-        $this->subAccountFund = (string) $node->SUBACCTFUND;
-        $this->subAccountSec = (string) $node->SUBACCTSEC;
+        // Return null for missing fields instead of empty strings
+        $this->units = isset($node->UNITS) && (string) $node->UNITS !== '' ? (string) $node->UNITS : null;
+        $this->unitPrice = isset($node->UNITPRICE) && (string) $node->UNITPRICE !== '' ? (string) $node->UNITPRICE : null;
+        $this->total = isset($node->TOTAL) && (string) $node->TOTAL !== '' ? (string) $node->TOTAL : null;
+        $this->subAccountFund = isset($node->SUBACCTFUND) && (string) $node->SUBACCTFUND !== '' ? (string) $node->SUBACCTFUND : null;
+        $this->subAccountSec = isset($node->SUBACCTSEC) && (string) $node->SUBACCTSEC !== '' ? (string) $node->SUBACCTSEC : null;
 
         return $this;
     }

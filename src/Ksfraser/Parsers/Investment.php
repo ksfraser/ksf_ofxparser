@@ -17,10 +17,17 @@ class Investment extends Parser
      */
     protected function createOfx($element, array $header)
     {
-        // Handle SGML Elements - would need SgmlInvestmentBuilder (future work)
+        // Handle SGML Elements - use SgmlOfxBuilder for investments
         if ($element instanceof \OfxParser\Sgml\Elements\Element) {
-            // For now, investments don't support SGML path
-            throw new \RuntimeException('SGML format not yet supported for investment accounts');
+            $builder = new \OfxParser\Builders\SgmlOfxBuilder();
+            $ofx = $builder->buildInvestmentOfx($element, $header);
+            
+            // Return ParsingResult if defensive parsing is enabled
+            if ($this->metrics !== null) {
+                return new \OfxParser\Metrics\ParsingResult($ofx, $this->metrics);
+            }
+            
+            return $ofx;
         }
         
         // Handle SimpleXMLElement - create InvestmentOfx instead of Ofx

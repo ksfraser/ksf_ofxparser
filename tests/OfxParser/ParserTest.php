@@ -209,7 +209,7 @@ HERE
     public function testLoadFromStringWithInvalidOfxSchema()
     {
         $this->expectException(\InvalidArgumentException::class);
-        $this->expectExceptionMessage('Content is not valid ofx schema');
+        $this->expectExceptionMessage('Content is not valid OFX schema');
         
         $content = "OFXHEADER:100\nDATA:OFXSGML\n<OFX><INVALID>data</INVALID></OFX>";
         
@@ -327,7 +327,8 @@ HERE
         $method = new \ReflectionMethod(Parser::class, 'createOfx');
         $method->setAccessible(true);
         
-        $ofx = $method->invoke(new Parser(), $xmlWithInvestment);
+        // createOfx now expects 2 arguments: element and header
+        $ofx = $method->invoke(new Parser(), $xmlWithInvestment, []);
         
         self::assertInstanceOf(\OfxParser\Ofx::class, $ofx);
     }}

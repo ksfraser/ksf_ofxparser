@@ -52,7 +52,8 @@ class Banking extends BaseTransaction implements OfxLoadable, Inspectable
         $this->uniqueId = (string) $node->STMTTRN->FITID;
 
         // Could put this in another trait.
-        $this->subAccountFund = (string) $node->SUBACCTFUND;
+        // Return null for missing fields instead of empty strings
+        $this->subAccountFund = isset($node->SUBACCTFUND) && (string) $node->SUBACCTFUND !== '' ? (string) $node->SUBACCTFUND : null;
 
         return $this;
     }

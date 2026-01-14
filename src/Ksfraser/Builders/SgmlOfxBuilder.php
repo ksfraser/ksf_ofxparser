@@ -133,14 +133,22 @@ class SgmlOfxBuilder
         }
         
         foreach ($stmtTrnRsList as $stmtTrnRs) {
-            $stmtRs = $this->findChild($stmtTrnRs, 'STMTRS');
-            if (!$stmtRs) {
-                continue;
+            // Some files have multiple STMTRS siblings under one STMTTRNRS
+            $stmtRsList = $this->findChildren($stmtTrnRs, 'STMTRS');
+            
+            if (empty($stmtRsList)) {
+                // Try single child for backwards compatibility
+                $stmtRs = $this->findChild($stmtTrnRs, 'STMTRS');
+                if ($stmtRs) {
+                    $stmtRsList = [$stmtRs];
+                }
             }
             
-            $account = $this->buildBankAccount($stmtRs);
-            if ($account) {
-                $accounts[] = $account;
+            foreach ($stmtRsList as $stmtRs) {
+                $account = $this->buildBankAccount($stmtRs);
+                if ($account) {
+                    $accounts[] = $account;
+                }
             }
         }
         
@@ -391,5 +399,71 @@ class SgmlOfxBuilder
         }
         
         return $dt ?: null;
+    }    
+    /**
+     * Build an InvestmentOfx object from SGML root element
+     * 
+     * @param Element $ofxElement The root OFX element
+     * @param array $header Parsed OFX header
+     * @return \OfxParser\Ofx\Investment
+     */
+    public function buildInvestmentOfx(Element $ofxElement, array $header): \OfxParser\Ofx\Investment
+    {
+        // For Investment, we need to convert SGML Element to SimpleXML
+        // because InvestmentOfx expects SimpleXMLElement in its constructor
+        // This is a hybrid approach - parse as SGML but convert to XML for entity building
+        
+        // Build SignOn using SGML
+        $signOnElement = $this->findChild($ofxElement, 'SIGNONMSGSRSV1');
+        $signOn = $signOnElement ? $this->buildSignOn($signOnElement) : null;
+        
+        // Convert SGML Element tree to XML string
+        $xmlStr = $this->elementToXml($ofxElement);
+        $xml = simplexml_load_string('<?xml version="1.0"?>' . $xmlStr);
+        
+        // Create InvestmentOfx using the XML
+        $investmentOfx = new \OfxParser\Ofx\Investment($xml);
+        
+        // Override signOn with our SGML-built version
+        if ($signOn) {
+            $investmentOfx->signOn = $signOn;
+        }
+        
+        // Set header
+        $investmentOfx->buildHeader($header);
+        
+        return $investmentOfx;
+    }
+    
+    /**
+     * Convert an Element tree to XML string
+     */
+    private function elementToXml(Element $element): string
+    {
+        $xml = '<' . $element->getTagName() . '>';
+        
+        if ($element instanceof ValueElement) {
+            $value = $element->getValue();
+            
+            // Handle DateTime objects (convert to OFX format: YYYYMMDDHHmmss.000)
+            if ($value instanceof \DateTimeInterface) {
+                // Keep the .000 milliseconds format for compatibility
+                $value = $value->format('YmdHis') . '.000';
+            } elseif ($value === null || $value === '') {
+                // Don't add content for null/empty values - just close the tag
+                $xml .= '</' . $element->getTagName() . '>';
+                return $xml;
+            }
+            
+            $xml .= htmlspecialchars((string)$value, ENT_XML1 | ENT_COMPAT, 'UTF-8');
+        } else {
+            foreach ($element->getChildren() as $child) {
+                $xml .= $this->elementToXml($child);
+            }
+        }
+        
+        $xml .= '</' . $element->getTagName() . '>';
+        
+        return $xml;
     }
 }

@@ -58,6 +58,17 @@ class SgmlOfxLoader implements OfxLoaderInterface
         $sgmlParser = new Sgml\Parser();
         $sgmlElement = $sgmlParser->parse($ofxBody);
         
+        // Validate that the SGML contains expected OFX structure
+        // Check if any required message set exists (use getFirstChild to avoid NullElement)
+        $hasSignOn = $sgmlElement->getFirstChild('SIGNONMSGSRSV1') !== null;
+        $hasBank = $sgmlElement->getFirstChild('BANKMSGSRSV1') !== null;
+        $hasCreditCard = $sgmlElement->getFirstChild('CREDITCARDMSGSRSV1') !== null;
+        $hasInvestment = $sgmlElement->getFirstChild('INVSTMTMSGSRSV1') !== null;
+        
+        if (!$hasSignOn && !$hasBank && !$hasCreditCard && !$hasInvestment) {
+            throw new \InvalidArgumentException('Content is not valid OFX schema - missing required message sets');
+        }
+        
         // Return parsed element and header for Parser to instantiate correct type
         return [
             'element' => $sgmlElement,
