@@ -88,11 +88,19 @@ if (file_exists($testFile)) {
     echo "   ⚠ Test file not found (skipping runtime test)\n";
 }
 
-echo "\n6. Composer Installation:\n";
+echo "\n6. Composer Installation (Git Repository):\n";
 echo "   To use as drop-in replacement:\n";
 echo "   ----------------------------------------\n";
-echo "   Remove: \"asgrim/ofxparser\": \"^1.2\"\n";
-echo "   Add:    \"ksfraser/ksf_ofxparser\": \"dev-main\"\n";
+echo "   1. Add repository to composer.json:\n";
+echo "      \"repositories\": [\n";
+echo "          {\n";
+echo "              \"type\": \"vcs\",\n";
+echo "              \"url\": \"https://github.com/ksfraser/ksf_ofxparser.git\"\n";
+echo "          }\n";
+echo "      ]\n\n";
+echo "   2. Replace package:\n";
+echo "      Remove: \"asgrim/ofxparser\": \"^1.2\"\n";
+echo "      Add:    \"ksfraser/ksf_ofxparser\": \"dev-main\"\n";
 echo "   ----------------------------------------\n";
 echo "   No code changes required in your application!\n";
 
@@ -105,7 +113,12 @@ echo "✓ Bonus: Adds new SGML parser without breaking compatibility\n";
 echo "✓ Bonus: Adds DateFormatter utility class\n\n";
 
 echo "Migration Steps:\n";
-echo "1. Update composer.json to use ksfraser/ksf_ofxparser\n";
-echo "2. Run composer update\n";
-echo "3. No code changes needed - existing code continues to work\n";
-echo "4. Optionally: Use new SGML parser for better SGML support\n\n";
+echo "1. Add repository to composer.json:\n";
+echo "   \"repositories\": [\n";
+echo "       {\"type\": \"vcs\", \"url\": \"https://github.com/ksfraser/ksf_ofxparser.git\"}\n";
+echo "   ]\n\n";
+echo "2. Update require section:\n";
+echo "   \"ksfraser/ksf_ofxparser\": \"dev-main\"\n\n";
+echo "3. Run composer update\n\n";
+echo "4. No code changes needed - existing code continues to work\n\n";
+echo "5. Optionally: Use new SGML parser for better SGML support\n\n";
