@@ -81,8 +81,8 @@ class Investment extends Ofx
     {
         $account = new InvestmentAccount();
         $account->transactionUid = (string) $transactionUid;
-        $account->brokerId = (string) $statementResponse->INVACCTFROM->BROKERID;
-        $account->accountNumber = (string) $statementResponse->INVACCTFROM->ACCTID;
+        $account->brokerId = trim((string) $statementResponse->INVACCTFROM->BROKERID);
+        $account->accountNumber = trim((string) $statementResponse->INVACCTFROM->ACCTID);
 
         $account->statement = new Statement();
         $account->statement->currency = (string) $statementResponse->CURDEF;

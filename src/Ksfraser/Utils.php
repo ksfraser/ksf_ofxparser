@@ -80,6 +80,10 @@ class Utils
             }
         }
 
+        if ($ignoreErrors) {
+            return null;
+        }
+
         throw new \RuntimeException('Failed to initialize DateTime for string: ' . $dateString);
     }
 

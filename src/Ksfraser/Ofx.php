@@ -270,8 +270,9 @@ class Ofx
             (string)$statementResponse->BANKTRANLIST->DTEND
         );
 
+        // Pass the BANKTRANLIST parent element, let buildTransactions extract STMTTRNs
         $bankAccount->statement->transactions = $this->buildTransactions(
-            $statementResponse->BANKTRANLIST->STMTTRN
+            $statementResponse->BANKTRANLIST
         );
 
         return $bankAccount;
@@ -302,25 +303,36 @@ class Ofx
         $creditAccount->statement->currency = (string)$xml->CCSTMTRS->CURDEF;
         $creditAccount->statement->startDate = $this->createDateTimeFromStr((string)$xml->CCSTMTRS->BANKTRANLIST->DTSTART);
         $creditAccount->statement->endDate = $this->createDateTimeFromStr((string)$xml->CCSTMTRS->BANKTRANLIST->DTEND);
-        $creditAccount->statement->transactions = $this->buildTransactions($xml->CCSTMTRS->BANKTRANLIST->STMTTRN);
+        // Pass the BANKTRANLIST parent element, let buildTransactions extract STMTTRNs
+        $creditAccount->statement->transactions = $this->buildTransactions($xml->CCSTMTRS->BANKTRANLIST);
 
         return $creditAccount;
     }
 
     /**
-     * @param SimpleXMLElement $transactions
+     * @param SimpleXMLElement $transactionList Parent element containing STMTTRN children (typically BANKTRANLIST)
      * @return array
      * @throws \Exception
      */
-    private function buildTransactions(SimpleXMLElement $transactions): array
+    private function buildTransactions(SimpleXMLElement $transactionList): array
     {
         // Use defensive parsing if available
         if ($this->transactionBuilder !== null) {
-            return $this->transactionBuilder->buildTransactions($transactions);
+            // Defensive parser expects BANKTRANLIST, extract STMTTRN for it
+            $stmtTrnElements = $transactionList->STMTTRN;
+            return $this->transactionBuilder->buildTransactions($stmtTrnElements);
         }
         
         // Original implementation (backward compatibility)
+        // Expect BANKTRANLIST parent, extract all STMTTRN children
         $return = [];
+        
+        // Use xpath to get all STMTTRN children - works consistently for 1 or many
+        $transactions = $transactionList->xpath('.//STMTTRN');
+        if ($transactions === false || empty($transactions)) {
+            return $return;
+        }
+        
         foreach ($transactions as $t) {
             $transaction = new Transaction();
             $transaction->type = (string)$t->TRNTYPE;
@@ -383,35 +395,15 @@ class Ofx
      */
     private function createDateTimeFromStr(string $dateString, bool $ignoreErrors = false): ?\DateTime
     {
-        $regex = '/'
-            . "(\d{4})(\d{2})(\d{2})?"     // YYYYMMDD             1,2,3
-            . "(?:(\d{2})(\d{2})(\d{2}))?" // HHMMSS   - optional  4,5,6
-            . "(?:\.(\d{3}))?"             // .XXX     - optional  7
-            . "(?:\[(-?\d+)\:(\w{3}\]))?"  // [-n:TZ]  - optional  8,9
-            . '/';
-
-        if (preg_match($regex, $dateString, $matches)) {
-            $year = (int)$matches[1];
-            $month = (int)$matches[2];
-            $day = (int)$matches[3];
-            $hour = isset($matches[4]) ? $matches[4] : 0;
-            $min = isset($matches[5]) ? $matches[5] : 0;
-            $sec = isset($matches[6]) ? $matches[6] : 0;
-
-            $format = $year . '-' . $month . '-' . $day . ' ' . $hour . ':' . $min . ':' . $sec;
-
-            try {
-                return new \DateTime($format);
-            } catch (\Exception $e) {
-                if ($ignoreErrors) {
-                    return null;
-                }
-
-                throw $e;
+        // Handle empty strings  
+        if (!isset($dateString) || trim($dateString) === '') {
+            if ($ignoreErrors) {
+                return null;  // Return null for empty optional fields
             }
+            throw new \RuntimeException('Failed to initialize DateTime for string: ');  // Throw for empty required fields
         }
-
-        throw new \RuntimeException('Failed to initialize DateTime for string: ' . $dateString);
+        
+        return Utils::createDateTimeFromStr($dateString, $ignoreErrors);
     }
 
     /**

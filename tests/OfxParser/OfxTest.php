@@ -251,7 +251,7 @@ class OfxTest extends TestCase
 
     public function testBuildTransactionsHandlesEmptyTransactions()
     {
-        $emptyTransactions = simplexml_load_string('<STMTTRN></STMTTRN>');
+        $emptyTransactions = simplexml_load_string('<BANKTRANLIST><STMTTRN></STMTTRN></BANKTRANLIST>');
         
         $method = new \ReflectionMethod(\OfxParser\Ofx::class, 'buildTransactions');
         $method->setAccessible(true);
@@ -267,7 +267,7 @@ class OfxTest extends TestCase
     public function testBuildTransactionsWithPayee()
     {
         $transactionWithPayee = simplexml_load_string(
-            '<STMTTRN><TRNTYPE>DEBIT</TRNTYPE><DTPOSTED>20200101</DTPOSTED><TRNAMT>-100.00</TRNAMT><FITID>123</FITID><NAME>Test</NAME><MEMO>Test memo</MEMO><PAYEE><NAME>Payee Name</NAME><CITY>City</CITY><STATE>ST</STATE><POSTALCODE>12345</POSTALCODE><PHONE>1234567890</PHONE></PAYEE></STMTTRN>'
+            '<BANKTRANLIST><STMTTRN><TRNTYPE>DEBIT</TRNTYPE><DTPOSTED>20200101</DTPOSTED><TRNAMT>-100.00</TRNAMT><FITID>123</FITID><NAME>Test</NAME><MEMO>Test memo</MEMO><PAYEE><NAME>Payee Name</NAME><CITY>City</CITY><STATE>ST</STATE><POSTALCODE>12345</POSTALCODE><PHONE>1234567890</PHONE></PAYEE></STMTTRN></BANKTRANLIST>'
         );
         
         $method = new \ReflectionMethod(\OfxParser\Ofx::class, 'buildTransactions');
@@ -285,7 +285,7 @@ class OfxTest extends TestCase
     public function testBuildTransactionsWithBankAccountTo()
     {
         $transactionWithBankTo = simplexml_load_string(
-            '<STMTTRN><TRNTYPE>XFER</TRNTYPE><DTPOSTED>20200101</DTPOSTED><TRNAMT>-100.00</TRNAMT><FITID>123</FITID><NAME>Transfer</NAME><BANKACCTTO><BANKID>123456</BANKID><ACCTID>9876543210</ACCTID><ACCTTYPE>CHECKING</ACCTTYPE></BANKACCTTO></STMTTRN>'
+            '<BANKTRANLIST><STMTTRN><TRNTYPE>XFER</TRNTYPE><DTPOSTED>20200101</DTPOSTED><TRNAMT>-100.00</TRNAMT><FITID>123</FITID><NAME>Transfer</NAME><BANKACCTTO><BANKID>123456</BANKID><ACCTID>9876543210</ACCTID><ACCTTYPE>CHECKING</ACCTTYPE></BANKACCTTO></STMTTRN></BANKTRANLIST>'
         );
         
         $method = new \ReflectionMethod(\OfxParser\Ofx::class, 'buildTransactions');
@@ -303,7 +303,7 @@ class OfxTest extends TestCase
     public function testBuildTransactionsWithCardAccountTo()
     {
         $transactionWithCardTo = simplexml_load_string(
-            '<STMTTRN><TRNTYPE>XFER</TRNTYPE><DTPOSTED>20200101</DTPOSTED><TRNAMT>-100.00</TRNAMT><FITID>123</FITID><NAME>Transfer</NAME><CCACCTTO><ACCTID>1234567890123456</ACCTID></CCACCTTO></STMTTRN>'
+            '<BANKTRANLIST><STMTTRN><TRNTYPE>XFER</TRNTYPE><DTPOSTED>20200101</DTPOSTED><TRNAMT>-100.00</TRNAMT><FITID>123</FITID><NAME>Transfer</NAME><CCACCTTO><ACCTID>1234567890123456</ACCTID></CCACCTTO></STMTTRN></BANKTRANLIST>'
         );
         
         $method = new \ReflectionMethod(\OfxParser\Ofx::class, 'buildTransactions');

@@ -126,7 +126,7 @@ class Parser
 
         $sgmlStart = stripos($ofxContent, '<OFX>');
         if ($sgmlStart === false) {
-            throw new \InvalidArgumentException('OFX content does not contain <OFX> tag');
+            throw new \InvalidArgumentException('OFX tag not found');
         }
         
         $ofxSgml = trim(substr($ofxContent, $sgmlStart));
@@ -149,9 +149,14 @@ class Parser
             throw new \InvalidArgumentException('Content is not valid ofx schema, please visit https://www.ofx.net/downloads.html and check valid schemas.');
         }
 
+        // Validate that the XML contains expected OFX structure
+        if (!isset($xml->SIGNONMSGSRSV1) && !isset($xml->BANKMSGSRSV1) && 
+            !isset($xml->CREDITCARDMSGSRSV1) && !isset($xml->INVSTMTMSGSRSV1)) {
+            throw new \InvalidArgumentException('Content is not valid ofx schema');
+        }
+
         $ofx = $this->createOfx($xml);
-	//I haven't updated OFX yet so buildHeader isn't there
-        //$ofx->buildHeader($header);
+        $ofx->buildHeader($header);
 
         // Return ParsingResult if defensive parsing is enabled
         if ($this->isDefensiveParsingEnabled()) {
@@ -159,7 +164,6 @@ class Parser
         }
 
         return $ofx;
-//        return new Ofx($xml);
     }
 
     /**
@@ -404,8 +408,8 @@ class Parser
         // Remove empty new lines.
         $ofxHeader = preg_replace('/^\n+/m', '', $ofxHeader);
 
-        // Check if it's an XML file (OFXv2)
-        if(preg_match('/^<\?xml/', $ofxHeader) === 1) {
+        // Check if it's an XML-style header (OFXv2) - starts with <?xml or <?OFX
+        if(preg_match('/^<\?(xml|OFX)/i', $ofxHeader) === 1) {
             // Only parse OFX headers and not XML headers.
             $ofxHeader = preg_replace('/<\?xml .*?\?>\n?/', '', $ofxHeader);
             $ofxHeader = preg_replace(['/"/', '/\?>/', '/<\?OFX/i'], '', $ofxHeader);
