@@ -115,6 +115,47 @@ class Transaction extends AbstractEntity
     public $cardAccountTo;
 
     /**
+     * Currency information for the transaction amount
+     * 
+     * What: Contains the currency code (e.g., 'USD', 'EUR') and optionally the
+     * exchange rate used when the transaction amount differs from the account's
+     * default currency (CURDEF).
+     * 
+     * Why: Multi-currency transactions are common in international banking. When
+     * a transaction occurs in a different currency than the account's base currency,
+     * OFX provides CURRENCY to show:
+     * - The actual currency the transaction was in (CURSYM)
+     * - The exchange rate applied (CURRATE)
+     * This allows applications to display both converted and original amounts.
+     * 
+     * @var array|null ['code' => string, 'rate' => float] or null if same as account currency
+     */
+    public $currency;
+
+    /**
+     * Original currency information before any conversion
+     * 
+     * What: Contains the original currency details when a transaction has been
+     * converted through multiple currencies.
+     * 
+     * Why: Some financial institutions convert foreign transactions through an
+     * intermediate currency before the final account currency. ORIGCURRENCY
+     * preserves the true original transaction currency:
+     * - Original amount was in ORIGCURRENCY
+     * - Converted to CURRENCY (if different)
+     * - Finally converted to account CURDEF
+     * This maintains the complete audit trail for currency conversions.
+     * 
+     * Example: A USD purchase on a EUR account via GBP processing:
+     * - ORIGCURRENCY: USD at original rate
+     * - CURRENCY: GBP at intermediate rate  
+     * - CURDEF: EUR (account's base currency)
+     * 
+     * @var array|null ['code' => string, 'rate' => float] or null if no intermediate conversion
+     */
+    public $originalCurrency;
+
+    /**
      * Get the associated type description
      *
      * @return string

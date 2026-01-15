@@ -373,6 +373,11 @@ class Ofx
             if(isset($t->PAYEE)) $transaction->payee = $this->buildPayee($t->PAYEE);
             if(isset($t->BANKACCTTO)) $transaction->bankAccountTo = $this->buildBankAccountTo($t->BANKACCTTO);
             if(isset($t->CCACCTTO)) $transaction->cardAccountTo = $this->buildCardAccountTo($t->CCACCTTO);
+            
+            // Currency information (OFX spec: multi-currency transaction support)
+            if(isset($t->CURRENCY)) $transaction->currency = $this->buildCurrency($t->CURRENCY);
+            if(isset($t->ORIGCURRENCY)) $transaction->originalCurrency = $this->buildCurrency($t->ORIGCURRENCY);
+            
             $return[] = $transaction;
         }
 
@@ -530,6 +535,34 @@ class Ofx
         $payee->phone = (string) $xml->PHONE;
 
         return $payee;
+    }
+
+    /**
+     * Build currency information from CURRENCY or ORIGCURRENCY element
+     * 
+     * What: Extracts currency code (CURSYM) and exchange rate (CURRATE) from XML.
+     * 
+     * Why: Multi-currency transactions include currency conversion details per OFX spec.
+     * Applications use this to display amounts in multiple currencies and calculate
+     * original foreign currency amounts.
+     * 
+     * @param SimpleXMLElement $xml CURRENCY or ORIGCURRENCY element
+     * @return array|null ['code' => string, 'rate' => float] or null if incomplete
+     */
+    private function buildCurrency(SimpleXMLElement $xml): ?array
+    {
+        $code = (string) $xml->CURSYM;
+        $rate = (string) $xml->CURRATE;
+        
+        // Both fields required for valid currency information
+        if ($code === '' || $rate === '') {
+            return null;
+        }
+        
+        return [
+            'code' => $code,
+            'rate' => (float) $rate
+        ];
     }
 
     /**

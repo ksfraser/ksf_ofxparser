@@ -23,20 +23,27 @@ use OfxParser\Metrics\ParsingMetrics;
 class Investment extends Ofx
 {
     /**
-     * @param SimpleXMLElement $xml
+     * @param SimpleXMLElement|null $xml
      * @param TransactionBuilder|null $transactionBuilder Optional defensive transaction builder
      * @param FieldExtractor|null $fieldExtractor Optional defensive field extractor
      * @param ParsingMetrics|null $metrics Optional metrics tracker
      * @throws \Exception
      */
     public function __construct(
-        SimpleXMLElement $xml,
+        ?SimpleXMLElement $xml,
         ?TransactionBuilder $transactionBuilder = null,
         ?FieldExtractor $fieldExtractor = null,
         ?ParsingMetrics $metrics = null
     ) {
         // Call parent constructor to set defensive parsing dependencies
         parent::__construct($xml, $transactionBuilder, $fieldExtractor, $metrics);
+        
+        // If xml is null, skip initialization (for SGML building)
+        if ($xml === null) {
+            $this->bankAccounts = [];
+            $this->bankAccount = null;
+            return;
+        }
         
         // Investment-specific initialization (override parent's bank account setup)
         $this->bankAccounts = [];

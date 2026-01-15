@@ -9,6 +9,7 @@ use OfxParser\Entities\Statement;
 use OfxParser\Entities\SignOn;
 use OfxParser\Entities\Status;
 use OfxParser\Entities\Institute;
+use OfxParser\Entities\Payee;
 use OfxParser\Sgml\Elements\Element;
 use OfxParser\Sgml\Elements\ContainerElement;
 use OfxParser\Sgml\Elements\ValueElement;
@@ -333,7 +334,122 @@ class SgmlOfxBuilder
             }
         }
         
+        // Payee information (OFX spec: optional structured payment recipient data)
+        $transaction->payeeId = $this->getValue($stmtTrn, 'PAYEEID', null);
+        $payeeElement = $this->findChild($stmtTrn, 'PAYEE');
+        if ($payeeElement) {
+            $transaction->payee = $this->buildPayee($payeeElement);
+        }
+        
+        // Currency information (OFX spec: for multi-currency transactions)
+        // Why: When transaction currency differs from account currency (CURDEF),
+        // CURRENCY provides the exchange rate and currency code used
+        $currencyElement = $this->findChild($stmtTrn, 'CURRENCY');
+        if ($currencyElement) {
+            $transaction->currency = $this->buildCurrency($currencyElement);
+        }
+        
+        // Original currency (OFX spec: for transactions converted through multiple currencies)
+        // Why: Preserves original transaction currency before any conversions
+        $origCurrencyElement = $this->findChild($stmtTrn, 'ORIGCURRENCY');
+        if ($origCurrencyElement) {
+            $transaction->originalCurrency = $this->buildCurrency($origCurrencyElement);
+        }
+        
         return $transaction;
+    }
+    
+    /**
+     * Build Payee entity from SGML PAYEE element
+     * 
+     * What: Constructs a Payee object containing structured payment recipient information
+     * including name, multi-line address, city, state, postal code, country, and phone.
+     * 
+     * Why: The OFX spec defines PAYEE as a container for structured payee information
+     * in transactions. This is used for bill payments, checks, and other payment types
+     * where detailed recipient information is available. Parsing payee data allows
+     * applications to:
+     * - Display complete recipient information
+     * - Store structured address data for record-keeping
+     * - Enable payee-based transaction analysis and reporting
+     * - Support bill pay and payment tracking features
+     * 
+     * @param Element $payeeElement The PAYEE container element
+     * @return Payee Populated payee entity with all available fields
+     */
+    private function buildPayee(Element $payeeElement): Payee
+    {
+        $payee = new Payee();
+        
+        // Required: Payee name
+        $payee->name = $this->getValue($payeeElement, 'NAME', '');
+        
+        // Optional: Multi-line address (ADDR1, ADDR2, ADDR3)
+        // Why: OFX supports up to 3 address lines for complete mailing addresses
+        $address = [];
+        $addr1 = $this->getValue($payeeElement, 'ADDR1', '');
+        if ($addr1 !== '') {
+            $address[] = $addr1;
+        }
+        $addr2 = $this->getValue($payeeElement, 'ADDR2', '');
+        if ($addr2 !== '') {
+            $address[] = $addr2;
+        }
+        $addr3 = $this->getValue($payeeElement, 'ADDR3', '');
+        if ($addr3 !== '') {
+            $address[] = $addr3;
+        }
+        $payee->address = count($address) > 0 ? $address : null;
+        
+        // Optional: Location and contact information
+        $payee->city = $this->getValue($payeeElement, 'CITY', null);
+        $payee->state = $this->getValue($payeeElement, 'STATE', null);
+        $payee->postalCode = $this->getValue($payeeElement, 'POSTALCODE', null);
+        $payee->country = $this->getValue($payeeElement, 'COUNTRY', null);
+        $payee->phone = $this->getValue($payeeElement, 'PHONE', null);
+        
+        return $payee;
+    }
+    
+    /**
+     * Build currency information from CURRENCY or ORIGCURRENCY element
+     * 
+     * What: Extracts currency code (CURSYM) and exchange rate (CURRATE) from
+     * OFX currency elements.
+     * 
+     * Why: Multi-currency transactions are common in international banking. The OFX
+     * spec defines CURRENCY and ORIGCURRENCY containers to provide:
+     * - Currency code (ISO 4217: USD, EUR, GBP, etc.)
+     * - Exchange rate applied for conversion
+     * 
+     * This enables applications to:
+     * - Display amounts in both account currency and original currency
+     * - Calculate original foreign amounts: original = amount / rate
+     * - Track currency conversion history
+     * - Support international transaction reporting
+     * 
+     * Example: EUR account with USD purchase:
+     * - TRNAMT: -100.00 (in EUR, the account currency)
+     * - CURRENCY: {code: 'USD', rate: 1.18}
+     * - Original amount: -100.00 / 1.18 = -84.75 USD
+     * 
+     * @param Element $currencyElement CURRENCY or ORIGCURRENCY container
+     * @return array|null ['code' => string, 'rate' => float] or null if incomplete
+     */
+    private function buildCurrency(Element $currencyElement): ?array
+    {
+        $code = $this->getValue($currencyElement, 'CURSYM', null);
+        $rate = $this->getValue($currencyElement, 'CURRATE', null);
+        
+        // Both fields required for valid currency information
+        if ($code === null || $rate === null) {
+            return null;
+        }
+        
+        return [
+            'code' => (string)$code,
+            'rate' => (float)$rate
+        ];
     }
     
     /**
@@ -401,7 +517,7 @@ class SgmlOfxBuilder
         return $dt ?: null;
     }    
     /**
-     * Build an InvestmentOfx object from SGML root element
+     * Build an InvestmentOfx object from SGML root element (native, no XML conversion)
      * 
      * @param Element $ofxElement The root OFX element
      * @param array $header Parsed OFX header
@@ -409,24 +525,24 @@ class SgmlOfxBuilder
      */
     public function buildInvestmentOfx(Element $ofxElement, array $header): \OfxParser\Ofx\Investment
     {
-        // For Investment, we need to convert SGML Element to SimpleXML
-        // because InvestmentOfx expects SimpleXMLElement in its constructor
-        // This is a hybrid approach - parse as SGML but convert to XML for entity building
+        // Create InvestmentOfx without calling constructor (which requires SimpleXMLElement)
+        $investmentOfx = new \OfxParser\Ofx\Investment(null);
         
-        // Build SignOn using SGML
+        // Build SignOn
         $signOnElement = $this->findChild($ofxElement, 'SIGNONMSGSRSV1');
-        $signOn = $signOnElement ? $this->buildSignOn($signOnElement) : null;
+        if ($signOnElement) {
+            $investmentOfx->signOn = $this->buildSignOn($signOnElement);
+        }
         
-        // Convert SGML Element tree to XML string
-        $xmlStr = $this->elementToXml($ofxElement);
-        $xml = simplexml_load_string('<?xml version="1.0"?>' . $xmlStr);
+        // Build Investment Accounts
+        $invMsgsElement = $this->findChild($ofxElement, 'INVSTMTMSGSRSV1');
+        if ($invMsgsElement) {
+            $investmentOfx->bankAccounts = $this->buildInvestmentAccounts($invMsgsElement);
+        }
         
-        // Create InvestmentOfx using the XML
-        $investmentOfx = new \OfxParser\Ofx\Investment($xml);
-        
-        // Override signOn with our SGML-built version
-        if ($signOn) {
-            $investmentOfx->signOn = $signOn;
+        // Set helper if only one account
+        if (count($investmentOfx->bankAccounts) === 1) {
+            $investmentOfx->bankAccount = $investmentOfx->bankAccounts[0];
         }
         
         // Set header
@@ -436,34 +552,359 @@ class SgmlOfxBuilder
     }
     
     /**
-     * Convert an Element tree to XML string
+     * Build investment accounts from SGML element
+     * 
+     * @return \OfxParser\Entities\Investment\Account[]
      */
-    private function elementToXml(Element $element): string
+    private function buildInvestmentAccounts(Element $invMsgs): array
     {
-        $xml = '<' . $element->getTagName() . '>';
+        $accounts = [];
         
-        if ($element instanceof ValueElement) {
-            $value = $element->getValue();
+        // Find all INVSTMTTRNRS elements
+        $stmtTrnRsList = $this->findChildren($invMsgs, 'INVSTMTTRNRS');
+        
+        foreach ($stmtTrnRsList as $stmtTrnRs) {
+            $trnUid = $this->getValue($stmtTrnRs, 'TRNUID', '');
             
-            // Handle DateTime objects (convert to OFX format: YYYYMMDDHHmmss.000)
-            if ($value instanceof \DateTimeInterface) {
-                // Keep the .000 milliseconds format for compatibility
-                $value = $value->format('YmdHis') . '.000';
-            } elseif ($value === null || $value === '') {
-                // Don't add content for null/empty values - just close the tag
-                $xml .= '</' . $element->getTagName() . '>';
-                return $xml;
-            }
+            // Find all INVSTMTRS elements (can be multiple)
+            $stmtRsList = $this->findChildren($stmtTrnRs, 'INVSTMTRS');
             
-            $xml .= htmlspecialchars((string)$value, ENT_XML1 | ENT_COMPAT, 'UTF-8');
-        } else {
-            foreach ($element->getChildren() as $child) {
-                $xml .= $this->elementToXml($child);
+            foreach ($stmtRsList as $stmtRs) {
+                $account = $this->buildInvestmentAccount($trnUid, $stmtRs);
+                if ($account) {
+                    $accounts[] = $account;
+                }
             }
         }
         
-        $xml .= '</' . $element->getTagName() . '>';
+        return $accounts;
+    }
+    
+    /**
+     * Build a single investment account from SGML element
+     */
+    private function buildInvestmentAccount(string $trnUid, Element $stmtRs): ?\OfxParser\Entities\Investment\Account
+    {
+        $account = new \OfxParser\Entities\Investment\Account();
+        $account->transactionUid = $trnUid;
         
-        return $xml;
+        // Account info from INVACCTFROM
+        $acctFrom = $this->findChild($stmtRs, 'INVACCTFROM');
+        if ($acctFrom) {
+            $account->brokerId = trim($this->getValue($acctFrom, 'BROKERID', ''));
+            $account->accountNumber = trim($this->getValue($acctFrom, 'ACCTID', ''));
+        }
+        
+        // Statement
+        $account->statement = new Statement();
+        $account->statement->currency = $this->getValue($stmtRs, 'CURDEF', '');
+        
+        // Transaction list
+        $tranList = $this->findChild($stmtRs, 'INVTRANLIST');
+        if ($tranList) {
+            $dtStart = $this->getValue($tranList, 'DTSTART');
+            $dtEnd = $this->getValue($tranList, 'DTEND');
+            
+            if ($dtStart instanceof \DateTimeInterface) {
+                $account->statement->startDate = $dtStart;
+            } elseif ($dtStart) {
+                $account->statement->startDate = $this->parseDateTime($dtStart);
+            }
+            
+            if ($dtEnd instanceof \DateTimeInterface) {
+                $account->statement->endDate = $dtEnd;
+            } elseif ($dtEnd) {
+                $account->statement->endDate = $this->parseDateTime($dtEnd);
+            }
+            
+            $account->statement->transactions = $this->buildInvestmentTransactions($tranList);
+        } else {
+            $account->statement->transactions = [];
+        }
+        
+        return $account;
+    }
+    
+    /**
+     * Build investment transactions from SGML element
+     */
+    private function buildInvestmentTransactions(Element $tranList): array
+    {
+        $transactions = [];
+        
+        foreach ($tranList->getChildren() as $child) {
+            $transaction = null;
+            $tagName = $child->getTagName();
+            
+            switch ($tagName) {
+                case 'BUYMF':
+                    $transaction = $this->buildBuyMutualFund($child);
+                    break;
+                case 'BUYSTOCK':
+                    $transaction = $this->buildBuyStock($child);
+                    break;
+                case 'BUYOTHER':
+                    $transaction = $this->buildBuySecurity($child);
+                    break;
+                case 'SELLMF':
+                    $transaction = $this->buildSellMutualFund($child);
+                    break;
+                case 'SELLSTOCK':
+                    $transaction = $this->buildSellStock($child);
+                    break;
+                case 'SELLOTHER':
+                    $transaction = $this->buildSellSecurity($child);
+                    break;
+                case 'REINVEST':
+                    $transaction = $this->buildReinvest($child);
+                    break;
+                case 'INCOME':
+                    $transaction = $this->buildIncome($child);
+                    break;
+                case 'INVBANKTRAN':
+                    $transaction = $this->buildInvestmentBanking($child);
+                    break;
+            }
+            
+            if ($transaction) {
+                $transactions[] = $transaction;
+            }
+        }
+        
+        return $transactions;
+    }
+    
+    /**
+     * Build common INVTRAN data
+     */
+    private function loadInvTran($transaction, Element $invTranElement)
+    {
+        $transaction->uniqueId = $this->getValue($invTranElement, 'FITID', '');
+        
+        $dtTrade = $this->getValue($invTranElement, 'DTTRADE');
+        if ($dtTrade instanceof \DateTimeInterface) {
+            $transaction->tradeDate = $dtTrade;
+        } elseif ($dtTrade) {
+            $transaction->tradeDate = $this->parseDateTime($dtTrade);
+        }
+        
+        $dtSettle = $this->getValue($invTranElement, 'DTSETTLE');
+        if ($dtSettle instanceof \DateTimeInterface) {
+            $transaction->settlementDate = $dtSettle;
+        } elseif ($dtSettle) {
+            $transaction->settlementDate = $this->parseDateTime($dtSettle);
+        }
+        
+        $transaction->memo = $this->getValue($invTranElement, 'MEMO', '');
+        
+        return $transaction;
+    }
+    
+    /**
+     * Build common SECID data
+     */
+    private function loadSecId($transaction, Element $secIdElement)
+    {
+        $transaction->securityId = $this->getValue($secIdElement, 'UNIQUEID', '');
+        $transaction->securityIdType = $this->getValue($secIdElement, 'UNIQUEIDTYPE', '');
+        return $transaction;
+    }
+    
+    /**
+     * Build common pricing data
+     */
+    private function loadPricing($transaction, Element $element)
+    {
+        $units = $this->getValue($element, 'UNITS');
+        $transaction->units = ($units !== null && $units !== '') ? (string)$units : null;
+        
+        $unitPrice = $this->getValue($element, 'UNITPRICE');
+        $transaction->unitPrice = ($unitPrice !== null && $unitPrice !== '') ? (string)$unitPrice : null;
+        
+        $total = $this->getValue($element, 'TOTAL');
+        $transaction->total = ($total !== null && $total !== '') ? (string)$total : null;
+        
+        $subAcctFund = $this->getValue($element, 'SUBACCTFUND');
+        $transaction->subAccountFund = ($subAcctFund !== null && $subAcctFund !== '') ? $subAcctFund : null;
+        
+        $subAcctSec = $this->getValue($element, 'SUBACCTSEC');
+        $transaction->subAccountSec = ($subAcctSec !== null && $subAcctSec !== '') ? $subAcctSec : null;
+        
+        return $transaction;
+    }
+    
+    private function buildBuyMutualFund(Element $element)
+    {
+        $transaction = new \OfxParser\Entities\Investment\Transaction\BuyMutualFund();
+        $invBuy = $this->findChild($element, 'INVBUY');
+        if (!$invBuy) return null;
+        
+        $invTran = $this->findChild($invBuy, 'INVTRAN');
+        if ($invTran) $this->loadInvTran($transaction, $invTran);
+        
+        $secId = $this->findChild($invBuy, 'SECID');
+        if ($secId) $this->loadSecId($transaction, $secId);
+        
+        $this->loadPricing($transaction, $invBuy);
+        $transaction->buyType = $this->getValue($element, 'BUYTYPE', '');
+        
+        return $transaction;
+    }
+    
+    private function buildBuyStock(Element $element)
+    {
+        $transaction = new \OfxParser\Entities\Investment\Transaction\BuyStock();
+        $invBuy = $this->findChild($element, 'INVBUY');
+        if (!$invBuy) return null;
+        
+        $invTran = $this->findChild($invBuy, 'INVTRAN');
+        if ($invTran) $this->loadInvTran($transaction, $invTran);
+        
+        $secId = $this->findChild($invBuy, 'SECID');
+        if ($secId) $this->loadSecId($transaction, $secId);
+        
+        $this->loadPricing($transaction, $invBuy);
+        $transaction->buyType = $this->getValue($element, 'BUYTYPE', '');
+        
+        return $transaction;
+    }
+    
+    private function buildBuySecurity(Element $element)
+    {
+        $transaction = new \OfxParser\Entities\Investment\Transaction\BuySecurity();
+        $invBuy = $this->findChild($element, 'INVBUY');
+        if (!$invBuy) return null;
+        
+        $invTran = $this->findChild($invBuy, 'INVTRAN');
+        if ($invTran) $this->loadInvTran($transaction, $invTran);
+        
+        $secId = $this->findChild($invBuy, 'SECID');
+        if ($secId) $this->loadSecId($transaction, $secId);
+        
+        $this->loadPricing($transaction, $invBuy);
+        $transaction->buyType = $this->getValue($element, 'BUYTYPE', '');
+        
+        return $transaction;
+    }
+    
+    private function buildSellMutualFund(Element $element)
+    {
+        $transaction = new \OfxParser\Entities\Investment\Transaction\SellMutualFund();
+        $invSell = $this->findChild($element, 'INVSELL');
+        if (!$invSell) return null;
+        
+        $invTran = $this->findChild($invSell, 'INVTRAN');
+        if ($invTran) $this->loadInvTran($transaction, $invTran);
+        
+        $secId = $this->findChild($invSell, 'SECID');
+        if ($secId) $this->loadSecId($transaction, $secId);
+        
+        $this->loadPricing($transaction, $invSell);
+        $transaction->sellType = $this->getValue($element, 'SELLTYPE', '');
+        
+        return $transaction;
+    }
+    
+    private function buildSellStock(Element $element)
+    {
+        $transaction = new \OfxParser\Entities\Investment\Transaction\SellStock();
+        $invSell = $this->findChild($element, 'INVSELL');
+        if (!$invSell) return null;
+        
+        $invTran = $this->findChild($invSell, 'INVTRAN');
+        if ($invTran) $this->loadInvTran($transaction, $invTran);
+        
+        $secId = $this->findChild($invSell, 'SECID');
+        if ($secId) $this->loadSecId($transaction, $secId);
+        
+        $this->loadPricing($transaction, $invSell);
+        $transaction->sellType = $this->getValue($element, 'SELLTYPE', '');
+        
+        return $transaction;
+    }
+    
+    private function buildSellSecurity(Element $element)
+    {
+        $transaction = new \OfxParser\Entities\Investment\Transaction\SellSecurity();
+        $invSell = $this->findChild($element, 'INVSELL');
+        if (!$invSell) return null;
+        
+        $invTran = $this->findChild($invSell, 'INVTRAN');
+        if ($invTran) $this->loadInvTran($transaction, $invTran);
+        
+        $secId = $this->findChild($invSell, 'SECID');
+        if ($secId) $this->loadSecId($transaction, $secId);
+        
+        $this->loadPricing($transaction, $invSell);
+        $transaction->sellType = $this->getValue($element, 'SELLTYPE', '');
+        
+        return $transaction;
+    }
+    
+    private function buildReinvest(Element $element)
+    {
+        $transaction = new \OfxParser\Entities\Investment\Transaction\Reinvest();
+        
+        $invTran = $this->findChild($element, 'INVTRAN');
+        if ($invTran) $this->loadInvTran($transaction, $invTran);
+        
+        $secId = $this->findChild($element, 'SECID');
+        if ($secId) $this->loadSecId($transaction, $secId);
+        
+        $this->loadPricing($transaction, $element);
+        $transaction->incomeType = $this->getValue($element, 'INCOMETYPE', '');
+        
+        return $transaction;
+    }
+    
+    private function buildIncome(Element $element)
+    {
+        $transaction = new \OfxParser\Entities\Investment\Transaction\Income();
+        
+        $invTran = $this->findChild($element, 'INVTRAN');
+        if ($invTran) $this->loadInvTran($transaction, $invTran);
+        
+        $secId = $this->findChild($element, 'SECID');
+        if ($secId) $this->loadSecId($transaction, $secId);
+        
+        $total = $this->getValue($element, 'TOTAL');
+        $transaction->total = ($total !== null && $total !== '') ? $total : null;
+        
+        $transaction->incomeType = $this->getValue($element, 'INCOMETYPE', '');
+        
+        $subAcctSec = $this->getValue($element, 'SUBACCTSEC');
+        $transaction->subAccountSec = ($subAcctSec !== null && $subAcctSec !== '') ? $subAcctSec : null;
+        
+        $subAcctFund = $this->getValue($element, 'SUBACCTFUND');
+        $transaction->subAccountFund = ($subAcctFund !== null && $subAcctFund !== '') ? $subAcctFund : null;
+        
+        return $transaction;
+    }
+    
+    private function buildInvestmentBanking(Element $element)
+    {
+        $transaction = new \OfxParser\Entities\Investment\Transaction\Banking();
+        
+        $stmtTrn = $this->findChild($element, 'STMTTRN');
+        if ($stmtTrn) {
+            $transaction->type = $this->getValue($stmtTrn, 'TRNTYPE', '');
+            
+            $dtPosted = $this->getValue($stmtTrn, 'DTPOSTED');
+            if ($dtPosted instanceof \DateTimeInterface) {
+                $transaction->date = $dtPosted;
+            } elseif ($dtPosted) {
+                $transaction->date = $this->parseDateTime($dtPosted);
+            }
+            
+            $trnAmt = $this->getValue($stmtTrn, 'TRNAMT');
+            $transaction->amount = $trnAmt !== null ? (float)$trnAmt : 0.0;
+            
+            $transaction->uniqueId = $this->getValue($stmtTrn, 'FITID', '');
+        }
+        
+        $subAcctFund = $this->getValue($element, 'SUBACCTFUND');
+        $transaction->subAccountFund = ($subAcctFund !== null && $subAcctFund !== '') ? $subAcctFund : null;
+        
+        return $transaction;
     }
 }
