@@ -46,11 +46,6 @@ class SgmlOfxLoader implements OfxLoaderInterface
      */
     public function load(string $ofxHeader, string $ofxBody): array
     {
-        // Track SGML path usage
-        if ($this->metrics) {
-            $this->metrics->recordParsingPath('sgml');
-        }
-        
         // Parse header
         $header = $this->parseHeader($ofxHeader);
         
