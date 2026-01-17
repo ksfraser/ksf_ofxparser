@@ -197,13 +197,8 @@ SGML;
         $transaction = $ofx->bankAccounts[0]->statement->transactions[0];
         $this->assertInstanceOf(\OfxParser\Entities\Payee::class, $transaction->payee);
         $this->assertEquals('Test Payee', $transaction->payee->name);
-        // Address will have empty values when lines are empty
-        $this->assertIsArray($transaction->payee->address);
-        $this->assertCount(3, $transaction->payee->address);
-        // All address lines should be empty or null
-        foreach ($transaction->payee->address as $line) {
-            $this->assertTrue(empty($line) || $line === 'NULL');
-        }
+        // Address should be null when all lines are empty
+        $this->assertNull($transaction->payee->address);
         $this->assertEquals('TestCity', $transaction->payee->city);
     }
     

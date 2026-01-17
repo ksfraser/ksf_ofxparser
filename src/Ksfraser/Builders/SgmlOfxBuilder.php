@@ -412,21 +412,17 @@ class SgmlOfxBuilder
         $payee->name = $this->getValue($payeeElement, 'NAME', '');
         
         // Optional: Multi-line address (ADDR1, ADDR2, ADDR3)
-        // Why: OFX supports up to 3 address lines for complete mailing addresses
-        $address = [];
-        $addr1 = $this->getValue($payeeElement, 'ADDR1', '');
-        if ($addr1 !== '') {
-            $address[] = $addr1;
-        }
-        $addr2 = $this->getValue($payeeElement, 'ADDR2', '');
-        if ($addr2 !== '') {
-            $address[] = $addr2;
-        }
-        $addr3 = $this->getValue($payeeElement, 'ADDR3', '');
-        if ($addr3 !== '') {
-            $address[] = $addr3;
-        }
-        $payee->address = count($address) > 0 ? $address : null;
+        // Why: OFX supports up to 3 sequential address lines for complete mailing addresses
+        // Returns compact array containing only non-empty address lines
+        $address = array_filter([
+            $this->getValue($payeeElement, 'ADDR1', ''),
+            $this->getValue($payeeElement, 'ADDR2', ''),
+            $this->getValue($payeeElement, 'ADDR3', '')
+        ], function($val) {
+            return $val !== null && $val !== '';
+        });
+        
+        $payee->address = !empty($address) ? array_values($address) : null;
         
         // Optional: Location and contact information
         $payee->city = $this->getValue($payeeElement, 'CITY', null);
@@ -1016,13 +1012,15 @@ class SgmlOfxBuilder
         $unitPrice = $this->getValue($secInfo, 'UNITPRICE');
         $security->unitPrice = ($unitPrice !== null && $unitPrice !== '') ? (float)$unitPrice : null;
         
-        // CURRENCY can be either a simple value (<CURRENCY>USD) or a container (<CURRENCY><CURSYM>USD</CURSYM>...)
-        // When simple, getValue returns the text; when container, check for CURSYM child
-        $currency = $this->getValue($secInfo, 'CURRENCY');
-        if (!$currency || $currency === '') {
-            // Try CURSYM child (container format)
-            $currencyElement = $this->findChild($secInfo, 'CURRENCY');
-            if ($currencyElement) {
+        // CURRENCY is hybrid (UnknownElement): <CURRENCY>USD (value) or <CURRENCY><CURSYM>... (container)
+        // UnknownElement.getValue() returns text when no children, null when has children
+        $currencyElement = $this->findChild($secInfo, 'CURRENCY');
+        $currency = null;
+        if ($currencyElement) {
+            // Try getValue() first (works for UnknownElement with text)
+            $currency = $currencyElement->getValue();
+            if (!$currency || $currency === '') {
+                // Try CURSYM child (container format)
                 $currency = $this->getValue($currencyElement, 'CURSYM');
             }
         }

@@ -5,6 +5,7 @@ namespace OfxParser\Sgml;
 use OfxParser\Sgml\Elements\Element;
 use OfxParser\Sgml\Elements\ValueElement;
 use OfxParser\Sgml\Elements\ContainerElement;
+use OfxParser\Sgml\Elements\CurrencyElement;
 use OfxParser\Sgml\Elements\UnknownElement;
 
 /**
@@ -233,9 +234,6 @@ class ElementFactory
         'LOANREMAINING',    // Loan remaining amounts
         'LOANTRANLIST',     // Loan transaction list
         'PAYEE',
-        // Note: CURRENCY is NOT listed here - it can be either value OR container
-        // When it's <CURRENCY>USD, it's an UnknownElement with textValue
-        // When it's <CURRENCY><CURSYM>USD</CURSYM>, it's an UnknownElement with children
         'ORIGCURRENCY',
         'BANKACCTINFO',
         'CCACCTINFO',
@@ -286,6 +284,13 @@ class ElementFactory
     {
         $tagUpper = strtoupper($tagName);
 
+        // Special case: CURRENCY is a known hybrid element
+        // OFX spec allows both <CURRENCY>USD and <CURRENCY><CURSYM>USD</CURSYM><CURRATE>...</CURRATE></CURRENCY>
+        // Use dedicated CurrencyElement class that handles both formats (SRP)
+        if ($tagUpper === 'CURRENCY') {
+            return new CurrencyElement($tagUpper, $line, $column);
+        }
+
         // Check if it's a known value element
         if (isset(self::$valueElements[$tagUpper])) {
             $config = self::$valueElements[$tagUpper];
@@ -303,7 +308,7 @@ class ElementFactory
             return new ContainerElement($tagUpper, $line, $column);
         }
 
-        // Unknown element - allow forward compatibility
+        // Unknown element - for future OFX spec additions not yet implemented
         return new UnknownElement($tagUpper, $line, $column);
     }
 

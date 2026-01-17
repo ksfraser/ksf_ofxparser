@@ -84,6 +84,22 @@ class Parser
      */
     private function parseChildren(Element $parent): void
     {
+        // Check if next token is text (for hybrid elements like CURRENCY)
+        // Hybrid elements can contain either text OR children, not both
+        $firstToken = $this->tokenizer->peekToken();
+        if ($firstToken->isText()) {
+            // This element has text content, not children
+            $this->tokenizer->nextToken(); // Consume text
+            $parent->setTextValue($firstToken->value);
+            
+            // Skip to closing tag
+            $closeToken = $this->tokenizer->peekToken();
+            if ($closeToken->isCloseTag() && $closeToken->value === $parent->getTagName()) {
+                $this->tokenizer->nextToken(); // Consume close tag
+            }
+            return;
+        }
+        
         while (true) {
             $token = $this->tokenizer->peekToken();
 

@@ -214,15 +214,16 @@ class ElementFactoryTest extends TestCase
     }
     
     /**
-     * Test currency is unknown element (can be value OR container)
+     * Test CURRENCY element is handled by dedicated CurrencyElement class
      * 
      * CURRENCY can appear as:
      * - Simple value: <CURRENCY>USD
      * - Container: <CURRENCY><CURSYM>USD</CURSYM><CURRATE>1.0</CURRATE></CURRENCY>
      * 
-     * To handle both cases, CURRENCY is treated as UnknownElement which adapts based on content.
+     * CurrencyElement class follows SRP - dedicated responsibility for handling
+     * this known OFX element's dual format behavior.
      */
-    public function testCurrencyIsUnknownElement(): void
+    public function testCurrencyIsCurrencyElement(): void
     {
         $this->assertFalse($this->factory->isContainerElement('CURRENCY'));
         $this->assertFalse($this->factory->isValueElement('CURRENCY'));
@@ -231,7 +232,7 @@ class ElementFactoryTest extends TestCase
         $currency = $this->factory->createElement('CURRENCY');
         $origCurrency = $this->factory->createElement('ORIGCURRENCY');
         
-        $this->assertInstanceOf(Elements\UnknownElement::class, $currency);
+        $this->assertInstanceOf(Elements\CurrencyElement::class, $currency);
         $this->assertInstanceOf(Elements\ContainerElement::class, $origCurrency);
     }
     
