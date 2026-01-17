@@ -32,6 +32,7 @@ class ElementFactory
         'SIC' => ['type' => 'string', 'required' => false],
         'PAYEEID' => ['type' => 'string', 'required' => false],
         'NAME' => ['type' => 'string', 'required' => false],
+        'DESC' => ['type' => 'string', 'required' => false],
         'EXTDNAME' => ['type' => 'string', 'required' => false],
         'MEMO' => ['type' => 'string', 'required' => false],
         
@@ -103,6 +104,32 @@ class ElementFactory
         'WITHHOLDING' => ['type' => 'amount', 'required' => false],
         'TAXEXEMPT' => ['type' => 'boolean', 'required' => false],
         
+        // Security List fields (SECLISTMSGSRSV1)
+        'SECNAME' => ['type' => 'string', 'required' => true],
+        'TICKER' => ['type' => 'string', 'required' => false],
+        'DEBTTYPE' => ['type' => 'string', 'required' => false],
+        'DEBTCLASS' => ['type' => 'string', 'required' => false],
+        'COUPONRT' => ['type' => 'decimal', 'required' => false],
+        'DTMAT' => ['type' => 'datetime', 'required' => false],
+        'PARVALUE' => ['type' => 'amount', 'required' => false],
+        'MFASSETCLASS' => ['type' => 'string', 'required' => false],
+        'FIMFASSETCLASS' => ['type' => 'string', 'required' => false],
+        
+        // Loan Account fields (LOANMSGSRSV1)
+        'LOANACCTID' => ['type' => 'string', 'required' => true],
+        'LOANACCTTYPE' => ['type' => 'string', 'required' => false],
+        'LOANINTRATE' => ['type' => 'decimal', 'required' => false],
+        'LOANPMT' => ['type' => 'amount', 'required' => false],
+        'LOANNEXTPMT' => ['type' => 'datetime', 'required' => false],
+        'LOANPMTFREQ' => ['type' => 'string', 'required' => false],
+        'LOANPMTSREMAINING' => ['type' => 'int', 'required' => false],
+        'LOANPRINCIPAL' => ['type' => 'amount', 'required' => false],
+        'LOANINTEREST' => ['type' => 'amount', 'required' => false],
+        'LOANINITBAL' => ['type' => 'amount', 'required' => false],
+        'LOANMATURITYDATE' => ['type' => 'datetime', 'required' => false],
+        'BALTYPE' => ['type' => 'string', 'required' => false],
+        'VALUE' => ['type' => 'amount', 'required' => false],
+        
         // Currency fields
         'CURSYM' => ['type' => 'string', 'required' => false],
         'CURRATE' => ['type' => 'decimal', 'required' => false],
@@ -161,8 +188,25 @@ class ElementFactory
         'SECLIST',
         'SECINFO',
         'SECID',
+        'SECLISTMSGSRSV1',  // Security List message set
+        'STOCKINFO',        // Stock security
+        'DEBTINFO',         // Bond/Debt security
+        'MFINFO',           // Mutual fund security
+        'OPTINFO',          // Option security
+        'OTHERINFO',        // Other security type
+        'LOANMSGSRSV1',     // Loan message set
+        'LOANSTMTTRNRS',    // Loan statement response
+        'LOANSTMTRS',       // Loan statement
+        'LOANACCTFROM',     // Loan account identifier
+        'LOANBAL',          // Loan balance
+        'LOANRATE',         // Loan interest rate
+        'LOANPMTINFO',      // Loan payment information
+        'LOANREMAINING',    // Loan remaining amounts
+        'LOANTRANLIST',     // Loan transaction list
         'PAYEE',
-        'CURRENCY',
+        // Note: CURRENCY is NOT listed here - it can be either value OR container
+        // When it's <CURRENCY>USD, it's an UnknownElement with textValue
+        // When it's <CURRENCY><CURSYM>USD</CURSYM>, it's an UnknownElement with children
         'ORIGCURRENCY',
         'BANKACCTINFO',
         'CCACCTINFO',

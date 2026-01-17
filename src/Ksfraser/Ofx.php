@@ -74,6 +74,18 @@ class Ofx
      * @deprecated This will be removed in future versions
      */
     public $bankAccount;
+    
+    /**
+     * Security List (SECLISTMSGSRSV1)
+     * @var \OfxParser\Entities\Investment\SecurityList|null
+     */
+    public $securityList;
+    
+    /**
+     * Loan Accounts (LOANMSGSRSV1)
+     * @var \OfxParser\Entities\Loan\LoanAccount[]
+     */
+    public $loanAccounts = [];
 
     /**
      * @param SimpleXMLElement|null $xml Optional XML element to parse (null for SGML builder path)
@@ -120,6 +132,16 @@ class Ofx
         // Set a helper if only one bank account
         if (count($this->bankAccounts) === 1) {
             $this->bankAccount = $this->bankAccounts[0];
+        }
+        
+        // Parse Security List (SECLISTMSGSRSV1)
+        if (isset($xml->SECLISTMSGSRSV1)) {
+            $this->securityList = $this->buildSecurityList($xml->SECLISTMSGSRSV1);
+        }
+        
+        // Parse Loan Accounts (LOANMSGSRSV1)
+        if (isset($xml->LOANMSGSRSV1)) {
+            $this->loanAccounts = $this->buildLoanAccounts($xml->LOANMSGSRSV1);
         }
     }
 
@@ -604,5 +626,231 @@ class Ofx
         unset($cardAccountTo->routingNumber, $cardAccountTo->agencyNumber, $cardAccountTo->accountType, $cardAccountTo->balance, $cardAccountTo->balanceDate, $cardAccountTo->statement, $cardAccountTo->transactionUid);
 
         return $cardAccountTo;
+    }
+    
+    /**
+     * Build Security List from SECLISTMSGSRSV1
+     * 
+     * Implements DRY principle: Single method handles all security types (STOCK, BOND, MF, OTHER)
+     * 
+     * @param SimpleXMLElement $xml SECLISTMSGSRSV1 element
+     * @return \OfxParser\Entities\Investment\SecurityList
+     */
+    private function buildSecurityList(SimpleXMLElement $xml): \OfxParser\Entities\Investment\SecurityList
+    {
+        $securityList = new \OfxParser\Entities\Investment\SecurityList();
+        
+        if (!isset($xml->SECLIST)) {
+            return $securityList;
+        }
+        
+        // Parse different security types (DRY: unified approach)
+        $securityTypes = [
+            'STOCKINFO' => 'STOCK',
+            'DEBTINFO' => 'BOND',
+            'MFINFO' => 'MUTUALFUND',
+            'OPTINFO' => 'OPTION',
+            'OTHERINFO' => 'OTHER'
+        ];
+        
+        foreach ($securityTypes as $xmlTag => $securityType) {
+            if (isset($xml->SECLIST->$xmlTag)) {
+                foreach ($xml->SECLIST->$xmlTag as $secInfo) {
+                    $security = $this->buildSecurity($secInfo, $securityType);
+                    $securityList->addSecurity($security);
+                }
+            }
+        }
+        
+        return $securityList;
+    }
+    
+    /**
+     * Build individual Security entity
+     * 
+     * Implements SOLID: Single responsibility for building one security
+     * 
+     * @param SimpleXMLElement $xml Security info element (STOCKINFO, DEBTINFO, etc.)
+     * @param string $securityType Type of security
+     * @return \OfxParser\Entities\Investment\Security
+     */
+    private function buildSecurity(SimpleXMLElement $xml, string $securityType): \OfxParser\Entities\Investment\Security
+    {
+        $security = new \OfxParser\Entities\Investment\Security();
+        
+        // All securities have SECINFO child
+        $secInfo = $xml->SECINFO;
+        
+        // Required fields
+        $security->securityId = (string) $secInfo->SECID->UNIQUEID;
+        $security->securityIdType = (string) $secInfo->SECID->UNIQUEIDTYPE;
+        $security->name = (string) $secInfo->SECNAME;
+        $security->securityType = $securityType;
+        
+        // Optional common fields
+        $security->ticker = isset($secInfo->TICKER) ? (string) $secInfo->TICKER : null;
+        $security->memo = isset($secInfo->MEMO) ? (string) $secInfo->MEMO : null;
+        $security->unitPrice = isset($secInfo->UNITPRICE) ? (float) $secInfo->UNITPRICE : null;
+        $security->currency = isset($secInfo->CURRENCY) ? (string) $secInfo->CURRENCY : null;
+        
+        if (isset($secInfo->DTPRICEASOF)) {
+            $security->priceDateOf = $this->createDateTimeFromStr((string) $secInfo->DTPRICEASOF);
+        }
+        
+        // Bond-specific fields
+        if ($securityType === 'BOND' && isset($xml->DEBTTYPE)) {
+            $security->debtType = (string) $xml->DEBTTYPE;
+            $security->debtClass = isset($xml->DEBTCLASS) ? (string) $xml->DEBTCLASS : null;
+            $security->couponRate = isset($xml->COUPONRT) ? (float) $xml->COUPONRT : null;
+            $security->parValue = isset($xml->PARVALUE) ? (float) $xml->PARVALUE : null;
+            
+            if (isset($xml->DTMAT)) {
+                $security->maturityDate = $this->createDateTimeFromStr((string) $xml->DTMAT);
+            }
+        }
+        
+        // Mutual fund-specific fields
+        if ($securityType === 'MUTUALFUND') {
+            $security->assetClass = isset($xml->MFASSETCLASS) ? (string) $xml->MFASSETCLASS : null;
+            $security->fiAssetClass = isset($xml->FIMFASSETCLASS) ? (string) $xml->FIMFASSETCLASS : null;
+        }
+        
+        return $security;
+    }
+    
+    /**
+     * Build Loan Accounts from LOANMSGSRSV1
+     * 
+     * Implements SOLID: Delegates to buildLoanAccount for each account
+     * 
+     * @param SimpleXMLElement $xml LOANMSGSRSV1 element
+     * @return \OfxParser\Entities\Loan\LoanAccount[]
+     */
+    private function buildLoanAccounts(SimpleXMLElement $xml): array
+    {
+        $loanAccounts = [];
+        
+        if (!isset($xml->LOANSTMTTRNRS)) {
+            return $loanAccounts;
+        }
+        
+        foreach ($xml->LOANSTMTTRNRS as $loanStatement) {
+            if (isset($loanStatement->LOANSTMTRS)) {
+                $loanAccount = $this->buildLoanAccount($loanStatement->LOANSTMTRS);
+                $loanAccounts[] = $loanAccount;
+            }
+        }
+        
+        return $loanAccounts;
+    }
+    
+    /**
+     * Build individual Loan Account entity
+     * 
+     * Implements SOLID: Single responsibility for building one loan account
+     * Implements DI: Uses existing Utils for date parsing
+     * 
+     * @param SimpleXMLElement $xml LOANSTMTRS element
+     * @return \OfxParser\Entities\Loan\LoanAccount
+     */
+    private function buildLoanAccount(SimpleXMLElement $xml): \OfxParser\Entities\Loan\LoanAccount
+    {
+        $loan = new \OfxParser\Entities\Loan\LoanAccount();
+        
+        // Currency
+        $loan->currency = (string) $xml->CURDEF;
+        
+        // Account identification
+        $loan->accountNumber = (string) $xml->LOANACCTFROM->LOANACCTID;
+        $loan->accountType = isset($xml->LOANACCTFROM->LOANACCTTYPE) 
+            ? (string) $xml->LOANACCTFROM->LOANACCTTYPE 
+            : 'OTHER';
+        
+        // Balance information (DRY: loop through balances)
+        if (isset($xml->LOANBAL->BALLIST->BAL)) {
+            foreach ($xml->LOANBAL->BALLIST->BAL as $bal) {
+                $balType = (string) $bal->BALTYPE;
+                $value = (float) $bal->VALUE;
+                
+                if ($balType === 'PRINCIPAL') {
+                    $loan->principalBalance = $value;
+                } elseif ($balType === 'AVAILABLE') {
+                    $loan->availableCredit = $value;
+                }
+            }
+        }
+        
+        // Interest rate
+        if (isset($xml->LOANRATE)) {
+            $loan->interestRate = (float) $xml->LOANRATE->LOANINTRATE;
+            if (isset($xml->LOANRATE->DTASOF)) {
+                $loan->interestRateAsOf = $this->createDateTimeFromStr((string) $xml->LOANRATE->DTASOF);
+            }
+        }
+        
+        // Payment information
+        if (isset($xml->LOANPMTINFO)) {
+            $pmtInfo = $xml->LOANPMTINFO;
+            $loan->paymentAmount = isset($pmtInfo->LOANPMT) ? (float) $pmtInfo->LOANPMT : null;
+            $loan->paymentFrequency = isset($pmtInfo->LOANPMTFREQ) ? (string) $pmtInfo->LOANPMTFREQ : null;
+            $loan->paymentsRemaining = isset($pmtInfo->LOANPMTSREMAINING) ? (int) $pmtInfo->LOANPMTSREMAINING : null;
+            
+            if (isset($pmtInfo->LOANNEXTPMT)) {
+                $loan->nextPaymentDate = $this->createDateTimeFromStr((string) $pmtInfo->LOANNEXTPMT);
+            }
+        }
+        
+        // Remaining amounts
+        if (isset($xml->LOANREMAINING)) {
+            $loan->remainingInterest = isset($xml->LOANREMAINING->LOANINTEREST) 
+                ? (float) $xml->LOANREMAINING->LOANINTEREST 
+                : null;
+        }
+        
+        // Loan terms
+        $loan->initialBalance = isset($xml->LOANINITBAL) ? (float) $xml->LOANINITBAL : null;
+        $loan->creditLimit = isset($xml->LOANINITBAL) ? (float) $xml->LOANINITBAL : null; // For LOC
+        
+        if (isset($xml->LOANMATURITYDATE)) {
+            $loan->maturityDate = $this->createDateTimeFromStr((string) $xml->LOANMATURITYDATE);
+        }
+        
+        // Transaction history (reuse existing statement/transaction logic)
+        if (isset($xml->LOANTRANLIST)) {
+            $loan->statement = $this->buildLoanStatement($xml->LOANTRANLIST, $loan->currency);
+        }
+        
+        return $loan;
+    }
+    
+    /**
+     * Build Statement for loan transactions
+     * 
+     * Implements DRY: Reuses Transaction entity and building logic
+     * 
+     * @param SimpleXMLElement $xml LOANTRANLIST element
+     * @param string $currency Currency code
+     * @return Statement
+     */
+    private function buildLoanStatement(SimpleXMLElement $xml, string $currency): Statement
+    {
+        $statement = new Statement();
+        $statement->currency = $currency;
+        $statement->startDate = $this->createDateTimeFromStr((string) $xml->DTSTART);
+        $statement->endDate = $this->createDateTimeFromStr((string) $xml->DTEND);
+        
+        if (isset($xml->STMTTRN)) {
+            foreach ($xml->STMTTRN as $xmlTransaction) {
+                // Reuse existing transaction building logic (DRY principle)
+                if ($this->transactionBuilder) {
+                    $transaction = $this->transactionBuilder->buildTransaction($xmlTransaction, $statement);
+                } else {
+                    $transaction = $this->buildTransaction($xmlTransaction, $statement);
+                }
+                $statement->transactions[] = $transaction;
+            }
+        }
+        
+        return $statement;
     }
 }

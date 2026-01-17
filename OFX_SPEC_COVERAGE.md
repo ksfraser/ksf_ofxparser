@@ -321,11 +321,19 @@ Test coverage includes:
 - TAX1099MSGSRSV1 (Tax Forms) - Entities ready, parsing TBD
 - SECLISTMSGSRSV1 (Security List) - Entities ready, parsing TBD
 
-### Not Yet Implemented
-- PROFMSGSRSV1 (Profile - FI capabilities)
-- EMAILMSGSRSV1 (Email/messaging)
-- INTERXFERMSGSRSV1 (Interbank transfers)
-- LOANMSGSRSV1 (Loan accounts)
+### High Priority for Canadian Individual Use 🇨🇦 ⚠️
+- **SECLISTMSGSRSV1** (Security List) - **NEEDED**: Security details for investment portfolios
+- **LOANMSGSRSV1** (Loan Accounts) - **NEEDED**: Mortgages, car loans, lines of credit
+
+### Medium Priority 🟡
+- **PROFMSGSRSV1** (Profile - FI capabilities) - Useful for service discovery, can hardcode assumptions
+- **INTERXFERMSGSRSV1** (Interbank Transfers) - Account-to-account between different banks (less common in Canada)
+
+### Not Needed for Canadian Individual Use ❌
+- **WIREXFERMSGSRSV1** (Wire Transfers) - Already have entities, parsing TBD. Less common (Canadians use Interac e-Transfer)
+- **TAX1099MSGSRSV1** (US Tax Forms) - US-specific (Canada uses T-slips via CRA, not OFX)
+- **EMAILMSGSRSV1** (Email/Messaging) - Bank notifications, low priority
+- **BILLPAYMSGSRSV1** (Bill Payment) - Already have entities. Online banking handles this, rarely in OFX downloads
 
 ## Migration Guide
 
@@ -364,14 +372,31 @@ if ($transaction->payee) {
 
 ## Future Enhancements
 
-### Next Steps
-1. Implement parsing for Bill Pay message set
-2. Implement parsing for Wire Transfer message set
-3. Implement parsing for Tax 1099 message set
-4. Implement parsing for Security List message set
-5. Add Profile message set (PROFMSGSRSV1)
-6. Add Interbank Transfer support (INTERXFERMSGSRSV1)
-7. Add Loan account support (LOANMSGSRSV1)
+### Next Steps (Priority Order for Canadian Individual)
+1. **🔴 HIGH: Implement SECLISTMSGSRSV1 parsing** - Critical for investment account details
+   - Security names, types, prices
+   - Lookup by CUSIP/ticker from investment transactions
+   - Bond details (coupon, maturity, par value)
+   
+2. **🔴 HIGH: Implement LOANMSGSRSV1 parsing** - Mortgages, car loans, lines of credit
+   - Loan balance and interest rate
+   - Payment schedule and due dates
+   - Principal vs interest breakdown
+   - Remaining term
+   
+3. **🟡 MEDIUM: Implement PROFMSGSRSV1 parsing** - FI capability discovery (optional)
+   - Available services and message sets
+   - Transaction type support
+   - Limits and fees
+   
+4. **🟢 LOW: Implement INTERXFERMSGSRSV1 parsing** - Multi-bank account transfers
+   - Less common in Canada (most use single bank)
+   
+### Not Planned (Out of Scope for Canadian Individual)
+- ❌ TAX1099MSGSRSV1 - US tax forms only (Canada uses CRA T-slips)
+- ❌ EMAILMSGSRSV1 - Bank messaging (low value)
+- ❌ BILLPAYMSGSRSV1 - Bill payment (entities exist, parsing not needed - handled in online banking)
+- ❌ WIREXFERMSGSRSV1 - Wire transfers (entities exist, parsing not needed - Canadians use Interac)
 
 ### Potential Optimizations
 - Security list indexing by ID for faster lookups

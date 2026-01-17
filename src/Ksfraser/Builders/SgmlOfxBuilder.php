@@ -56,6 +56,18 @@ class SgmlOfxBuilder
             $ofx->bankAccount = $ofx->bankAccounts[0];
         }
         
+        // Build Security List
+        $secListMsgsElement = $this->findChild($ofxElement, 'SECLISTMSGSRSV1');
+        if ($secListMsgsElement) {
+            $ofx->securityList = $this->buildSecurityList($secListMsgsElement);
+        }
+        
+        // Build Loan Accounts
+        $loanMsgsElement = $this->findChild($ofxElement, 'LOANMSGSRSV1');
+        if ($loanMsgsElement) {
+            $ofx->loanAccounts = $this->buildLoanAccounts($loanMsgsElement);
+        }
+        
         // Set header
         $ofx->buildHeader($header);
         
@@ -490,11 +502,20 @@ class SgmlOfxBuilder
     {
         $child = $this->findChild($parent, $tagName);
         
-        if (!$child || !($child instanceof ValueElement)) {
+        if (!$child) {
             return $default;
         }
         
-        return $child->getValue();
+        // Try getValue() method (works for ValueElement and UnknownElement)
+        $value = $child->getValue();
+        if ($value !== null && $value !== '') {
+            return $value;
+        }
+        
+        // Handle ContainerElement that might have a text value  
+        // (e.g., <SECNAME>Apple Inc.</SECNAME> where SECNAME is parsed as a container)
+        $value = (string) $child; // Uses Element::__toString() which returns textValue
+        return $value ?: $default;
     }
     
     /**
@@ -906,5 +927,291 @@ class SgmlOfxBuilder
         $transaction->subAccountFund = ($subAcctFund !== null && $subAcctFund !== '') ? $subAcctFund : null;
         
         return $transaction;
+    }
+    
+    /**
+     * Build Security List from SECLISTMSGSRSV1 element
+     * 
+     * @param Element $element SECLISTMSGSRSV1 element
+     * @return \OfxParser\Entities\Investment\SecurityList
+     */
+    private function buildSecurityList(Element $element): \OfxParser\Entities\Investment\SecurityList
+    {
+        $securityList = new \OfxParser\Entities\Investment\SecurityList();
+        
+        $secList = $this->findChild($element, 'SECLIST');
+        if (!$secList) {
+            return $securityList;
+        }
+        
+        // Parse different security types
+        $securityTypes = [
+            'STOCKINFO' => 'STOCK',
+            'DEBTINFO' => 'BOND',
+            'MFINFO' => 'MUTUALFUND',
+            'OPTINFO' => 'OPTION',
+            'OTHERINFO' => 'OTHER'
+        ];
+        
+        foreach ($securityTypes as $xmlTag => $securityType) {
+            $secInfoElements = $this->findChildren($secList, $xmlTag);
+            foreach ($secInfoElements as $secInfo) {
+                $security = $this->buildSecurity($secInfo, $securityType);
+                $securityList->addSecurity($security);
+            }
+        }
+        
+        return $securityList;
+    }
+    
+    /**
+     * Build individual Security entity from SGML
+     * 
+     * @param Element $element Security info element (STOCKINFO, DEBTINFO, etc.)
+     * @param string $securityType Type of security
+     * @return \OfxParser\Entities\Investment\Security
+     */
+    private function buildSecurity(Element $element, string $securityType): \OfxParser\Entities\Investment\Security
+    {
+        $security = new \OfxParser\Entities\Investment\Security();
+        
+        // All securities have SECINFO child
+        $secInfo = $this->findChild($element, 'SECINFO');
+        if (!$secInfo) {
+            return $security;
+        }
+        
+        // Required fields
+        $secId = $this->findChild($secInfo, 'SECID');
+        if ($secId) {
+            $security->securityId = $this->getValue($secId, 'UNIQUEID', '');
+            $security->securityIdType = $this->getValue($secId, 'UNIQUEIDTYPE', '');
+        }
+        
+        $security->name = $this->getValue($secInfo, 'SECNAME', '');
+        $security->securityType = $securityType;
+        
+        // Optional common fields
+        $ticker = $this->getValue($secInfo, 'TICKER');
+        $security->ticker = ($ticker !== null && $ticker !== '') ? $ticker : null;
+        
+        $memo = $this->getValue($secInfo, 'MEMO');
+        $security->memo = ($memo !== null && $memo !== '') ? $memo : null;
+        
+        $unitPrice = $this->getValue($secInfo, 'UNITPRICE');
+        $security->unitPrice = ($unitPrice !== null && $unitPrice !== '') ? (float)$unitPrice : null;
+        
+        // CURRENCY can be either a simple value (<CURRENCY>USD) or a container (<CURRENCY><CURSYM>USD</CURSYM>...)
+        // When simple, getValue returns the text; when container, check for CURSYM child
+        $currency = $this->getValue($secInfo, 'CURRENCY');
+        if (!$currency || $currency === '') {
+            // Try CURSYM child (container format)
+            $currencyElement = $this->findChild($secInfo, 'CURRENCY');
+            if ($currencyElement) {
+                $currency = $this->getValue($currencyElement, 'CURSYM');
+            }
+        }
+        $security->currency = ($currency !== null && $currency !== '') ? $currency : null;
+        
+        $dtPriceAsOf = $this->getValue($secInfo, 'DTPRICEASOF');
+        if ($dtPriceAsOf) {
+            $security->priceDateOf = $dtPriceAsOf instanceof \DateTimeInterface 
+                ? $dtPriceAsOf 
+                : $this->parseDateTime($dtPriceAsOf);
+        }
+        
+        // Bond-specific fields
+        if ($securityType === 'BOND') {
+            $debtType = $this->getValue($element, 'DEBTTYPE');
+            $security->debtType = ($debtType !== null && $debtType !== '') ? $debtType : null;
+            
+            $debtClass = $this->getValue($element, 'DEBTCLASS');
+            $security->debtClass = ($debtClass !== null && $debtClass !== '') ? $debtClass : null;
+            
+            $couponRate = $this->getValue($element, 'COUPONRT');
+            $security->couponRate = ($couponRate !== null && $couponRate !== '') ? (float)$couponRate : null;
+            
+            $parValue = $this->getValue($element, 'PARVALUE');
+            $security->parValue = ($parValue !== null && $parValue !== '') ? (float)$parValue : null;
+            
+            $dtMat = $this->getValue($element, 'DTMAT');
+            if ($dtMat) {
+                $security->maturityDate = $dtMat instanceof \DateTimeInterface 
+                    ? $dtMat 
+                    : $this->parseDateTime($dtMat);
+            }
+        }
+        
+        // Mutual fund-specific fields
+        if ($securityType === 'MUTUALFUND') {
+            $assetClass = $this->getValue($element, 'MFASSETCLASS');
+            $security->assetClass = ($assetClass !== null && $assetClass !== '') ? $assetClass : null;
+            
+            $fiAssetClass = $this->getValue($element, 'FIMFASSETCLASS');
+            $security->fiAssetClass = ($fiAssetClass !== null && $fiAssetClass !== '') ? $fiAssetClass : null;
+        }
+        
+        return $security;
+    }
+    
+    /**
+     * Build Loan Accounts from LOANMSGSRSV1 element
+     * 
+     * @param Element $element LOANMSGSRSV1 element
+     * @return \OfxParser\Entities\Loan\LoanAccount[]
+     */
+    private function buildLoanAccounts(Element $element): array
+    {
+        $loanAccounts = [];
+        
+        $loanStmtTrnRsElements = $this->findChildren($element, 'LOANSTMTTRNRS');
+        
+        foreach ($loanStmtTrnRsElements as $loanStmtTrnRs) {
+            $loanStmtRs = $this->findChild($loanStmtTrnRs, 'LOANSTMTRS');
+            if ($loanStmtRs) {
+                $loanAccount = $this->buildLoanAccount($loanStmtRs);
+                $loanAccounts[] = $loanAccount;
+            }
+        }
+        
+        return $loanAccounts;
+    }
+    
+    /**
+     * Build individual Loan Account entity from SGML
+     * 
+     * @param Element $element LOANSTMTRS element
+     * @return \OfxParser\Entities\Loan\LoanAccount
+     */
+    private function buildLoanAccount(Element $element): \OfxParser\Entities\Loan\LoanAccount
+    {
+        $loan = new \OfxParser\Entities\Loan\LoanAccount();
+        
+        // Currency
+        $loan->currency = $this->getValue($element, 'CURDEF', '');
+        
+        // Account identification
+        $loanAcctFrom = $this->findChild($element, 'LOANACCTFROM');
+        if ($loanAcctFrom) {
+            $loan->accountNumber = $this->getValue($loanAcctFrom, 'LOANACCTID', '');
+            $acctType = $this->getValue($loanAcctFrom, 'LOANACCTTYPE');
+            $loan->accountType = ($acctType !== null && $acctType !== '') ? $acctType : 'OTHER';
+        }
+        
+        // Balance information
+        $loanBal = $this->findChild($element, 'LOANBAL');
+        if ($loanBal) {
+            $balList = $this->findChild($loanBal, 'BALLIST');
+            if ($balList) {
+                $balElements = $this->findChildren($balList, 'BAL');
+                foreach ($balElements as $bal) {
+                    $balType = $this->getValue($bal, 'BALTYPE');
+                    $value = $this->getValue($bal, 'VALUE');
+                    
+                    if ($balType === 'PRINCIPAL' && $value !== null) {
+                        $loan->principalBalance = (float)$value;
+                    } elseif ($balType === 'AVAILABLE' && $value !== null) {
+                        $loan->availableCredit = (float)$value;
+                    }
+                }
+            }
+        }
+        
+        // Interest rate
+        $loanRate = $this->findChild($element, 'LOANRATE');
+        if ($loanRate) {
+            $intRate = $this->getValue($loanRate, 'LOANINTRATE');
+            $loan->interestRate = ($intRate !== null && $intRate !== '') ? (float)$intRate : null;
+            
+            $dtAsOf = $this->getValue($loanRate, 'DTASOF');
+            if ($dtAsOf) {
+                $loan->interestRateAsOf = $dtAsOf instanceof \DateTimeInterface 
+                    ? $dtAsOf 
+                    : $this->parseDateTime($dtAsOf);
+            }
+        }
+        
+        // Payment information
+        $pmtInfo = $this->findChild($element, 'LOANPMTINFO');
+        if ($pmtInfo) {
+            $loanPmt = $this->getValue($pmtInfo, 'LOANPMT');
+            $loan->paymentAmount = ($loanPmt !== null && $loanPmt !== '') ? (float)$loanPmt : null;
+            
+            $pmtFreq = $this->getValue($pmtInfo, 'LOANPMTFREQ');
+            $loan->paymentFrequency = ($pmtFreq !== null && $pmtFreq !== '') ? $pmtFreq : null;
+            
+            $pmtsRemaining = $this->getValue($pmtInfo, 'LOANPMTSREMAINING');
+            $loan->paymentsRemaining = ($pmtsRemaining !== null && $pmtsRemaining !== '') ? (int)$pmtsRemaining : null;
+            
+            $nextPmt = $this->getValue($pmtInfo, 'LOANNEXTPMT');
+            if ($nextPmt) {
+                $loan->nextPaymentDate = $nextPmt instanceof \DateTimeInterface 
+                    ? $nextPmt 
+                    : $this->parseDateTime($nextPmt);
+            }
+        }
+        
+        // Remaining amounts
+        $loanRemaining = $this->findChild($element, 'LOANREMAINING');
+        if ($loanRemaining) {
+            $loanInterest = $this->getValue($loanRemaining, 'LOANINTEREST');
+            $loan->remainingInterest = ($loanInterest !== null && $loanInterest !== '') ? (float)$loanInterest : null;
+        }
+        
+        // Loan terms
+        $initBal = $this->getValue($element, 'LOANINITBAL');
+        $loan->initialBalance = ($initBal !== null && $initBal !== '') ? (float)$initBal : null;
+        $loan->creditLimit = $loan->initialBalance; // For LOC
+        
+        $matDate = $this->getValue($element, 'LOANMATURITYDATE');
+        if ($matDate) {
+            $loan->maturityDate = $matDate instanceof \DateTimeInterface 
+                ? $matDate 
+                : $this->parseDateTime($matDate);
+        }
+        
+        // Transaction history
+        $tranList = $this->findChild($element, 'LOANTRANLIST');
+        if ($tranList) {
+            $loan->statement = $this->buildLoanStatement($tranList, $loan->currency);
+        }
+        
+        return $loan;
+    }
+    
+    /**
+     * Build Statement for loan transactions from SGML
+     * 
+     * @param Element $element LOANTRANLIST element
+     * @param string $currency Currency code
+     * @return Statement
+     */
+    private function buildLoanStatement(Element $element, string $currency): Statement
+    {
+        $statement = new Statement();
+        $statement->currency = $currency;
+        
+        $dtStart = $this->getValue($element, 'DTSTART');
+        if ($dtStart) {
+            $statement->startDate = $dtStart instanceof \DateTimeInterface 
+                ? $dtStart 
+                : $this->parseDateTime($dtStart);
+        }
+        
+        $dtEnd = $this->getValue($element, 'DTEND');
+        if ($dtEnd) {
+            $statement->endDate = $dtEnd instanceof \DateTimeInterface 
+                ? $dtEnd 
+                : $this->parseDateTime($dtEnd);
+        }
+        
+        // Build transactions
+        $stmtTrnElements = $this->findChildren($element, 'STMTTRN');
+        foreach ($stmtTrnElements as $stmtTrn) {
+            $transaction = $this->buildTransaction($stmtTrn, $statement);
+            $statement->transactions[] = $transaction;
+        }
+        
+        return $statement;
     }
 }

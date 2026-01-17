@@ -214,17 +214,24 @@ class ElementFactoryTest extends TestCase
     }
     
     /**
-     * Test currency container is container element
+     * Test currency is unknown element (can be value OR container)
+     * 
+     * CURRENCY can appear as:
+     * - Simple value: <CURRENCY>USD
+     * - Container: <CURRENCY><CURSYM>USD</CURSYM><CURRATE>1.0</CURRATE></CURRENCY>
+     * 
+     * To handle both cases, CURRENCY is treated as UnknownElement which adapts based on content.
      */
-    public function testCurrencyContainerIsContainerElement(): void
+    public function testCurrencyIsUnknownElement(): void
     {
-        $this->assertTrue($this->factory->isContainerElement('CURRENCY'));
+        $this->assertFalse($this->factory->isContainerElement('CURRENCY'));
+        $this->assertFalse($this->factory->isValueElement('CURRENCY'));
         $this->assertTrue($this->factory->isContainerElement('ORIGCURRENCY'));
         
         $currency = $this->factory->createElement('CURRENCY');
         $origCurrency = $this->factory->createElement('ORIGCURRENCY');
         
-        $this->assertInstanceOf(Elements\ContainerElement::class, $currency);
+        $this->assertInstanceOf(Elements\UnknownElement::class, $currency);
         $this->assertInstanceOf(Elements\ContainerElement::class, $origCurrency);
     }
     
