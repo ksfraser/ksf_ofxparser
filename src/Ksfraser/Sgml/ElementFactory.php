@@ -163,6 +163,11 @@ class ElementFactory
         'SPACES' => ['type' => 'boolean', 'required' => true],
         'PINCH' => ['type' => 'boolean', 'required' => true],
         'CHGPINFIRST' => ['type' => 'boolean', 'required' => false],
+        // Interbank Transfer elements
+        'SRVRTID' => ['type' => 'string', 'required' => true],
+        'XFERID' => ['type' => 'string', 'required' => true],
+        'DTDUE' => ['type' => 'datetime', 'required' => false],
+        'DTXFERPRJ' => ['type' => 'datetime', 'required' => false],
     ];
 
     /**
@@ -263,6 +268,15 @@ class ElementFactory
         'MSGSETCORE',       // Message set core info
         'SIGNONINFOLIST',   // Signon info list
         'SIGNONINFO',       // Signon info (individual entry - though it contains fields)
+        // Interbank Transfer containers
+        'INTERXFERMSGSRSV1',  // Interbank transfer message set response
+        'INTERXFERTRNRS',     // Interbank transfer transaction response
+        'INTERXFERRS',        // Interbank transfer response
+        'XFERINFO',           // Transfer information
+        'FROMACCTINFO',       // From account information
+        'TOACCTINFO',         // To account information
+        'BANKACCTFROM',       // Bank account from
+        'BANKACCTTO',         // Bank account to
     ];
 
     /**

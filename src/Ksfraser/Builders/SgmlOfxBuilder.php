@@ -77,6 +77,12 @@ class SgmlOfxBuilder
             }
         }
         
+        // Build Interbank Transfers
+        $interXferMsgsElement = $this->findChild($ofxElement, 'INTERXFERMSGSRSV1');
+        if ($interXferMsgsElement) {
+            $ofx->interXfers = $this->buildInterXfers($interXferMsgsElement);
+        }
+        
         // Set header
         $ofx->buildHeader($header);
         
@@ -1390,5 +1396,115 @@ class SgmlOfxBuilder
         }
         
         return $signonInfo;
+    }
+
+    /**
+     * Build interbank transfers from INTERXFERMSGSRSV1
+     * 
+     * Parses INTERXFERTRNRS elements containing INTERXFERRS responses
+     * 
+     * @param Element $element INTERXFERMSGSRSV1 element
+     * @return \OfxParser\Entities\InterXfer[]
+     */
+    private function buildInterXfers(Element $element): array
+    {
+        $interXfers = [];
+        
+        // Find all INTERXFERTRNRS elements
+        $trnrsElements = $this->findChildren($element, 'INTERXFERTRNRS');
+        if (empty($trnrsElements)) {
+            return $interXfers;
+        }
+        
+        foreach ($trnrsElements as $trnrsElement) {
+            // Find INTERXFERRS
+            $xferRsElement = $this->findChild($trnrsElement, 'INTERXFERRS');
+            if (!$xferRsElement) {
+                continue;
+            }
+            
+            // Find XFERINFO
+            $xferInfoElement = $this->findChild($xferRsElement, 'XFERINFO');
+            if (!$xferInfoElement) {
+                continue;
+            }
+            
+            // Build the InterXfer entity
+            $interXfer = new \OfxParser\Entities\InterXfer();
+            
+            // Server transaction ID
+            $srvrtid = $this->getValue($xferRsElement, 'SRVRTID');
+            if ($srvrtid) {
+                $interXfer->serverTransactionId = $srvrtid;
+            }
+            
+            // Transfer ID
+            $xferId = $this->getValue($xferInfoElement, 'XFERID');
+            if ($xferId) {
+                $interXfer->transferId = $xferId;
+            }
+            
+            // Amount
+            $trnAmt = $this->getValue($xferInfoElement, 'TRNAMT');
+            if ($trnAmt !== null) {
+                $interXfer->amount = (float) $trnAmt;
+            }
+            
+            // Date posted
+            $dtPosted = $this->getValue($xferInfoElement, 'DTPOSTED');
+            if ($dtPosted) {
+                if ($dtPosted instanceof \DateTimeInterface) {
+                    $interXfer->datePosted = $dtPosted;
+                } else {
+                    $interXfer->datePosted = $this->parseDateTime($dtPosted);
+                }
+            }
+            
+            // Date due
+            $dtDue = $this->getValue($xferInfoElement, 'DTDUE');
+            if ($dtDue) {
+                if ($dtDue instanceof \DateTimeInterface) {
+                    $interXfer->dateDue = $dtDue;
+                } else {
+                    $interXfer->dateDue = $this->parseDateTime($dtDue);
+                }
+            }
+            
+            // Date available (DTXFERPRJ)
+            $dtXferPrj = $this->getValue($xferInfoElement, 'DTXFERPRJ');
+            if ($dtXferPrj) {
+                if ($dtXferPrj instanceof \DateTimeInterface) {
+                    $interXfer->dateAvailable = $dtXferPrj;
+                } else {
+                    $interXfer->dateAvailable = $this->parseDateTime($dtXferPrj);
+                }
+            }
+            
+            // From account information
+            $fromAcctInfoElement = $this->findChild($xferInfoElement, 'FROMACCTINFO');
+            if ($fromAcctInfoElement) {
+                $fromBankAcctElement = $this->findChild($fromAcctInfoElement, 'BANKACCTFROM');
+                if ($fromBankAcctElement) {
+                    $interXfer->fromBankId = $this->getValue($fromBankAcctElement, 'BANKID');
+                    $interXfer->fromAccountId = $this->getValue($fromBankAcctElement, 'ACCTID');
+                    $interXfer->fromAccountType = $this->getValue($fromBankAcctElement, 'ACCTTYPE');
+                }
+            }
+            
+            // To account information
+            $toAcctInfoElement = $this->findChild($xferInfoElement, 'TOACCTINFO');
+            if ($toAcctInfoElement) {
+                $toBankAcctElement = $this->findChild($toAcctInfoElement, 'BANKACCTTO');
+                if ($toBankAcctElement) {
+                    $interXfer->toBankId = $this->getValue($toBankAcctElement, 'BANKID');
+                    $interXfer->toAccountId = $this->getValue($toBankAcctElement, 'ACCTID');
+                    $interXfer->toAccountType = $this->getValue($toBankAcctElement, 'ACCTTYPE');
+                }
+            }
+            
+            $interXfers[] = $interXfer;
+        }
+        
+        return $interXfers;
     }
 }

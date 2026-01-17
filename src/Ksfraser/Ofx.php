@@ -94,6 +94,12 @@ class Ofx
     public $profile;
 
     /**
+     * Interbank Transfers (INTERXFERMSGSRSV1)
+     * @var \OfxParser\Entities\InterXfer[]
+     */
+    public $interXfers = [];
+
+    /**
      * @param SimpleXMLElement|null $xml Optional XML element to parse (null for SGML builder path)
      * @param TransactionBuilder|null $transactionBuilder Optional defensive transaction builder
      * @param FieldExtractor|null $fieldExtractor Optional defensive field extractor
@@ -153,6 +159,11 @@ class Ofx
         // Parse Profile (PROFMSGSRSV1)
         if (isset($xml->PROFMSGSRSV1->PROFRS)) {
             $this->profile = $this->buildProfile($xml->PROFMSGSRSV1->PROFRS);
+        }
+        
+        // Parse Interbank Transfers (INTERXFERMSGSRSV1)
+        if (isset($xml->INTERXFERMSGSRSV1)) {
+            $this->interXfers = $this->buildInterXfers($xml->INTERXFERMSGSRSV1);
         }
     }
 
@@ -1004,5 +1015,98 @@ class Ofx
         }
         
         return $signonInfo;
+    }
+
+    /**
+     * Build interbank transfers from INTERXFERMSGSRSV1
+     * 
+     * Parses INTERXFERTRNRS elements containing INTERXFERRS responses
+     * 
+     * @param SimpleXMLElement $xml INTERXFERMSGSRSV1 element
+     * @return \OfxParser\Entities\InterXfer[]
+     */
+    private function buildInterXfers(SimpleXMLElement $xml): array
+    {
+        $interXfers = [];
+        
+        // Check for transaction responses
+        if (!isset($xml->INTERXFERTRNRS)) {
+            return $interXfers;
+        }
+        
+        // Handle both single and multiple INTERXFERTRNRS elements
+        $responses = $xml->INTERXFERTRNRS;
+        if (!is_array($responses)) {
+            $responses = [$responses];
+        }
+        
+        foreach ($responses as $trnrs) {
+            // Check if response contains INTERXFERRS
+            if (!isset($trnrs->INTERXFERRS)) {
+                continue;
+            }
+            
+            $xferRs = $trnrs->INTERXFERRS;
+            
+            // Check for XFERINFO
+            if (!isset($xferRs->XFERINFO)) {
+                continue;
+            }
+            
+            $xferInfo = $xferRs->XFERINFO;
+            
+            // Build the InterXfer entity
+            $interXfer = new \OfxParser\Entities\InterXfer();
+            
+            // Server transaction ID
+            if (isset($xferRs->SRVRTID)) {
+                $interXfer->serverTransactionId = (string) $xferRs->SRVRTID;
+            }
+            
+            // Transfer ID
+            if (isset($xferInfo->XFERID)) {
+                $interXfer->transferId = (string) $xferInfo->XFERID;
+            }
+            
+            // Amount
+            if (isset($xferInfo->TRNAMT)) {
+                $interXfer->amount = (float) $xferInfo->TRNAMT;
+            }
+            
+            // Date posted
+            if (isset($xferInfo->DTPOSTED)) {
+                $interXfer->datePosted = $this->createDateTimeFromStr((string) $xferInfo->DTPOSTED, true);
+            }
+            
+            // Date due
+            if (isset($xferInfo->DTDUE)) {
+                $interXfer->dateDue = $this->createDateTimeFromStr((string) $xferInfo->DTDUE, true);
+            }
+            
+            // Date available (DTXFERPRJ)
+            if (isset($xferInfo->DTXFERPRJ)) {
+                $interXfer->dateAvailable = $this->createDateTimeFromStr((string) $xferInfo->DTXFERPRJ, true);
+            }
+            
+            // From account information
+            if (isset($xferInfo->FROMACCTINFO->BANKACCTFROM)) {
+                $fromAcct = $xferInfo->FROMACCTINFO->BANKACCTFROM;
+                $interXfer->fromBankId = (string) $fromAcct->BANKID;
+                $interXfer->fromAccountId = (string) $fromAcct->ACCTID;
+                $interXfer->fromAccountType = (string) $fromAcct->ACCTTYPE;
+            }
+            
+            // To account information
+            if (isset($xferInfo->TOACCTINFO->BANKACCTTO)) {
+                $toAcct = $xferInfo->TOACCTINFO->BANKACCTTO;
+                $interXfer->toBankId = (string) $toAcct->BANKID;
+                $interXfer->toAccountId = (string) $toAcct->ACCTID;
+                $interXfer->toAccountType = (string) $toAcct->ACCTTYPE;
+            }
+            
+            $interXfers[] = $interXfer;
+        }
+        
+        return $interXfers;
     }
 }

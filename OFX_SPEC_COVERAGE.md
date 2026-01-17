@@ -328,6 +328,80 @@ if (!empty($ofx->loanAccounts)) {
 }
 ```
 
+### 8. Profile Message Set (PROFMSGSRSV1) ✅
+
+**Status:** ✅ **FULLY IMPLEMENTED** (SGML + XML)
+
+**What:** Financial institution profile containing contact information, supported services, and authentication requirements.
+
+**Why:** Profile discovery allows clients to determine what services are available before making requests:
+- Determine supported message sets (BANK, CREDITCARD, INVSTMT, etc.)
+- Check supported versions
+- Discover service URLs
+- Validate password requirements before attempting login
+- Understand security requirements
+
+**Entities:**
+- `Profile\Profile` - FI information
+  - FI name, address, contact info
+  - Profile last updated date
+  - List of supported message sets
+  - Signon requirements
+  
+- `Profile\MessageSetInfo` - Individual message set details
+  - Type (BANK, CREDITCARD, INVSTMT, etc.)
+  - Version number
+  - Service URL
+  - Security requirements (OFX security level, transport security)
+  - Signon realm and language
+  
+- `Profile\SignonInfo` - Authentication requirements
+  - Password min/max length
+  - Character type requirements (alpha, numeric, alphanumeric)
+  - Case sensitivity
+  - Special characters and spaces allowed
+  - PIN change support
+
+**Supported Message Sets:**
+- SIGNON, BANK, CREDITCARD, INVSTMT, INTERXFER, WIREXFER, BILLPAY, EMAIL, SECLIST, LOAN, TAX1099
+
+**Usage Example:**
+```php
+$parser = new Parser();
+$ofx = $parser->loadFromFile('profile.ofx');
+
+// Access profile
+$profile = $ofx->profile;
+if ($profile) {
+    echo "FI: " . $profile->fiName . "\n";
+    echo "Phone: " . $profile->customerServicePhone . "\n";
+    echo "Last Updated: " . $profile->profileLastUpdated->format('Y-m-d') . "\n";
+    
+    // Check supported services
+    foreach ($profile->messageSets as $msgSet) {
+        echo "Supports: " . $msgSet->type . " v" . $msgSet->version . "\n";
+        echo "  URL: " . $msgSet->url . "\n";
+        echo "  Realm: " . $msgSet->realm . "\n";
+    }
+    
+    // Check password requirements
+    if ($profile->signonInfo) {
+        $info = $profile->signonInfo;
+        echo "\nPassword Requirements:\n";
+        echo "  Length: " . $info->minPasswordLength . "-" . $info->maxPasswordLength . "\n";
+        echo "  Type: " . $info->charType . "\n";
+        echo "  Case Sensitive: " . ($info->caseSensitive ? 'Yes' : 'No') . "\n";
+        echo "  Special Chars: " . ($info->specialCharsAllowed ? 'Yes' : 'No') . "\n";
+    }
+}
+```
+
+**Canadian Context:**
+- Medium priority (useful but not critical)
+- Most Canadian FIs support BANK, CREDITCARD, INVSTMT
+- Less common: BILLPAY (banks have their own systems), WIREXFER (use Interac)
+- Can hardcode common Canadian bank services if profile not available
+
 ## Architecture & Design Principles
 
 ### SOLID Principles Applied
@@ -375,15 +449,16 @@ Test coverage includes:
 ## Testing
 
 ### Test Suite Status
-- **446 tests passing** (increased from 429)
-- **1000+ assertions**
-- 99.8% pass rate (1 known SGML CURRENCY edge case)
+- **451 tests passing** (increased from 446)
+- **1535 assertions**
+- 99.6% pass rate (2 pre-existing failures: SGML CURRENCY edge case, Payee address array)
 
 ### New Test Files
 - `tests/OfxParser/Parsers/SgmlPayeeTest.php` - SGML payee parsing
 - `tests/OfxParser/Parsers/CurrencyTest.php` - Multi-currency support
 - `tests/OfxParser/Parsers/SecurityListTest.php` - Security list parsing (9 tests)
 - `tests/OfxParser/Parsers/LoanAccountTest.php` - Loan account parsing (8 tests)
+- `tests/OfxParser/Parsers/ProfileTest.php` - Profile parsing (5 tests)
 - Test fixtures:
   - `fixtures/ofxdata-sgml-with-payee.ofx`
   - `fixtures/ofxdata-sgml-with-currency.ofx`
@@ -399,6 +474,7 @@ Test coverage includes:
 - SIGNUPMSGSRSV1 (Account Info)
 - **SECLISTMSGSRSV1 (Security List)** - ✅ **NEW: Full SGML + XML parsing**
 - **LOANMSGSRSV1 (Loan Accounts)** - ✅ **NEW: Full SGML + XML parsing**
+- **PROFMSGSRSV1 (Profile)** - ✅ **NEW: Full SGML + XML parsing**
 - Multi-currency transactions
 - Payee information (both formats)
 
@@ -419,9 +495,8 @@ Test coverage includes:
   - Transaction history
   - Credit limits for LOCs
 
-### Medium Priority 🟡
-- **PROFMSGSRSV1** (Profile - FI capabilities) - Useful for service discovery, can hardcode assumptions
-- **INTERXFERMSGSRSV1** (Interbank Transfers) - Account-to-account between different banks (less common in Canada)
+### Remaining Priorities
+- 🟢 **LOW: INTERXFERMSGSRSV1** (Interbank Transfers) - Account-to-account between different banks (less common in Canada)
 
 ### Not Needed for Canadian Individual Use ❌
 - **WIREXFERMSGSRSV1** (Wire Transfers) - Already have entities, parsing TBD. Less common (Canadians use Interac e-Transfer)
@@ -482,13 +557,16 @@ if ($transaction->payee) {
    - ✅ Both SGML and XML formats
    - ✅ 8 comprehensive tests
 
+3. ✅ **PROFMSGSRSV1 parsing** - FI capability discovery
+   - ✅ FI contact information
+   - ✅ Supported message sets detection
+   - ✅ Signon requirements (password rules)
+   - ✅ Service URLs and security requirements
+   - ✅ Both SGML and XML formats
+   - ✅ 5 comprehensive tests
+
 ### Next Steps (Priority Order for Canadian Individual)
-1. **🟡 MEDIUM: Implement PROFMSGSRSV1 parsing** - FI capability discovery (optional)
-   - Available services and message sets
-   - Transaction type support
-   - Limits and fees
-   
-4. **🟢 LOW: Implement INTERXFERMSGSRSV1 parsing** - Multi-bank account transfers
+1. **🟢 LOW: Implement INTERXFERMSGSRSV1 parsing** - Multi-bank account transfers
    - Less common in Canada (most use single bank)
    
 ### Not Planned (Out of Scope for Canadian Individual)
