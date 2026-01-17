@@ -210,7 +210,9 @@ echo "Interest Income: $" . $tax1099INT->interestIncome . "\n";
 echo "Federal Tax Withheld: $" . $tax1099INT->federalTaxWithheld . "\n";
 ```
 
-### 6. Security List Message Set (SECLISTMSGSRSV1)
+### 6. Security List Message Set (SECLISTMSGSRSV1) ✅
+
+**Status:** ✅ **FULLY IMPLEMENTED** (SGML + XML)
 
 **What:** Master list of securities referenced in investment statements.
 
@@ -234,16 +236,96 @@ echo "Federal Tax Withheld: $" . $tax1099INT->federalTaxWithheld . "\n";
   - Find by ID
   - Iteration support
 
+**Supported Security Types:**
+- STOCKINFO - Common stock/equity
+- DEBTINFO - Bonds (corporate, municipal, treasury)
+- MFINFO - Mutual funds
+- OPTINFO - Options
+- OTHERINFO - Other security types
+
 **Usage Example:**
 ```php
-$securityList = ...; // From SECLISTMSGSRSV1
+$parser = new Parser();
+$ofx = $parser->loadFromFile('statement.ofx');
 
-// Look up security details from transaction
-$transaction = $account->statement->transactions[0];
-$security = $securityList->findById($transaction->securityId);
+// Access security list
+$securityList = $ofx->securityList;
+if ($securityList) {
+    // Look up security details from transaction
+    $transaction = $ofx->investmentAccounts[0]->statement->transactions[0];
+    $security = $securityList->findById($transaction->securityId);
+    
+    echo "Bought: " . $security->name . " (" . $security->ticker . ")\n";
+    echo "Price: $" . $security->unitPrice . " as of " . $security->priceDateOf->format('Y-m-d') . "\n";
+    
+    // Bond-specific fields
+    if ($security->couponRate) {
+        echo "Coupon: " . ($security->couponRate * 100) . "%\n";
+        echo "Maturity: " . $security->maturityDate->format('Y-m-d') . "\n";
+    }
+}
+```
 
-echo "Bought: " . $security->name . " (" . $security->ticker . ")\n";
-echo "Price: $" . $security->unitPrice . " as of " . $security->priceDateOf->format('Y-m-d') . "\n";
+### 7. Loan Account Message Set (LOANMSGSRSV1) ✅
+
+**Status:** ✅ **FULLY IMPLEMENTED** (SGML + XML)
+
+**What:** Loan account statements including mortgages, car loans, personal loans, and lines of credit.
+
+**Why:** Personal financial management requires tracking loan obligations:
+- Mortgage amortization tracking
+- Car loan payment schedules
+- Line of credit utilization
+- Interest rate monitoring
+- Principal vs interest breakdown
+
+**Entities:**
+- `Loan\LoanAccount` - Loan account details
+  - Account number and type (MORTGAGE, AUTO, PERSONAL, LINEOFCREDIT)
+  - Principal balance and interest rate
+  - Payment amount and schedule
+  - Maturity date and remaining payments
+  - Transaction history (LOANTRANLIST)
+  - For LOCs: available credit and credit limit
+
+**Loan Types Supported:**
+- MORTGAGE - Residential/commercial mortgages
+- AUTO - Car loans, truck loans
+- PERSONAL - Unsecured personal loans
+- LINEOFCREDIT - Revolving credit lines (HELOC, personal LOC)
+
+**Usage Example:**
+```php
+$parser = new Parser();
+$ofx = $parser->loadFromFile('statement.ofx');
+
+// Access loan accounts
+if (!empty($ofx->loanAccounts)) {
+    foreach ($ofx->loanAccounts as $loan) {
+        echo "Account: " . $loan->accountNumber . " (" . $loan->accountType . ")\n";
+        echo "Balance: $" . number_format($loan->principalBalance, 2) . "\n";
+        echo "Interest Rate: " . ($loan->interestRate * 100) . "%\n";
+        echo "Payment: $" . number_format($loan->paymentAmount, 2) . " " . $loan->paymentFrequency . "\n";
+        
+        if ($loan->paymentsRemaining) {
+            echo "Payments Remaining: " . $loan->paymentsRemaining . "\n";
+        }
+        
+        // Line of credit specific
+        if ($loan->accountType === 'LINEOFCREDIT') {
+            echo "Available Credit: $" . number_format($loan->availableCredit, 2) . "\n";
+            echo "Credit Limit: $" . number_format($loan->creditLimit, 2) . "\n";
+        }
+        
+        // Transaction history
+        if ($loan->statement && $loan->statement->transactions) {
+            echo "Recent Transactions:\n";
+            foreach ($loan->statement->transactions as $tx) {
+                echo "  " . $tx->date->format('Y-m-d') . ": " . $tx->name . " (" . $tx->amount . ")\n";
+            }
+        }
+    }
+}
 ```
 
 ## Architecture & Design Principles
@@ -293,16 +375,19 @@ Test coverage includes:
 ## Testing
 
 ### Test Suite Status
-- **236 tests passing** (increased from 228)
-- **743 assertions**
-- 100% pass rate
+- **446 tests passing** (increased from 429)
+- **1000+ assertions**
+- 99.8% pass rate (1 known SGML CURRENCY edge case)
 
 ### New Test Files
 - `tests/OfxParser/Parsers/SgmlPayeeTest.php` - SGML payee parsing
 - `tests/OfxParser/Parsers/CurrencyTest.php` - Multi-currency support
+- `tests/OfxParser/Parsers/SecurityListTest.php` - Security list parsing (9 tests)
+- `tests/OfxParser/Parsers/LoanAccountTest.php` - Loan account parsing (8 tests)
 - Test fixtures:
   - `fixtures/ofxdata-sgml-with-payee.ofx`
   - `fixtures/ofxdata-sgml-with-currency.ofx`
+  - Inline SGML and XML fixtures in test classes
 
 ## OFX Specification Coverage
 
@@ -312,6 +397,8 @@ Test coverage includes:
 - CREDITCARDMSGSRSV1 (Credit Card)
 - INVSTMTMSGSRSV1 (Investment)
 - SIGNUPMSGSRSV1 (Account Info)
+- **SECLISTMSGSRSV1 (Security List)** - ✅ **NEW: Full SGML + XML parsing**
+- **LOANMSGSRSV1 (Loan Accounts)** - ✅ **NEW: Full SGML + XML parsing**
 - Multi-currency transactions
 - Payee information (both formats)
 
@@ -319,11 +406,18 @@ Test coverage includes:
 - BILLPAYMSGSRSV1 (Bill Payment) - Entities ready, parsing TBD
 - WIREXFERMSGSRSV1 (Wire Transfers) - Entities ready, parsing TBD
 - TAX1099MSGSRSV1 (Tax Forms) - Entities ready, parsing TBD
-- SECLISTMSGSRSV1 (Security List) - Entities ready, parsing TBD
 
-### High Priority for Canadian Individual Use 🇨🇦 ⚠️
-- **SECLISTMSGSRSV1** (Security List) - **NEEDED**: Security details for investment portfolios
-- **LOANMSGSRSV1** (Loan Accounts) - **NEEDED**: Mortgages, car loans, lines of credit
+### High Priority for Canadian Individual Use 🇨🇦
+- ✅ **SECLISTMSGSRSV1** (Security List) - **COMPLETED**: Security details for investment portfolios
+  - Stocks, bonds, mutual funds, options
+  - CUSIP/ISIN/ticker lookup
+  - Price and valuation data
+  - Bond maturity and coupon information
+- ✅ **LOANMSGSRSV1** (Loan Accounts) - **COMPLETED**: Mortgages, car loans, lines of credit
+  - Loan balances and interest rates
+  - Payment schedules and amounts
+  - Transaction history
+  - Credit limits for LOCs
 
 ### Medium Priority 🟡
 - **PROFMSGSRSV1** (Profile - FI capabilities) - Useful for service discovery, can hardcode assumptions
@@ -372,19 +466,24 @@ if ($transaction->payee) {
 
 ## Future Enhancements
 
+### Completed ✅
+1. ✅ **SECLISTMSGSRSV1 parsing** - Security list for investment portfolios
+   - ✅ Security names, types, prices
+   - ✅ Lookup by CUSIP/ticker from investment transactions
+   - ✅ Bond details (coupon, maturity, par value)
+   - ✅ Both SGML and XML formats
+   - ✅ 9 comprehensive tests
+   
+2. ✅ **LOANMSGSRSV1 parsing** - Mortgages, car loans, lines of credit
+   - ✅ Loan balance and interest rate
+   - ✅ Payment schedule and due dates
+   - ✅ Transaction history
+   - ✅ Remaining term and maturity
+   - ✅ Both SGML and XML formats
+   - ✅ 8 comprehensive tests
+
 ### Next Steps (Priority Order for Canadian Individual)
-1. **🔴 HIGH: Implement SECLISTMSGSRSV1 parsing** - Critical for investment account details
-   - Security names, types, prices
-   - Lookup by CUSIP/ticker from investment transactions
-   - Bond details (coupon, maturity, par value)
-   
-2. **🔴 HIGH: Implement LOANMSGSRSV1 parsing** - Mortgages, car loans, lines of credit
-   - Loan balance and interest rate
-   - Payment schedule and due dates
-   - Principal vs interest breakdown
-   - Remaining term
-   
-3. **🟡 MEDIUM: Implement PROFMSGSRSV1 parsing** - FI capability discovery (optional)
+1. **🟡 MEDIUM: Implement PROFMSGSRSV1 parsing** - FI capability discovery (optional)
    - Available services and message sets
    - Transaction type support
    - Limits and fees

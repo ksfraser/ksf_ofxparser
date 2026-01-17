@@ -139,6 +139,30 @@ class ElementFactory
         
         // Transaction UID
         'TRNUID' => ['type' => 'string', 'required' => false],
+        
+        // Profile fields (PROFMSGSRSV1)
+        'FINAME' => ['type' => 'string', 'required' => true],
+        'ADDR1' => ['type' => 'string', 'required' => false],
+        'ADDR2' => ['type' => 'string', 'required' => false],
+        'ADDR3' => ['type' => 'string', 'required' => false],
+        'CSPHONE' => ['type' => 'string', 'required' => false],
+        'TSPHONE' => ['type' => 'string', 'required' => false],
+        'FAXPHONE' => ['type' => 'string', 'required' => false],
+        'DTPROFUP' => ['type' => 'datetime', 'required' => true],
+        'VER' => ['type' => 'int', 'required' => true],
+        'URL' => ['type' => 'string', 'required' => false],
+        'EMAIL' => ['type' => 'string', 'required' => false],
+        'OFXSEC' => ['type' => 'string', 'required' => true],
+        'TRANSPSEC' => ['type' => 'boolean', 'required' => true],
+        'SIGNONREALM' => ['type' => 'string', 'required' => true],
+        'MIN' => ['type' => 'int', 'required' => true],
+        'MAX' => ['type' => 'int', 'required' => true],
+        'CHARTYPE' => ['type' => 'string', 'required' => true],
+        'CASESEN' => ['type' => 'boolean', 'required' => true],
+        'SPECIAL' => ['type' => 'boolean', 'required' => true],
+        'SPACES' => ['type' => 'boolean', 'required' => true],
+        'PINCH' => ['type' => 'boolean', 'required' => true],
+        'CHGPINFIRST' => ['type' => 'boolean', 'required' => false],
     ];
 
     /**
@@ -211,6 +235,34 @@ class ElementFactory
         'BANKACCTINFO',
         'CCACCTINFO',
         'INVACCTINFO',
+        'PROFMSGSRSV1',     // Profile message set
+        'PROFRS',           // Profile response
+        'MSGSETLIST',       // Message set list
+        'SIGNONMSGSET',     // Signon message set
+        'SIGNONMSGSETV1',   // Signon message set version 1
+        'BANKMSGSET',       // Bank message set
+        'BANKMSGSETV1',     // Bank message set version 1
+        'CREDITCARDMSGSET', // Credit card message set
+        'CREDITCARDMSGSETV1', // Credit card message set version 1
+        'INVSTMTMSGSET',    // Investment message set
+        'INVSTMTMSGSETV1',  // Investment message set version 1
+        'INTERXFERMSGSET',  // Interbank transfer message set
+        'INTERXFERMSGSETV1', // Interbank transfer message set version 1
+        'WIREXFERMSGSET',   // Wire transfer message set
+        'WIREXFERMSGSETV1', // Wire transfer message set version 1
+        'BILLPAYMSGSET',    // Bill payment message set
+        'BILLPAYMSGSETV1',  // Bill payment message set version 1
+        'EMAILMSGSET',      // Email message set
+        'EMAILMSGSETV1',    // Email message set version 1
+        'SECLISTMSGSET',    // Security list message set
+        'SECLISTMSGSETV1',  // Security list message set version 1
+        'LOANMSGSET',       // Loan message set
+        'LOANMSGSETV1',     // Loan message set version 1
+        'TAX1099MSGSET',    // Tax 1099 message set
+        'TAX1099MSGSETV1',  // Tax 1099 message set version 1
+        'MSGSETCORE',       // Message set core info
+        'SIGNONINFOLIST',   // Signon info list
+        'SIGNONINFO',       // Signon info (individual entry - though it contains fields)
     ];
 
     /**

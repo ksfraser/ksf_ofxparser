@@ -88,6 +88,12 @@ class Ofx
     public $loanAccounts = [];
 
     /**
+     * Profile (PROFMSGSRSV1)
+     * @var \OfxParser\Entities\Profile\Profile|null
+     */
+    public $profile;
+
+    /**
      * @param SimpleXMLElement|null $xml Optional XML element to parse (null for SGML builder path)
      * @param TransactionBuilder|null $transactionBuilder Optional defensive transaction builder
      * @param FieldExtractor|null $fieldExtractor Optional defensive field extractor
@@ -142,6 +148,11 @@ class Ofx
         // Parse Loan Accounts (LOANMSGSRSV1)
         if (isset($xml->LOANMSGSRSV1)) {
             $this->loanAccounts = $this->buildLoanAccounts($xml->LOANMSGSRSV1);
+        }
+        
+        // Parse Profile (PROFMSGSRSV1)
+        if (isset($xml->PROFMSGSRSV1->PROFRS)) {
+            $this->profile = $this->buildProfile($xml->PROFMSGSRSV1->PROFRS);
         }
     }
 
@@ -852,5 +863,146 @@ class Ofx
         }
         
         return $statement;
+    }
+
+    /**
+     * Build Profile from PROFRS element (XML format)
+     * 
+     * @param SimpleXMLElement $xml PROFRS element
+     * @return \OfxParser\Entities\Profile\Profile
+     */
+    private function buildProfile(SimpleXMLElement $xml): \OfxParser\Entities\Profile\Profile
+    {
+        $profile = new \OfxParser\Entities\Profile\Profile();
+        
+        // FI contact information
+        $profile->fiName = (string) $xml->FINAME;
+        
+        // Address (multi-line)
+        if (isset($xml->ADDR1)) {
+            $profile->address['line1'] = (string) $xml->ADDR1;
+        }
+        if (isset($xml->ADDR2)) {
+            $profile->address['line2'] = (string) $xml->ADDR2;
+        }
+        if (isset($xml->ADDR3)) {
+            $profile->address['line3'] = (string) $xml->ADDR3;
+        }
+        
+        $profile->city = isset($xml->CITY) ? (string) $xml->CITY : null;
+        $profile->state = isset($xml->STATE) ? (string) $xml->STATE : null;
+        $profile->postalCode = isset($xml->POSTALCODE) ? (string) $xml->POSTALCODE : null;
+        $profile->country = isset($xml->COUNTRY) ? (string) $xml->COUNTRY : null;
+        
+        // Contact numbers
+        $profile->customerServicePhone = isset($xml->CSPHONE) ? (string) $xml->CSPHONE : null;
+        $profile->technicalSupportPhone = isset($xml->TSPHONE) ? (string) $xml->TSPHONE : null;
+        $profile->faxPhone = isset($xml->FAXPHONE) ? (string) $xml->FAXPHONE : null;
+        
+        $profile->url = isset($xml->URL) ? (string) $xml->URL : null;
+        $profile->email = isset($xml->EMAIL) ? (string) $xml->EMAIL : null;
+        
+        // Profile last updated
+        $profile->profileLastUpdated = $this->createDateTimeFromStr((string) $xml->DTPROFUP);
+        
+        // Message sets
+        if (isset($xml->MSGSETLIST)) {
+            $profile->messageSets = $this->buildMessageSets($xml->MSGSETLIST);
+        }
+        
+        // Signon info
+        if (isset($xml->SIGNONINFOLIST->SIGNONINFO)) {
+            $profile->signonInfo = $this->buildSignonInfo($xml->SIGNONINFOLIST->SIGNONINFO);
+        }
+        
+        return $profile;
+    }
+
+    /**
+     * Build message sets from MSGSETLIST element
+     * 
+     * @param SimpleXMLElement $xml MSGSETLIST element
+     * @return \OfxParser\Entities\Profile\MessageSetInfo[]
+     */
+    private function buildMessageSets(SimpleXMLElement $xml): array
+    {
+        $messageSets = [];
+        
+        $messageSetTypes = [
+            'SIGNONMSGSET' => 'SIGNON',
+            'BANKMSGSET' => 'BANK',
+            'CREDITCARDMSGSET' => 'CREDITCARD',
+            'INVSTMTMSGSET' => 'INVSTMT',
+            'INTERXFERMSGSET' => 'INTERXFER',
+            'WIREXFERMSGSET' => 'WIREXFER',
+            'BILLPAYMSGSET' => 'BILLPAY',
+            'EMAILMSGSET' => 'EMAIL',
+            'SECLISTMSGSET' => 'SECLIST',
+            'LOANMSGSET' => 'LOAN',
+            'TAX1099MSGSET' => 'TAX1099',
+        ];
+        
+        foreach ($messageSetTypes as $xmlTag => $type) {
+            if (isset($xml->$xmlTag)) {
+                $msgSetVersion = $xmlTag . 'V1';
+                if (isset($xml->$xmlTag->$msgSetVersion)) {
+                    $messageSet = $this->buildMessageSetInfo($xml->$xmlTag->$msgSetVersion, $type);
+                    $messageSets[] = $messageSet;
+                }
+            }
+        }
+        
+        return $messageSets;
+    }
+
+    /**
+     * Build MessageSetInfo from message set version element
+     * 
+     * @param SimpleXMLElement $xml Message set version element (e.g., BANKMSGSETV1)
+     * @param string $type Message set type (e.g., 'BANK')
+     * @return \OfxParser\Entities\Profile\MessageSetInfo
+     */
+    private function buildMessageSetInfo(SimpleXMLElement $xml, string $type): \OfxParser\Entities\Profile\MessageSetInfo
+    {
+        $messageSet = new \OfxParser\Entities\Profile\MessageSetInfo();
+        $messageSet->type = $type;
+        
+        if (isset($xml->MSGSETCORE)) {
+            $core = $xml->MSGSETCORE;
+            $messageSet->version = (int) $core->VER;
+            $messageSet->url = (string) $core->URL;
+            $messageSet->ofxSecurity = (string) $core->OFXSEC;
+            $messageSet->transportSecurity = strtoupper((string) $core->TRANSPSEC) === 'Y';
+            $messageSet->realm = (string) $core->SIGNONREALM;
+            $messageSet->language = (string) $core->LANGUAGE;
+        }
+        
+        return $messageSet;
+    }
+
+    /**
+     * Build SignonInfo from SIGNONINFO element
+     * 
+     * @param SimpleXMLElement $xml SIGNONINFO element
+     * @return \OfxParser\Entities\Profile\SignonInfo
+     */
+    private function buildSignonInfo(SimpleXMLElement $xml): \OfxParser\Entities\Profile\SignonInfo
+    {
+        $signonInfo = new \OfxParser\Entities\Profile\SignonInfo();
+        
+        $signonInfo->realm = (string) $xml->SIGNONREALM;
+        $signonInfo->minPasswordLength = (int) $xml->MIN;
+        $signonInfo->maxPasswordLength = (int) $xml->MAX;
+        $signonInfo->charType = (string) $xml->CHARTYPE;
+        $signonInfo->caseSensitive = strtoupper((string) $xml->CASESEN) === 'Y';
+        $signonInfo->specialCharsAllowed = strtoupper((string) $xml->SPECIAL) === 'Y';
+        $signonInfo->spacesAllowed = strtoupper((string) $xml->SPACES) === 'Y';
+        $signonInfo->pinChangeSupported = strtoupper((string) $xml->PINCH) === 'Y';
+        
+        if (isset($xml->CHGPINFIRST)) {
+            $signonInfo->changePasswordOnFirstSignon = strtoupper((string) $xml->CHGPINFIRST) === 'Y';
+        }
+        
+        return $signonInfo;
     }
 }

@@ -68,6 +68,15 @@ class SgmlOfxBuilder
             $ofx->loanAccounts = $this->buildLoanAccounts($loanMsgsElement);
         }
         
+        // Build Profile
+        $profMsgsElement = $this->findChild($ofxElement, 'PROFMSGSRSV1');
+        if ($profMsgsElement) {
+            $profRsElement = $this->findChild($profMsgsElement, 'PROFRS');
+            if ($profRsElement) {
+                $ofx->profile = $this->buildProfile($profRsElement);
+            }
+        }
+        
         // Set header
         $ofx->buildHeader($header);
         
@@ -1213,5 +1222,173 @@ class SgmlOfxBuilder
         }
         
         return $statement;
+    }
+
+    /**
+     * Build Profile from PROFRS element (SGML format)
+     * 
+     * @param Element $element PROFRS element
+     * @return \OfxParser\Entities\Profile\Profile
+     */
+    private function buildProfile(Element $element): \OfxParser\Entities\Profile\Profile
+    {
+        $profile = new \OfxParser\Entities\Profile\Profile();
+        
+        // FI contact information
+        $profile->fiName = $this->getValue($element, 'FINAME');
+        
+        // Address (multi-line)
+        $addr1 = $this->getValue($element, 'ADDR1');
+        $addr2 = $this->getValue($element, 'ADDR2');
+        $addr3 = $this->getValue($element, 'ADDR3');
+        if ($addr1) {
+            $profile->address['line1'] = $addr1;
+        }
+        if ($addr2) {
+            $profile->address['line2'] = $addr2;
+        }
+        if ($addr3) {
+            $profile->address['line3'] = $addr3;
+        }
+        
+        $profile->city = $this->getValue($element, 'CITY');
+        $profile->state = $this->getValue($element, 'STATE');
+        $profile->postalCode = $this->getValue($element, 'POSTALCODE');
+        $profile->country = $this->getValue($element, 'COUNTRY');
+        
+        // Contact numbers
+        $profile->customerServicePhone = $this->getValue($element, 'CSPHONE');
+        $profile->technicalSupportPhone = $this->getValue($element, 'TSPHONE');
+        $profile->faxPhone = $this->getValue($element, 'FAXPHONE');
+        
+        $profile->url = $this->getValue($element, 'URL');
+        $profile->email = $this->getValue($element, 'EMAIL');
+        
+        // Profile last updated
+        $dtProfUp = $this->getValue($element, 'DTPROFUP');
+        if ($dtProfUp) {
+            if ($dtProfUp instanceof \DateTimeInterface) {
+                $profile->profileLastUpdated = $dtProfUp;
+            } else {
+                $profile->profileLastUpdated = $this->parseDateTime($dtProfUp);
+            }
+        }
+        
+        // Message sets
+        $msgSetListElement = $this->findChild($element, 'MSGSETLIST');
+        if ($msgSetListElement) {
+            $profile->messageSets = $this->buildMessageSets($msgSetListElement);
+        }
+        
+        // Signon info
+        $signonInfoListElement = $this->findChild($element, 'SIGNONINFOLIST');
+        if ($signonInfoListElement) {
+            $signonInfoElement = $this->findChild($signonInfoListElement, 'SIGNONINFO');
+            if ($signonInfoElement) {
+                $profile->signonInfo = $this->buildSignonInfo($signonInfoElement);
+            }
+        }
+        
+        return $profile;
+    }
+
+    /**
+     * Build message sets from MSGSETLIST element
+     * 
+     * @param Element $element MSGSETLIST element
+     * @return \OfxParser\Entities\Profile\MessageSetInfo[]
+     */
+    private function buildMessageSets(Element $element): array
+    {
+        $messageSets = [];
+        
+        $messageSetTypes = [
+            'SIGNONMSGSET' => ['type' => 'SIGNON', 'version' => 'SIGNONMSGSETV1'],
+            'BANKMSGSET' => ['type' => 'BANK', 'version' => 'BANKMSGSETV1'],
+            'CREDITCARDMSGSET' => ['type' => 'CREDITCARD', 'version' => 'CREDITCARDMSGSETV1'],
+            'INVSTMTMSGSET' => ['type' => 'INVSTMT', 'version' => 'INVSTMTMSGSETV1'],
+            'INTERXFERMSGSET' => ['type' => 'INTERXFER', 'version' => 'INTERXFERMSGSETV1'],
+            'WIREXFERMSGSET' => ['type' => 'WIREXFER', 'version' => 'WIREXFERMSGSETV1'],
+            'BILLPAYMSGSET' => ['type' => 'BILLPAY', 'version' => 'BILLPAYMSGSETV1'],
+            'EMAILMSGSET' => ['type' => 'EMAIL', 'version' => 'EMAILMSGSETV1'],
+            'SECLISTMSGSET' => ['type' => 'SECLIST', 'version' => 'SECLISTMSGSETV1'],
+            'LOANMSGSET' => ['type' => 'LOAN', 'version' => 'LOANMSGSETV1'],
+            'TAX1099MSGSET' => ['type' => 'TAX1099', 'version' => 'TAX1099MSGSETV1'],
+        ];
+        
+        foreach ($messageSetTypes as $msgSetTag => $config) {
+            $msgSetElement = $this->findChild($element, $msgSetTag);
+            if ($msgSetElement) {
+                $msgSetVersionElement = $this->findChild($msgSetElement, $config['version']);
+                if ($msgSetVersionElement) {
+                    $messageSet = $this->buildMessageSetInfo($msgSetVersionElement, $config['type']);
+                    $messageSets[] = $messageSet;
+                }
+            }
+        }
+        
+        return $messageSets;
+    }
+
+    /**
+     * Build MessageSetInfo from message set version element
+     * 
+     * @param Element $element Message set version element (e.g., BANKMSGSETV1)
+     * @param string $type Message set type (e.g., 'BANK')
+     * @return \OfxParser\Entities\Profile\MessageSetInfo
+     */
+    private function buildMessageSetInfo(Element $element, string $type): \OfxParser\Entities\Profile\MessageSetInfo
+    {
+        $messageSet = new \OfxParser\Entities\Profile\MessageSetInfo();
+        $messageSet->type = $type;
+        
+        $msgSetCoreElement = $this->findChild($element, 'MSGSETCORE');
+        if ($msgSetCoreElement) {
+            $messageSet->version = (int) $this->getValue($msgSetCoreElement, 'VER');
+            $messageSet->url = $this->getValue($msgSetCoreElement, 'URL');
+            $messageSet->ofxSecurity = $this->getValue($msgSetCoreElement, 'OFXSEC');
+            $transPsec = $this->getValue($msgSetCoreElement, 'TRANSPSEC');
+            $messageSet->transportSecurity = is_bool($transPsec) ? $transPsec : ($transPsec && strtoupper($transPsec) === 'Y');
+            $messageSet->realm = $this->getValue($msgSetCoreElement, 'SIGNONREALM');
+            $messageSet->language = $this->getValue($msgSetCoreElement, 'LANGUAGE');
+        }
+        
+        return $messageSet;
+    }
+
+    /**
+     * Build SignonInfo from SIGNONINFO element
+     * 
+     * @param Element $element SIGNONINFO element
+     * @return \OfxParser\Entities\Profile\SignonInfo
+     */
+    private function buildSignonInfo(Element $element): \OfxParser\Entities\Profile\SignonInfo
+    {
+        $signonInfo = new \OfxParser\Entities\Profile\SignonInfo();
+        
+        $signonInfo->realm = $this->getValue($element, 'SIGNONREALM');
+        $signonInfo->minPasswordLength = (int) $this->getValue($element, 'MIN');
+        $signonInfo->maxPasswordLength = (int) $this->getValue($element, 'MAX');
+        $signonInfo->charType = $this->getValue($element, 'CHARTYPE');
+        
+        // getValue returns boolean for boolean-type fields
+        $caseSen = $this->getValue($element, 'CASESEN');
+        $signonInfo->caseSensitive = is_bool($caseSen) ? $caseSen : (strtoupper($caseSen) === 'Y');
+        
+        $special = $this->getValue($element, 'SPECIAL');
+        $signonInfo->specialCharsAllowed = is_bool($special) ? $special : (strtoupper($special) === 'Y');
+        
+        $spaces = $this->getValue($element, 'SPACES');
+        $signonInfo->spacesAllowed = is_bool($spaces) ? $spaces : (strtoupper($spaces) === 'Y');
+        
+        $pinch = $this->getValue($element, 'PINCH');
+        $signonInfo->pinChangeSupported = is_bool($pinch) ? $pinch : (strtoupper($pinch) === 'Y');
+        
+        $chgPinFirst = $this->getValue($element, 'CHGPINFIRST');
+        if ($chgPinFirst !== null) {
+            $signonInfo->changePasswordOnFirstSignon = is_bool($chgPinFirst) ? $chgPinFirst : (strtoupper($chgPinFirst) === 'Y');
+        }
+        
+        return $signonInfo;
     }
 }
