@@ -26,8 +26,8 @@
             <STMTRS>
                 <CURDEF>USD</CURDEF>
                 <BANKACCTFROM>
-                    <BANKID>987654321</BANKID>
-                    <ACCTID>098-121</ACCTID>
+                    <BANKID>999999999</BANKID>
+                    <ACCTID>999-999</ACCTID>
                     <ACCTTYPE>SAVINGS</ACCTTYPE>
                 </BANKACCTFROM>
                 <BANKTRANLIST>

@@ -30,7 +30,7 @@
         <CURDEF>USD</CURDEF>
         <INVACCTFROM>
           <BROKERID>vanguard.com</BROKERID>
-          <ACCTID>1234567890</ACCTID>
+          <ACCTID>9999999999</ACCTID>
         </INVACCTFROM>
         <INVTRANLIST>
           <DTSTART>20090608160000.000[-5:EST]</DTSTART>
@@ -69,7 +69,7 @@
         <CURDEF>USD</CURDEF>
         <INVACCTFROM>
           <BROKERID>vanguard.com</BROKERID>
-          <ACCTID>987654321</ACCTID>
+          <ACCTID>9999999999</ACCTID>
         </INVACCTFROM>
         <INVTRANLIST>
           <DTSTART>20090608160000.000[-5:EST]</DTSTART>

@@ -33,8 +33,8 @@ NEWFILEUID:NONE
             <STMTRS>
                 <CURDEF>EUR
                 <BANKACCTFROM>
-                    <BANKID>123456789
-                    <ACCTID>098765432
+                    <BANKID>999999999
+                    <ACCTID>999999999
                     <ACCTTYPE>CHECKING
                 </BANKACCTFROM>
                 <BANKTRANLIST>
