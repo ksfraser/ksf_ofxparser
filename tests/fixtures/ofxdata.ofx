@@ -37,8 +37,8 @@ NEWFILEUID:NONE
         <STMTRS>
           <CURDEF>USD
           <BANKACCTFROM>
-            <BANKID>987654321
-            <ACCTID>098-121
+            <BANKID>999999999
+            <ACCTID>999-999
             <ACCTTYPE>SAVINGS
           </BANKACCTFROM>
           <BANKTRANLIST>

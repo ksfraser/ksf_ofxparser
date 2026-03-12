@@ -21,8 +21,8 @@
             <STMTRS>
                 <CURDEF>GBP</CURDEF>
                 <BANKACCTFROM>
-                    <BANKID>875400</BANKID>
-                    <ACCTID>54658222458596</ACCTID>
+                    <BANKID>999999</BANKID>
+                    <ACCTID>99999911111111</ACCTID>
                     <ACCTTYPE>CHECKING</ACCTTYPE>
                 </BANKACCTFROM>
                 <BANKTRANLIST>
@@ -44,8 +44,8 @@
             <STMTRS>
                 <CURDEF>GBP</CURDEF>
                 <BANKACCTFROM>
-                    <BANKID>875400</BANKID>
-                    <ACCTID>546582659855</ACCTID>
+                    <BANKID>999999</BANKID>
+                    <ACCTID>99999922222222</ACCTID>
                     <ACCTTYPE>CHECKING</ACCTTYPE>
                 </BANKACCTFROM>
                 <BANKTRANLIST>
@@ -56,7 +56,7 @@
                         <DTPOSTED>20140717000000[-5:EST]</DTPOSTED>
                         <TRNAMT>-3.98</TRNAMT>
                         <FITID>+201407170000001</FITID>
-                        <NAME>TESCO</NAME>
+                        <NAME>MERCHANT SIX</NAME>
                     </STMTTRN>
                     <STMTTRN>
                         <TRNTYPE>OTHER</TRNTYPE>
@@ -81,8 +81,8 @@
             <STMTRS>
                 <CURDEF>GBP</CURDEF>
                 <BANKACCTFROM>
-                    <BANKID>492900</BANKID>
-                    <ACCTID>21252344525548</ACCTID>
+                    <BANKID>999999</BANKID>
+                    <ACCTID>99999933333333</ACCTID>
                     <ACCTTYPE>SAVINGS</ACCTTYPE>
                 </BANKACCTFROM>
                 <BANKTRANLIST>

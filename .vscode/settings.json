@@ -11,6 +11,16 @@
         "/^php -l src/Ksfraser/Sgml/Token\\.php; php -l src/Ksfraser/Sgml/Parser\\.php; php -l src/Ksfraser/Sgml/Elements/Element\\.php$/": {
             "approve": true,
             "matchCommandLine": true
+        },
+        "Push-Location": true,
+        "Pop-Location": true,
+        "/^php vendor/bin/phpunit tests/RealWorldBankFilesTest\\.php --quiet$/": {
+            "approve": true,
+            "matchCommandLine": true
+        },
+        "/^php vendor/bin/phpunit tests/OfxParser/RealWorldBankFilesTest\\.php --verbose 2>&1$/": {
+            "approve": true,
+            "matchCommandLine": true
         }
     }
 }

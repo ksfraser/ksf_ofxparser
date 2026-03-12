@@ -1,0 +1,3 @@
+# Encrypt sensitive fixture documentation
+tests/fixtures/FIXTURE_SOURCES.md filter=git-crypt diff=git-crypt
+.gitattributes !filter !diff

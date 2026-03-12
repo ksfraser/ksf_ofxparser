@@ -27,3 +27,5 @@
 # QFX test files - keep directory but ignore content
 /QFX/*
 !/QFX/.gitkeep
+# Fixture internal documentation - source mapping only
+/tests/fixtures/FIXTURE_SOURCES.md
