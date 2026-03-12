@@ -215,30 +215,20 @@ class RealWorldBankFilesTest extends TestCase
 
     public function testFakeCreditCardOne(): void
     {
-        try {
-            $ofx = $this->parser->loadFromFile(__DIR__ . '/../fixtures/ofxdata-FAKE-creditcard-one.ofx');
-            if (!empty($ofx) && !empty($ofx->bankAccounts)) {
-                $account = reset($ofx->bankAccounts);
-                $this->verifyCardStatementStructure($account, 'FAKE Credit Card One');
-                $txTotal = $this->calculateTransactionTotal($account->statement);
-                self::assertIsFloat($txTotal);
-            }
-        } catch (\Exception $e) {
-            self::assertTrue(true, 'FAKE-creditcard-one.ofx has parsing issues');
-        }
+        $ofx = $this->parser->loadFromFile(__DIR__ . '/../fixtures/ofxdata-FAKE-creditcard-one.ofx');
+        self::assertNotEmpty($ofx->bankAccounts);
+        $account = reset($ofx->bankAccounts);
+        $this->verifyCardStatementStructure($account, 'FAKE Credit Card One');
+        $txTotal = $this->calculateTransactionTotal($account->statement);
+        self::assertIsFloat($txTotal);
     }
 
     public function testFakeCreditCardTwo(): void
     {
-        try {
-            $ofx = $this->parser->loadFromFile(__DIR__ . '/../fixtures/ofxdata-FAKE-creditcard-two.ofx');
-            if (!empty($ofx) && !empty($ofx->bankAccounts)) {
-                $account = reset($ofx->bankAccounts);
-                $this->verifyCardStatementStructure($account, 'FAKE Credit Card Two');
-            }
-        } catch (\Exception $e) {
-            self::assertTrue(true, 'FAKE-creditcard-two.ofx has parsing issues');
-        }
+        $ofx = $this->parser->loadFromFile(__DIR__ . '/../fixtures/ofxdata-FAKE-creditcard-two.ofx');
+        self::assertNotEmpty($ofx->bankAccounts);
+        $account = reset($ofx->bankAccounts);
+        $this->verifyCardStatementStructure($account, 'FAKE Credit Card Two');
     }
 
     public function testFakeMasterCard(): void
