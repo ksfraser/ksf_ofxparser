@@ -21,6 +21,26 @@
         "/^php vendor/bin/phpunit tests/OfxParser/RealWorldBankFilesTest\\.php --verbose 2>&1$/": {
             "approve": true,
             "matchCommandLine": true
+        },
+        "/^php test_qfx_directory\\.php$/": {
+            "approve": true,
+            "matchCommandLine": true
+        },
+        "/^php test_qfx_directory_debug\\.php 2>&1$/": {
+            "approve": true,
+            "matchCommandLine": true
+        },
+        "/^php test_single_qfx\\.php$/": {
+            "approve": true,
+            "matchCommandLine": true
+        },
+        "/^php \"c:\\\\Users\\\\prote\\\\Documents\\\\software-devel\\\\ksf_ofxparser\\\\parse_qfx_files\\.php\" 2>&1$/": {
+            "approve": true,
+            "matchCommandLine": true
+        },
+        "/^php parse_all_qfx_ordered\\.php$/": {
+            "approve": true,
+            "matchCommandLine": true
         }
     }
 }
