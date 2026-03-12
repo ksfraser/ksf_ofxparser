@@ -1,0 +1,21 @@
+File,"Size (KB)",Bank,Transactions,Status,"Time (s)"
+"20260311 RBC SAV2 download-transactions.aso",0,N/A,N/A,EMPTY,0
+"20260311 RBC HISA download-transactions.aso",0.8,Unknown,1,OK,0.05
+"SIMPLII 20260311.aso",1.1,Unknown,2,OK,0.09
+"20260311 CIBC VISA.ofx",1.6,Unknown,5,OK,0.13
+"20260311 CIBC HISA.ofx",1.7,Unknown,6,OK,0.23
+20260311_1708272_transactions.qbo,2.2,Unknown,6,OK,0.23
+ATB_6030_2025-03-12_to_2025-09-08.qbo,2.6,Unknown,12,OK,0.25
+"20170901 CapitalOne.qfx",3.3,Unknown,13,OK,0.27
+"20260311 CIBC SAV.ofx",4.1,Unknown,19,OK,0.45
+20260311_1518404_transactions.qbo,4.5,Unknown,17,OK,0.37
+"202504-20260311_1708272_transactions (1).qbo",4.6,Unknown,18,OK,0.35
+"20260101 RBC Visa.qbo",6.2,Unknown,35,OK,0.58
+"202504-20260311_1518404_transactions (1).qbo",18.4,Unknown,82,OK,1.41
+"20260311-All CIBC HISA.ofx",92.3,Unknown,561,OK,8.86
+"20260311-All CIBC VISA.ofx",103.7,Unknown,615,OK,9.63
+"20260112 Presidents Choice Mastercard.qfx",169.7,Unknown,624,OK,13.65
+"20260112 Presidents Choice Mastercard.qfx",169.7,Unknown,624,OK,13.59
+"20250219 CIBC Savings ALL Avail.ofx",402.6,Unknown,2286,OK,35.78
+"20250219 CIBC Savings ALL Avail.ofx",402.6,Unknown,2286,OK,33.07
+"20260311-All CIBC SAV.ofx",393.9,Unknown,2239,OK,31.79
