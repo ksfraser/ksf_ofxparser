@@ -96,6 +96,12 @@ class Parser
 
     /**
      * Parse child elements for a container
+     * 
+     * @non-standard Presidents Choice/Presco, ATB Financial: Unclosed tags
+     *     This method recovers from missing closing tags by detecting
+     *     when parser should move to next sibling or parent close.
+     *     Reference: doc/BANKING_STANDARDS_COMPLIANCE.md#issue-1
+     *     Reference: doc/BANKING_STANDARDS_COMPLIANCE.md#issue-3
      */
     private function parseChildren(Element $parent): void
     {
@@ -164,6 +170,11 @@ class Parser
 
     /**
      * Parse text value for a value element
+     * 
+     * @non-standard Presidents Choice/Presco: Unclosed value element tags
+     *     Tags like <SEVERITY>INFO lack closing tags.
+     *     This method auto-closes by detecting next tag or EOF.
+     *     Reference: doc/BANKING_STANDARDS_COMPLIANCE.md#issue-1
      */
     private function parseTextValue(Element $element): void
     {
@@ -185,6 +196,11 @@ class Parser
 
     /**
      * Check if close tag closes a parent element in the stack
+     * 
+     * @non-standard ATB Financial: Missing FI block closing tags
+     *     This helps detect when a close tag applies to parent element,
+     *     allowing proper recovery from missing intermediate closes.
+     *     Reference: doc/BANKING_STANDARDS_COMPLIANCE.md#issue-3
      */
     private function closesParentElement(string $tagName): bool
     {
@@ -202,6 +218,16 @@ class Parser
      * SGML rules:
      * - Value element is auto-closed by any opening tag
      * - Container element is auto-closed by sibling tag at same level
+     * 
+     * @non-standard Presidents Choice/Presco: Unclosed value elements
+     *     Issue: Tags like <SEVERITY>INFO are not closed
+     *     Solution: Auto-close value elements when next tag appears
+     *     Reference: doc/BANKING_STANDARDS_COMPLIANCE.md#issue-1
+     * 
+     * @non-standard ATB Financial: Missing FI block closing tags
+     *     Issue: <FI> blocks may be malformed with missing </ORG> or </FI>
+     *     Solution: Auto-close containers when siblings appear
+     *     Reference: doc/BANKING_STANDARDS_COMPLIANCE.md#issue-3
      */
     private function shouldAutoClose(Element $current, string $newTagName): bool
     {
