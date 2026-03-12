@@ -9,7 +9,10 @@ use OfxParser\Exceptions\OfxParsingException;
  */
 class OptionalFieldMissingException extends OfxParsingException
 {
-    private string $fieldName;
+    /**
+     * @var string
+     */
+    private $fieldName;
     
     public function __construct(string $fieldName, string $message = "", ?\Throwable $previous = null)
     {

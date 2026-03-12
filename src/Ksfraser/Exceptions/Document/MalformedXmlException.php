@@ -9,7 +9,10 @@ use OfxParser\Exceptions\OfxParsingException;
  */
 class MalformedXmlException extends OfxParsingException
 {
-    private array $xmlErrors;
+    /**
+     * @var array
+     */
+    private $xmlErrors;
     
     public function __construct(
         array $xmlErrors = [],

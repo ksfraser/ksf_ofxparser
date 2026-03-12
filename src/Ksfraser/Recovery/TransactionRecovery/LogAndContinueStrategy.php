@@ -9,7 +9,10 @@ use OfxParser\Recovery\RecoveryStrategyInterface;
  */
 class LogAndContinueStrategy implements RecoveryStrategyInterface
 {
-    private array $loggedErrors = [];
+    /**
+     * @var array
+     */
+    private $loggedErrors = [];
     
     public function recover(\Exception $exception, array $context): ?array
     {

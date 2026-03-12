@@ -7,7 +7,10 @@ namespace OfxParser\Exceptions\Transaction;
  */
 class IncompleteTransactionException extends TransactionParsingException
 {
-    private array $missingFields;
+    /**
+     * @var array
+     */
+    private $missingFields;
     
     public function __construct(
         array $missingFields,

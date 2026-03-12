@@ -1,0 +1,16 @@
+{
+    "chat.tools.terminal.autoApprove": {
+        "/^php -l src/Ksfraser/Sgml/Tokenizer\\.php 2>&1 \\| head -5$/": {
+            "approve": true,
+            "matchCommandLine": true
+        },
+        "/^php -l src/Ksfraser/Sgml/Tokenizer\\.php$/": {
+            "approve": true,
+            "matchCommandLine": true
+        },
+        "/^php -l src/Ksfraser/Sgml/Token\\.php; php -l src/Ksfraser/Sgml/Parser\\.php; php -l src/Ksfraser/Sgml/Elements/Element\\.php$/": {
+            "approve": true,
+            "matchCommandLine": true
+        }
+    }
+}

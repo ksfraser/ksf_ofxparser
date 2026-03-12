@@ -9,9 +9,20 @@ use OfxParser\Exceptions\OfxParsingException;
  */
 class InvalidFieldValueException extends OfxParsingException
 {
-    private string $fieldName;
+    /**
+     * @var string
+     */
+    private $fieldName;
+    
+    /**
+     * @var mixed
+     */
     private $invalidValue;
-    private string $reason;
+    
+    /**
+     * @var string
+     */
+    private $reason;
     
     public function __construct(
         string $fieldName,

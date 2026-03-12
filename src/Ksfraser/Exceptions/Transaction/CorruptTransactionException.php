@@ -7,7 +7,10 @@ namespace OfxParser\Exceptions\Transaction;
  */
 class CorruptTransactionException extends TransactionParsingException
 {
-    private string $reason;
+    /**
+     * @var string
+     */
+    private $reason;
     
     public function __construct(
         string $reason,

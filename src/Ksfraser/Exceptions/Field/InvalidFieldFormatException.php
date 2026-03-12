@@ -9,9 +9,20 @@ use OfxParser\Exceptions\OfxParsingException;
  */
 class InvalidFieldFormatException extends OfxParsingException
 {
-    private string $fieldName;
-    private string $invalidValue;
-    private string $expectedFormat;
+    /**
+     * @var string
+     */
+    private $fieldName;
+    
+    /**
+     * @var string
+     */
+    private $invalidValue;
+    
+    /**
+     * @var string
+     */
+    private $expectedFormat;
     
     public function __construct(
         string $fieldName,

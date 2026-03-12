@@ -9,7 +9,10 @@ use OfxParser\Exceptions\OfxParsingException;
  */
 class TransactionParsingException extends OfxParsingException
 {
-    protected int $transactionNumber;
+    /**
+     * @var int
+     */
+    protected $transactionNumber;
     
     public function __construct(
         string $message,

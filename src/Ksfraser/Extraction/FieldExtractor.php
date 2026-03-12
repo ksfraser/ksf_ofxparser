@@ -14,8 +14,15 @@ use OfxParser\Utils;
  */
 class FieldExtractor
 {
-    private RecoveryContext $recoveryContext;
-    private ParsingMetrics $metrics;
+    /**
+     * @var RecoveryContext
+     */
+    private $recoveryContext;
+    
+    /**
+     * @var ParsingMetrics
+     */
+    private $metrics;
     
     public function __construct(RecoveryContext $recoveryContext, ParsingMetrics $metrics)
     {

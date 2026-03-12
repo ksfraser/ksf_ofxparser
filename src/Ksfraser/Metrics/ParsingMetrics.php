@@ -7,18 +7,55 @@ namespace OfxParser\Metrics;
  */
 class ParsingMetrics
 {
-    private int $successfulTransactions = 0;
-    private int $incompleteTransactions = 0;
-    private int $corruptTransactions = 0;
-    private int $unexpectedErrors = 0;
+    /**
+     * @var int
+     */
+    private $successfulTransactions = 0;
     
-    private array $missingRequiredFields = [];
-    private array $missingOptionalFields = [];
-    private array $fieldRecoveries = [];
+    /**
+     * @var int
+     */
+    private $incompleteTransactions = 0;
     
-    private array $corruptTransactionLogs = [];
-    private array $unexpectedErrorLogs = [];
-    private array $incompleteTransactionLogs = [];
+    /**
+     * @var int
+     */
+    private $corruptTransactions = 0;
+    
+    /**
+     * @var int
+     */
+    private $unexpectedErrors = 0;
+    
+    /**
+     * @var array
+     */
+    private $missingRequiredFields = [];
+    
+    /**
+     * @var array
+     */
+    private $missingOptionalFields = [];
+    
+    /**
+     * @var array
+     */
+    private $fieldRecoveries = [];
+    
+    /**
+     * @var array
+     */
+    private $corruptTransactionLogs = [];
+    
+    /**
+     * @var array
+     */
+    private $unexpectedErrorLogs = [];
+    
+    /**
+     * @var array
+     */
+    private $incompleteTransactionLogs = [];
     
     public function incrementSuccessfulTransaction(): void
     {

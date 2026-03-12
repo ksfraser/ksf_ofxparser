@@ -7,12 +7,35 @@ namespace OfxParser\Sgml\Elements;
  */
 abstract class Element
 {
-    protected string $tagName;
-    protected ?Element $parent = null;
-    protected array $children = [];
-    protected ?string $textValue = null;
-    protected int $line = 0;
-    protected int $column = 0;
+    /**
+     * @var string
+     */
+    protected $tagName;
+    
+    /**
+     * @var Element|null
+     */
+    protected $parent = null;
+    
+    /**
+     * @var array
+     */
+    protected $children = [];
+    
+    /**
+     * @var string|null
+     */
+    protected $textValue = null;
+    
+    /**
+     * @var int
+     */
+    protected $line = 0;
+    
+    /**
+     * @var int
+     */
+    protected $column = 0;
 
     public function __construct(string $tagName, int $line = 0, int $column = 0)
     {

@@ -16,10 +16,25 @@ use OfxParser\Sgml\Elements\ContainerElement;
  */
 class Parser
 {
-    private Tokenizer $tokenizer;
-    private ElementFactory $factory;
-    private array $elementStack = [];
-    private array $errors = [];
+    /**
+     * @var Tokenizer
+     */
+    private $tokenizer;
+    
+    /**
+     * @var ElementFactory
+     */
+    private $factory;
+    
+    /**
+     * @var array
+     */
+    private $elementStack = [];
+    
+    /**
+     * @var array
+     */
+    private $errors = [];
 
     public function __construct(?ElementFactory $factory = null)
     {

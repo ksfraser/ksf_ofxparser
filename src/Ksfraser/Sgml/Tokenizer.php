@@ -13,11 +13,30 @@ namespace OfxParser\Sgml;
  */
 class Tokenizer
 {
-    private string $content;
-    private int $position = 0;
-    private int $length;
-    private int $line = 1;
-    private int $column = 1;
+    /**
+     * @var string
+     */
+    private $content;
+    
+    /**
+     * @var int
+     */
+    private $position = 0;
+    
+    /**
+     * @var int
+     */
+    private $length;
+    
+    /**
+     * @var int
+     */
+    private $line = 1;
+    
+    /**
+     * @var int
+     */
+    private $column = 1;
 
     public function __construct(string $content)
     {
