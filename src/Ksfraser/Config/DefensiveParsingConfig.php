@@ -16,25 +16,14 @@ use OfxParser\Recovery\TransactionRecovery\PartialTransactionStrategy;
  */
 class DefensiveParsingConfig
 {
-    /**
-     * @var array<string, RecoveryStrategyInterface>
-     */
-    private $fieldStrategies = [];
+    /** @var array<string, RecoveryStrategyInterface> */
+    private array $fieldStrategies = [];
     
-    /**
-     * @var array<string, RecoveryStrategyInterface>
-     */
-    private $transactionStrategies = [];
+    /** @var array<string, RecoveryStrategyInterface> */
+    private array $transactionStrategies = [];
     
-    /**
-     * @var bool
-     */
-    private $enableMetrics = true;
-    
-    /**
-     * @var bool
-     */
-    private $strictMode = false;
+    private bool $enableMetrics = true;
+    private bool $strictMode = false;
     
     /**
      * Create default configuration

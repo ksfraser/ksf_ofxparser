@@ -15,20 +15,9 @@ use OfxParser\Exceptions\Field\RequiredFieldMissingException;
  */
 class TransactionBuilder
 {
-    /**
-     * @var FieldExtractor
-     */
-    private $fieldExtractor;
-    
-    /**
-     * @var RecoveryContext
-     */
-    private $recoveryContext;
-    
-    /**
-     * @var ParsingMetrics
-     */
-    private $metrics;
+    private FieldExtractor $fieldExtractor;
+    private RecoveryContext $recoveryContext;
+    private ParsingMetrics $metrics;
     
     public function __construct(
         FieldExtractor $fieldExtractor,

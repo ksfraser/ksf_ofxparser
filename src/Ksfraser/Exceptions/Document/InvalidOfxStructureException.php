@@ -9,10 +9,7 @@ use OfxParser\Exceptions\OfxParsingException;
  */
 class InvalidOfxStructureException extends OfxParsingException
 {
-    /**
-     * @var string
-     */
-    private $structureIssue;
+    private string $structureIssue;
     
     public function __construct(
         string $structureIssue,

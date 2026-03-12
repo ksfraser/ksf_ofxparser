@@ -9,25 +9,10 @@ use OfxParser\Ofx;
  */
 class ParsingResult
 {
-    /**
-     * @var Ofx
-     */
-    private $ofx;
-    
-    /**
-     * @var ParsingMetrics
-     */
-    private $metrics;
-    
-    /**
-     * @var bool
-     */
-    private $hasErrors;
-    
-    /**
-     * @var bool
-     */
-    private $isComplete;
+    private Ofx $ofx;
+    private ParsingMetrics $metrics;
+    private bool $hasErrors;
+    private bool $isComplete;
     
     public function __construct(Ofx $ofx, ParsingMetrics $metrics)
     {

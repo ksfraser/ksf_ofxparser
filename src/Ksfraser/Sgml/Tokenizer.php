@@ -10,45 +10,24 @@ namespace OfxParser\Sgml;
  * - Closing tags: </TAGNAME>
  * - Text content between tags
  * - Malformed tags (missing >)
- * 
+ *
  * @non-standard RBC International: Single-line SGML format
  *     Bank: Royal Bank of Canada (International Card)
  *     Issue: Entire OFX payload on single line with no formatting
  *     Workaround: Character-by-character tokenization ignores line breaks
- *     Reference: doc/BANKING_STANDARDS_COMPLIANCE.md#issue-2
- * 
+ *
  * @non-standard Presidents Choice/Presco: Unclosed SGML tags
  *     Bank: Presidents Choice Mastercard
  *     Issue: Missing closing tags for efficiency
  *     Workaround: Tokenizer tolerates missing > terminators
- *     Reference: doc/BANKING_STANDARDS_COMPLIANCE.md#issue-1
  */
 class Tokenizer
 {
-    /**
-     * @var string
-     */
-    private $content;
-    
-    /**
-     * @var int
-     */
-    private $position = 0;
-    
-    /**
-     * @var int
-     */
-    private $length;
-    
-    /**
-     * @var int
-     */
-    private $line = 1;
-    
-    /**
-     * @var int
-     */
-    private $column = 1;
+    private string $content;
+    private int $position = 0;
+    private int $length;
+    private int $line = 1;
+    private int $column = 1;
 
     public function __construct(string $content)
     {
@@ -96,7 +75,7 @@ class Tokenizer
 
     /**
      * Read opening or closing tag
-     * 
+     *
      * @non-standard Unclosed tag handling for Presidents Choice/Presco
      *     Skip to '>' or end of line - Banks may omit closing > for wire efficiency
      *     This allows tags like: <SEVERITY>INFO (without closing >)

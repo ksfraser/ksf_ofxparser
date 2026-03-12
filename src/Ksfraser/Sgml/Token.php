@@ -12,25 +12,10 @@ class Token
     public const TYPE_TEXT = 'text';
     public const TYPE_EOF = 'eof';
 
-    /**
-     * @var string
-     */
-    public $type;
-    
-    /**
-     * @var string
-     */
-    public $value;
-    
-    /**
-     * @var int
-     */
-    public $line;
-    
-    /**
-     * @var int
-     */
-    public $column;
+    public string $type;
+    public string $value;
+    public int $line;
+    public int $column;
 
     public function __construct(string $type, string $value, int $line = 0, int $column = 0)
     {

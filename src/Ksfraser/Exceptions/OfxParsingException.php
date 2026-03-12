@@ -7,10 +7,7 @@ namespace OfxParser\Exceptions;
  */
 class OfxParsingException extends \Exception
 {
-    /**
-     * @var array
-     */
-    protected $context = [];
+    protected array $context = [];
     
     public function __construct(string $message = "", int $code = 0, ?\Throwable $previous = null, array $context = [])
     {

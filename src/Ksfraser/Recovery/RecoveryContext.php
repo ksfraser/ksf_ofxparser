@@ -9,10 +9,8 @@ use OfxParser\Config\DefensiveParsingConfig;
  */
 class RecoveryContext
 {
-    /**
-     * @var DefensiveParsingConfig
-     */
-    private $config;
+    /** @var DefensiveParsingConfig */
+    private DefensiveParsingConfig $config;
     
     public function __construct(DefensiveParsingConfig $config)
     {

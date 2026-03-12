@@ -33,45 +33,29 @@ use OfxParser\Loaders\SgmlOfxLoader;
  */
 class Parser
 {
-    /**
-     * @var DefensiveParsingConfig|null
-     */
-    private $config = null;
+    /** @var DefensiveParsingConfig|null */
+    private ?DefensiveParsingConfig $config = null;
     
-    /**
-     * @var RecoveryContext|null
-     */
-    private $recoveryContext = null;
+    /** @var RecoveryContext|null */
+    private ?RecoveryContext $recoveryContext = null;
     
-    /**
-     * @var ParsingMetrics|null
-     */
-    protected $metrics = null;
+    /** @var ParsingMetrics|null */
+    protected ?ParsingMetrics $metrics = null;
     
-    /**
-     * @var FieldExtractor|null
-     */
-    protected $fieldExtractor = null;
+    /** @var FieldExtractor|null */
+    protected ?FieldExtractor $fieldExtractor = null;
     
-    /**
-     * @var TransactionBuilder|null
-     */
-    protected $transactionBuilder = null;
+    /** @var TransactionBuilder|null */
+    protected ?TransactionBuilder $transactionBuilder = null;
     
-    /**
-     * @var string|null Track which parser path was used
-     */
-    private $parserPathUsed = null;
+    /** @var string|null Track which parser path was used */
+    private ?string $parserPathUsed = null;
     
-    /**
-     * @var string|null Track the detected OFX version
-     */
-    private $ofxVersionDetected = null;
+    /** @var string|null Track the detected OFX version */
+    private ?string $ofxVersionDetected = null;
     
-    /**
-     * @var OfxLoaderInterface[] Available loaders
-     */
-    private $loaders = [];
+    /** @var OfxLoaderInterface[] Available loaders */
+    private array $loaders = [];
     
     /**
      * Constructor - optionally inject custom loaders

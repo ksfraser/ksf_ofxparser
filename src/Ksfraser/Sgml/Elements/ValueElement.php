@@ -10,15 +10,8 @@ use OfxParser\Sgml\DateFormatter;
  */
 class ValueElement extends Element
 {
-    /**
-     * @var string
-     */
-    private $dataType;
-    
-    /**
-     * @var bool
-     */
-    private $required;
+    private string $dataType;
+    private bool $required;
 
     public function __construct(
         string $tagName,
