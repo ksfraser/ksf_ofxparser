@@ -16,9 +16,12 @@ use OfxParser\Sgml;
  */
 class SgmlOfxLoader implements OfxLoaderInterface
 {
-    private ?TransactionBuilder $transactionBuilder;
-    private ?FieldExtractor $fieldExtractor;
-    private ?ParsingMetrics $metrics;
+    /** @var TransactionBuilder|null */
+    private $transactionBuilder;
+    /** @var FieldExtractor|null */
+    private $fieldExtractor;
+    /** @var ParsingMetrics|null */
+    private $metrics;
     
     public function __construct(
         ?TransactionBuilder $transactionBuilder = null,
