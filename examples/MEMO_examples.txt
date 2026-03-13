@@ -1,0 +1,22 @@
+     CIBC Savings / HISA
+               <MEMO>DEPOSIT;Square, Inc.;Square, Inc.;Electronic Funds Transfer
+               <MEMO>ATM WITHDRAWAL;SIERRA SPRINGS BKNG CTR 2F0O;Automated Banking Machine
+               <MEMO>INTERNET TRANSFER 000000239204;Internet Banking
+               <MEMO>PAY;MANULIFE;Electronic Funds Transfer
+               <MEMO>E-TRANSFER 011337432529;CONNIE CRAIG;Internet Banking
+               <NAME>MASTERCARD, WALMART<MEMO>INTERNET BILL PAY 000000100765;Internet Banking
+               <NAME>343104<MEMO>PREAUTHORIZED DEBIT;NON-GROUP;Electronic Funds Transfer
+               <MEMO>E-TRANSFER NETWORK FEE;Branch Transaction
+               <MEMO>SERVICE CHARGE;Branch Transaction
+               <MEMO>ATM DEPOSIT;SIERRA SPRINGS BKNG CTR 1C0F;Automated Banking Machine
+       CIBC VISA
+               <NAME>UBER CANADA/UBERTRIP<MEMO>TORONTO, ON;CC#4503********0307
+               <NAME>ALBERTA INSURANCE COUNCIL<MEMO>EDMONTON, AB;CC#4503********0307
+       PCMC
+               <NAME>McDonalds 40613<MEMO>7293
+               <NAME>Payment MBC<MEMO>2992
+       Manulife
+               <NAME>TAX AIRDRIE Taxes</NAME><MEMO>TAX AIRDRIE Taxes</MEMO>
+       ATB
+               <NAME>PAYMENT - THANK YOU
+               <NAME>WAL-MART #1050           AIRDRIE

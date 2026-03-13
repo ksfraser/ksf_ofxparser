@@ -1,0 +1,15 @@
+       Manulife
+               <TRNTYPE>XFER</TRNTYPE>
+               <TRNTYPE>INT</TRNTYPE>
+               <TRNTYPE>POS</TRNTYPE>
+               <TRNTYPE>CREDIT</TRNTYPE>
+               <TRNTYPE>DIRECTDEBIT</TRNTYPE>
+       CIBC
+               <TRNTYPE>CREDIT
+               <TRNTYPE>DEBIT
+               <TRNTYPE>SRVCHG
+       PCMC
+               <TRNTYPE>DEBIT
+               <TRNTYPE>CREDIT
+       ATB
+               <TRNTYPE>CREDIT
