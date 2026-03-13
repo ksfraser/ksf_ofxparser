@@ -15,14 +15,17 @@ use OfxParser\Metrics\ParsingMetrics;
  */
 class XmlOfxLoader implements OfxLoaderInterface
 {
-    private ?TransactionBuilder $transactionBuilder;
-    private ?FieldExtractor $fieldExtractor;
-    private ?ParsingMetrics $metrics;
+    /** @var TransactionBuilder|null */
+    private $transactionBuilder;
+    /** @var FieldExtractor|null */
+    private $fieldExtractor;
+    /** @var ParsingMetrics|null */
+    private $metrics;
     
     public function __construct(
-        ?TransactionBuilder $transactionBuilder = null,
-        ?FieldExtractor $fieldExtractor = null,
-        ?ParsingMetrics $metrics = null
+        TransactionBuilder $transactionBuilder = null,
+        FieldExtractor $fieldExtractor = null,
+        ParsingMetrics $metrics = null
     ) {
         $this->transactionBuilder = $transactionBuilder;
         $this->fieldExtractor = $fieldExtractor;

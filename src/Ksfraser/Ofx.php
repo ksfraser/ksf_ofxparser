@@ -41,17 +41,17 @@ class Ofx
     /**
      * @var TransactionBuilder|null
      */
-    private ?TransactionBuilder $transactionBuilder = null;
+    private $transactionBuilder = null;
     
     /**
      * @var FieldExtractor|null
      */
-    private ?FieldExtractor $fieldExtractor = null;
+    private $fieldExtractor = null;
     
     /**
      * @var ParsingMetrics|null
      */
-    private ?ParsingMetrics $metrics = null;
+    private $metrics = null;
 
     /**
      * @var SignOn

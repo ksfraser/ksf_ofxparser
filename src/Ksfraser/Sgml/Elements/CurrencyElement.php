@@ -14,8 +14,10 @@ namespace OfxParser\Sgml\Elements;
  */
 class CurrencyElement extends Element
 {
-    private ?string $currencyCode = null;
-    private ?float $exchangeRate = null;
+    /** @var string|null */
+    private $currencyCode = null;
+    /** @var float|null */
+    private $exchangeRate = null;
 
     /**
      * Currency can have children (CURSYM, CURRATE) in container format
