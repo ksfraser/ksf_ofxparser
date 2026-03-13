@@ -1,0 +1,22 @@
+parameters:
+  level: 8
+  phpVersion: 70300
+  paths:
+    - src/
+
+  # Strict rules for PHP 7.3 compatibility
+  strictRules:
+    booleansInConditions: true
+    disallowedLooseComparison: true
+
+  # Report any issues
+  reportUnmatchedIgnoredErrors: true
+
+  # Ignore common patterns
+  ignoreErrors:
+    # Allow testing with PHPUnit assertions
+    - '#Call to an undefined method PHPUnit#'
+
+includes:
+  # Use bleeding edge for best analysis
+  - vendor/phpstan/phpstan/conf/bleedingEdge.neon

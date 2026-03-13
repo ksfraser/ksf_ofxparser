@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ruleset name="OFX Parser Coding Standard">
+    <description>Coding standard for OFX Parser - enforces PHP 7.3 compatibility on php73 branch</description>
+
+    <!-- Which files to check -->
+    <file>src</file>
+    <file>tests</file>
+
+    <!-- Exclude vendor and build directories -->
+    <exclude-pattern>*/vendor/*</exclude-pattern>
+    <exclude-pattern>*/build/*</exclude-pattern>
+    <exclude-pattern>*/coverage*</exclude-pattern>
+
+    <!-- Use our custom PHP 7.3 compatibility standard -->
+    <rule ref="./standards/Php73Compatibility/ruleset.xml"/>
+
+    <!-- Standard PSR-12 rules (subset) -->
+    <rule ref="PSR12">
+        <!-- Allow some flexibility in empty lines -->
+        <exclude name="PSR2.Methods.MethodDeclaration.Underscore"/>
+    </rule>
+</ruleset>

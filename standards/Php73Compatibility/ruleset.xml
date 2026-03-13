@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ruleset name="PHP 7.3 Compatibility">
+    <description>Custom coding standard to enforce PHP 7.3 compatibility in the php73 branch</description>
+
+    <!-- Include our custom sniff -->
+    <rule ref="./Sniffs/PHP/Php73CompatibilitySniff.php"/>
+</ruleset>
