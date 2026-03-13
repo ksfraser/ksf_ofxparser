@@ -27,5 +27,12 @@
 # QFX test files - keep directory but ignore content
 /QFX/*
 !/QFX/.gitkeep
+
+# Third-party OFX parser versions - kept for reference/development
+# These are alternative parser implementations used for comparison
+# but should not be committed to the main repo
+/lib/*
+!/lib/.gitkeep
+
 # Fixture internal documentation - source mapping only
 /tests/fixtures/FIXTURE_SOURCES.md

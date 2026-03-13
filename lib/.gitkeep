@@ -1,0 +1,12 @@
+# This directory is kept locally for development and comparison purposes
+# It contains alternative implementations of OFX parsers (forks from asgrim's version)
+# but should not be committed to the repository.
+# 
+# Current implementations in this directory:
+# - jacques-ofxparser (original asgrim fork)
+# - memhetcoban-ofxparser (community fork)
+# - ofx2 (alternative implementation)
+# - ofx4 (alternative implementation)
+# - ksf_ofxparser (our implementation - local reference copy)
+#
+# These are used for reference and capability comparison during development.
