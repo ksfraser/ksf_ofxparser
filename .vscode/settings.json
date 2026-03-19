@@ -41,6 +41,107 @@
         "/^php parse_all_qfx_ordered\\.php$/": {
             "approve": true,
             "matchCommandLine": true
+        },
+        "/^php vendor\\\\phpunit\\\\phpunit\\\\phpunit --testdox --no-coverage$/": {
+            "approve": true,
+            "matchCommandLine": true
+        },
+        "/^php -v$/": {
+            "approve": true,
+            "matchCommandLine": true
+        },
+        "/^php vendor/bin/phpunit tests/Builder/TransactionBuilderTest\\.php --testdox$/": {
+            "approve": true,
+            "matchCommandLine": true
+        },
+        "/^php vendor/bin/phpunit tests/Builder/TransactionBuilderTest\\.php --testdox 2>&1 \\| tail -50$/": {
+            "approve": true,
+            "matchCommandLine": true
+        },
+        "/^php vendor/bin/phpunit tests/Builder/TransactionBuilderTest\\.php --testdox --no-coverage 2>&1 \\| Select-Object -First 100$/": {
+            "approve": true,
+            "matchCommandLine": true
+        },
+        "/^php vendor/bin/phpunit tests/Recovery/RecoveryStrategyTest\\.php --testdox --no-coverage 2>&1 \\| Select-Object -First 50$/": {
+            "approve": true,
+            "matchCommandLine": true
+        },
+        "/^php vendor/bin/phpunit tests/ --testdox --no-coverage 2>&1 \\| tail -100$/": {
+            "approve": true,
+            "matchCommandLine": true
+        },
+        "/^php vendor/bin/phpunit tests/ --testdox --no-coverage > test_results_new\\.txt 2>&1 ; Get-Content test_results_new\\.txt \\| Select-Object -Last 150$/": {
+            "approve": true,
+            "matchCommandLine": true
+        },
+        "/^php vendor/bin/phpunit tests/ --testdox --no-coverage$/": {
+            "approve": true,
+            "matchCommandLine": true
+        },
+        "/^php vendor/bin/phpunit tests/ --testdox 2>&1 > full_test_results\\.txt ; Get-Content full_test_results\\.txt \\| Select-String \"ERRORS\\|FAILURES\\|SKIPPED\\|Risky\" -A 100$/": {
+            "approve": true,
+            "matchCommandLine": true
+        },
+        "/^php vendor/bin/phpunit tests/ -v --no-coverage 2>&1 > full_test_results\\.txt$/": {
+            "approve": true,
+            "matchCommandLine": true
+        },
+        "/^php vendor/bin/phpunit tests/Recovery/RecoveryStrategyTest\\.php -v --no-coverage$/": {
+            "approve": true,
+            "matchCommandLine": true
+        },
+        "/^php vendor/bin/phpunit tests/Integration/ComponentIntegrationTest\\.php --testdox --no-coverage 2>&1 \\| Select-Object -First 100$/": {
+            "approve": true,
+            "matchCommandLine": true
+        },
+        "/^php vendor/bin/phpunit tests/Recovery/RecoveryStrategyTest\\.php --testdox --no-coverage$/": {
+            "approve": true,
+            "matchCommandLine": true
+        },
+        "/^php vendor/bin/phpunit tests/Recovery/RecoveryStrategyTest\\.php --testdox --no-coverage 2>&1 \\| Select-Object -Last 50$/": {
+            "approve": true,
+            "matchCommandLine": true
+        },
+        "/^php vendor/bin/phpunit tests/Recovery/RecoveryStrategyTest\\.php --testdox$/": {
+            "approve": true,
+            "matchCommandLine": true
+        },
+        "/^php vendor/bin/phpunit tests/Integration/ComponentIntegrationTest\\.php --testdox 2>&1 \\| Select-Object -First 80$/": {
+            "approve": true,
+            "matchCommandLine": true
+        },
+        "/^php vendor/bin/phpunit tests/Integration/ComponentIntegrationTest\\.php --testdox 2>&1 \\| head -80$/": {
+            "approve": true,
+            "matchCommandLine": true
+        },
+        "/^php vendor/bin/phpunit tests/Integration/ComponentIntegrationTest\\.php --testdox 2>&1 \\| Select-Object -First 100$/": {
+            "approve": true,
+            "matchCommandLine": true
+        },
+        "Tee-Object": true,
+        "/^php vendor/bin/phpunit tests/Integration/ComponentIntegrationTest\\.php --testdox 2>&1 \\| Select-Object -Last 25$/": {
+            "approve": true,
+            "matchCommandLine": true
+        },
+        "/^php vendor/bin/phpunit tests/Integration/ComponentIntegrationTest\\.php --testdox 2>&1$/": {
+            "approve": true,
+            "matchCommandLine": true
+        },
+        "/^php vendor/bin/phpunit tests/Integration/ComponentIntegrationTest\\.php --testdox 2>&1 \\| grep -E \"\\^\\(✔\\|✘\\|Component Integration\\)\" \\| head -25$/": {
+            "approve": true,
+            "matchCommandLine": true
+        },
+        "/^php vendor/bin/phpunit tests/Integration/ComponentIntegrationTest\\.php --testdox 2>&1 \\| Where-Object \\{\\$_ -match '\\(✔\\|✘\\|Component Integration\\|OK\\|FAILED\\)'\\} \\| Select-Object -First 30$/": {
+            "approve": true,
+            "matchCommandLine": true
+        },
+        "/^php vendor/bin/phpunit tests/Integration/ComponentIntegrationTest\\.php 2>&1 \\| Select-Object -Last 5$/": {
+            "approve": true,
+            "matchCommandLine": true
+        },
+        "/^php vendor/bin/phpunit tests/Integration/ComponentIntegrationTest\\.php 2>&1 \\| Tee-Object -FilePath test_integration_output\\.txt \\| tail -n 5$/": {
+            "approve": true,
+            "matchCommandLine": true
         }
     }
 }
