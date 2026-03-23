@@ -31,14 +31,6 @@ class RealWorldBankFilesTest extends TestCase
         $this->assertNotEmpty($ofx->bankAccounts);
         
         $account = $ofx->bankAccounts[0];
-        echo "\n✓ CIBC HISA (ofxdata-cibc-hisa.ofx)";
-        echo "\n  BANK: CIBC";
-        echo "\n  BANKID: " . $account->routingNumber;
-        echo "\n  ACCOUNT: " . $account->accountNumber . " (Type: " . $account->accountType . ")";
-        echo "\n  BALANCE: " . $account->balance . " CAD";
-        echo "\n  TRANSACTIONS: " . count($account->statement->transactions);
-        echo "\n  PERIOD: " . $account->statement->startDate->format('Y-m-d') . 
-             " to " . $account->statement->endDate->format('Y-m-d');
         
         // Verify real CIBC bank ID
         $this->assertEquals('600000100', $account->routingNumber, 'Should have real CIBC bank ID');
@@ -62,15 +54,6 @@ class RealWorldBankFilesTest extends TestCase
         $this->assertNotEmpty($ofx->bankAccounts);
         
         $account = $ofx->bankAccounts[0];
-        echo "\n✓ CIBC VISA (ofxdata-cibc-visa.ofx)";
-        echo "\n  BANK: CIBC";
-        echo "\n  ACCOUNT: " . $account->accountNumber . " (Type: CREDITLINE)";
-        echo "\n  BALANCE: " . $account->balance . " CAD";
-        echo "\n  TRANSACTIONS: " . count($account->statement->transactions);
-        if (count($account->statement->transactions) > 0) {
-            echo "\n  PERIOD: " . $account->statement->startDate->format('Y-m-d') . 
-                 " to " . $account->statement->endDate->format('Y-m-d');
-        }
         
         $this->assertGreaterThan(0, count($account->statement->transactions));
     }
@@ -91,16 +74,6 @@ class RealWorldBankFilesTest extends TestCase
         $this->assertNotEmpty($ofx->bankAccounts);
         
         $account = $ofx->bankAccounts[0];
-        echo "\n✓ Manulife Checking (ofxdata-manulife-checking.ofx)";
-        echo "\n  BANK: Manulife";
-        echo "\n  BANKID: " . $account->routingNumber;
-        echo "\n  ACCOUNT: " . $account->accountNumber . " (Type: " . $account->accountType . ")";
-        echo "\n  BALANCE: " . $account->balance . " CAD";
-        echo "\n  TRANSACTIONS: " . count($account->statement->transactions);
-        if (count($account->statement->transactions) > 0) {
-            echo "\n  PERIOD: " . $account->statement->startDate->format('Y-m-d') . 
-                 " to " . $account->statement->endDate->format('Y-m-d');
-        }
         
         // Verify real Manulife bank ID
         $this->assertEquals('054000240', $account->routingNumber, 'Should have real Manulife bank ID');
@@ -124,12 +97,6 @@ class RealWorldBankFilesTest extends TestCase
         $this->assertNotEmpty($ofx->bankAccounts);
         
         $account = $ofx->bankAccounts[0];
-        echo "\n✓ RBC Savings (ofxdata-rbc-savings.ofx)";
-        echo "\n  BANK: RBC";
-        echo "\n  BANKID: " . $account->routingNumber;
-        echo "\n  ACCOUNT: " . $account->accountNumber . " (Type: " . $account->accountType . ")";
-        echo "\n  BALANCE: " . $account->balance . " CAD";
-        echo "\n  TRANSACTIONS: " . count($account->statement->transactions);
         
         // Verify real RBC bank ID
         $this->assertEquals('900000100', $account->routingNumber, 'Should have real RBC bank ID');
@@ -152,12 +119,6 @@ class RealWorldBankFilesTest extends TestCase
         $this->assertNotEmpty($ofx->bankAccounts);
         
         $account = $ofx->bankAccounts[0];
-        echo "\n✓ Simplii Savings (ofxdata-simplii-savings.ofx)";
-        echo "\n  BANK: Simplii";
-        echo "\n  BANKID: " . $account->routingNumber;
-        echo "\n  ACCOUNT: " . $account->accountNumber . " (Type: " . $account->accountType . ")";
-        echo "\n  BALANCE: " . $account->balance . " CAD";
-        echo "\n  TRANSACTIONS: " . count($account->statement->transactions);
         
         // Verify real Simplii bank ID
         $this->assertEquals('160000100', $account->routingNumber, 'Should have real Simplii bank ID');
@@ -180,16 +141,6 @@ class RealWorldBankFilesTest extends TestCase
         $this->assertNotEmpty($ofx->bankAccounts);
         
         $account = $ofx->bankAccounts[0];
-        echo "\n✓ FAKE HISA (ofxdata-FAKE-hisa.ofx)";
-        echo "\n  BANK: Generic/Fake";
-        echo "\n  BANKID: " . $account->routingNumber;
-        echo "\n  ACCOUNT: " . $account->accountNumber . " (Type: " . $account->accountType . ")";
-        echo "\n  BALANCE: " . $account->balance . " CAD";
-        echo "\n  TRANSACTIONS: " . count($account->statement->transactions);
-        if (count($account->statement->transactions) > 0) {
-            echo "\n  PERIOD: " . $account->statement->startDate->format('Y-m-d') . 
-                 " to " . $account->statement->endDate->format('Y-m-d');
-        }
         
         // Verify fake bank ID
         $this->assertEquals('999999999', $account->routingNumber, 'Should have fake bank ID');
@@ -213,11 +164,6 @@ class RealWorldBankFilesTest extends TestCase
         $this->assertNotEmpty($ofx->bankAccounts);
         
         $account = $ofx->bankAccounts[0];
-        echo "\n✓ FAKE CREDIT CARD (ofxdata-FAKE-credit-card.ofx)";
-        echo "\n  BANK: Generic/Fake";
-        echo "\n  ACCOUNT: " . $account->accountNumber . " (Type: CREDITLINE)";
-        echo "\n  BALANCE: " . $account->balance . " CAD";
-        echo "\n  TRANSACTIONS: " . count($account->statement->transactions);
         
         $this->assertGreaterThan(0, count($account->statement->transactions));
     }
@@ -238,16 +184,7 @@ class RealWorldBankFilesTest extends TestCase
         $this->assertNotEmpty($ofx->bankAccounts);
         
         $account = $ofx->bankAccounts[0];
-        echo "\n✓ FAKE CHECKING (ofxdata-FAKE-checking.ofx)";
-        echo "\n  BANK: Generic/Fake";
-        echo "\n  BANKID: " . $account->routingNumber;
-        echo "\n  ACCOUNT: " . $account->accountNumber . " (Type: " . $account->accountType . ")";
-        echo "\n  BALANCE: " . $account->balance . " CAD";
-        echo "\n  TRANSACTIONS: " . count($account->statement->transactions);
-        if (count($account->statement->transactions) > 0) {
-            echo "\n  PERIOD: " . $account->statement->startDate->format('Y-m-d') . 
-                 " to " . $account->statement->endDate->format('Y-m-d');
-        }
+
         
         // Verify fake bank ID
         $this->assertEquals('999999999', $account->routingNumber, 'Should have fake bank ID');

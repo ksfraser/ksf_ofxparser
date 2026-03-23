@@ -17,6 +17,21 @@ class Payee extends AbstractEntity
     /**
      * @var string
      */
+    public $address1;
+
+    /**
+     * @var string
+     */
+    public $address2;
+
+    /**
+     * @var string
+     */
+    public $address3;
+
+    /**
+     * @var string
+     */
     public $city;
 
     /**

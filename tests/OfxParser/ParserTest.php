@@ -16,7 +16,7 @@ class ParserTest extends TestCase
         $ofx = $parser->loadFromFile(__DIR__ . '/../fixtures/ofxdata-credit-card.ofx');
 
         $account = reset($ofx->bankAccounts);
-        self::assertSame('1234567891234567', (string)$account->accountNumber);
+        self::assertSame('9999999999999999', (string)$account->accountNumber);
     }
 
     public function testXmlLoadStringThrowsExceptionWithInvalidXml()

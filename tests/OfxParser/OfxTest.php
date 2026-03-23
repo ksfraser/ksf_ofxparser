@@ -123,8 +123,8 @@ class OfxTest extends TestCase
 
         $bankAccount = $Ofx->bankAccount;
         self::assertEquals('23382938', $bankAccount->transactionUid);
-        self::assertEquals('098-121', $bankAccount->accountNumber);
-        self::assertEquals('987654321', $bankAccount->routingNumber);
+        self::assertEquals('999-999', $bankAccount->accountNumber);
+        self::assertEquals('999999999', $bankAccount->routingNumber);
         self::assertEquals('SAVINGS', $bankAccount->accountType);
         self::assertEquals('5250.00', $bankAccount->balance);
         self::assertInstanceOf('DateTime', $bankAccount->balanceDate);

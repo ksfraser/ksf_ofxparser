@@ -8,6 +8,7 @@ use OfxParser\Entities\Investment;
 use OfxParser\Entities\Investment\Transaction\Traits\InvTran;
 use OfxParser\Entities\Investment\Transaction\Traits\SecId;
 use OfxParser\Entities\Investment\Transaction\Traits\Pricing;
+use OfxParser\Entities\Investment\Transaction\Traits\BuyType;
 
 /**
  * OFX 203 doc:
@@ -39,6 +40,7 @@ class BuySecurity extends Investment
     use InvTran;
     use SecId;
     use Pricing;
+    use BuyType;
 
     /**
      * @var string

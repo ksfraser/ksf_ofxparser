@@ -127,6 +127,7 @@ DATA;
         $ofx = $this->parser->loadFromString($this->getValidOFXBank());
         
         // Should be able to retrieve metrics
+        $this->assertNotNull($ofx);
         if (method_exists($ofx, 'getMetrics')) {
             $metrics = $ofx->getMetrics();
             $this->assertNotNull($metrics);
@@ -184,6 +185,7 @@ DATA;
     {
         $ofx = $this->parser->loadFromString($this->getValidOFXBank());
         
+        $this->assertNotNull($ofx);
         if (isset($ofx->bankAccount) && isset($ofx->bankAccount->statement)) {
             $transactions = $ofx->bankAccount->statement->transactions ?? [];
             $this->assertNotEmpty($transactions);
@@ -216,6 +218,7 @@ DATA;
         $ofx = $this->parser->loadFromString($this->getValidOFXBank());
         
         // Data should flow consistently through components
+        $this->assertNotNull($ofx);
         if (isset($ofx->bankAccount)) {
             $account = $ofx->bankAccount;
             
@@ -251,6 +254,7 @@ DATA;
         $ofx = $this->parser->loadFromString($this->getValidOFXBank());
         
         // Should be able to get metrics after parsing
+        $this->assertNotNull($ofx);
         if (method_exists($ofx, 'getMetrics')) {
             $metrics = $ofx->getMetrics();
             // Metrics object should exist
@@ -266,6 +270,7 @@ DATA;
         $ofx = $this->parser->loadFromString($this->getValidOFXBank());
         
         // Should be able to inspect what recoveries occurred
+        $this->assertNotNull($ofx);
         if (method_exists($ofx, 'getMetrics')) {
             $metrics = $ofx->getMetrics();
             $this->assertNotNull($metrics);
@@ -278,6 +283,7 @@ DATA;
         $ofx = $this->parser->loadFromString($this->getValidOFXBank());
         
         // Should create appropriate entity types
+        $this->assertNotNull($ofx);
         if (isset($ofx->bankAccount)) {
             // Account should be an Account object
             $this->assertNotNull($ofx->bankAccount);

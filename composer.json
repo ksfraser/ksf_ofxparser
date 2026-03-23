@@ -45,7 +45,8 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "OfxParserTest\\": "tests/OfxParser/"
+            "OfxParserTest\\": "tests/OfxParser/",
+            "Tests\\": "tests/"
         }
     },
     "scripts": {

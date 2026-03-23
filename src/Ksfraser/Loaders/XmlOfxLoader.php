@@ -23,9 +23,9 @@ class XmlOfxLoader implements OfxLoaderInterface
     private $metrics;
     
     public function __construct(
-        TransactionBuilder $transactionBuilder = null,
-        FieldExtractor $fieldExtractor = null,
-        ParsingMetrics $metrics = null
+        ?TransactionBuilder $transactionBuilder = null,
+        ?FieldExtractor $fieldExtractor = null,
+        ?ParsingMetrics $metrics = null
     ) {
         $this->transactionBuilder = $transactionBuilder;
         $this->fieldExtractor = $fieldExtractor;

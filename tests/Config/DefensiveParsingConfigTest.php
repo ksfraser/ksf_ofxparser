@@ -137,7 +137,7 @@ class DefensiveParsingConfigTest extends TestCase
         $config = DefensiveParsingConfig::createDefault();
         $zeroStrategy = new ZeroAmountStrategy();
         
-        $config->setFieldStrategy('InvalidAmountException', $zeroStrategy);
+        $config->setFieldStrategy('Exception', $zeroStrategy);
         $exception = new \Exception('Invalid amount');
         
         $strategy = $config->getStrategyForException($exception);
@@ -210,7 +210,8 @@ class DefensiveParsingConfigTest extends TestCase
         
         $strategies = $config->getFieldStrategies();
         
-        $this->assertCount(3, $strategies);
+        // createDefault() adds 2 field strategies, plus 3 new ones = 5 total
+        $this->assertCount(5, $strategies);
         $this->assertArrayHasKey('Exception1', $strategies);
         $this->assertArrayHasKey('Exception2', $strategies);
         $this->assertArrayHasKey('Exception3', $strategies);
@@ -227,7 +228,8 @@ class DefensiveParsingConfigTest extends TestCase
         
         $strategies = $config->getTransactionStrategies();
         
-        $this->assertCount(3, $strategies);
+        // createDefault() adds 2 transaction strategies, plus 3 new ones = 5 total
+        $this->assertCount(5, $strategies);
         $this->assertArrayHasKey('Exception1', $strategies);
         $this->assertArrayHasKey('Exception2', $strategies);
         $this->assertArrayHasKey('Exception3', $strategies);

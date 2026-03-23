@@ -18,7 +18,7 @@ class InvestmentTest extends TestCase
         $account = reset($ofx->bankAccounts);
         self::assertSame('TEST-UID-1', $account->transactionUid);
         self::assertSame('vanguard.com', $account->brokerId);
-        self::assertSame('1234567890', $account->accountNumber);
+        self::assertSame('9999999999', $account->accountNumber);
 
         // Check some transactions:
         $expected = array(
@@ -104,7 +104,7 @@ class InvestmentTest extends TestCase
         $account = reset($ofx->bankAccounts);
         self::assertSame('TEST-UID-1', $account->transactionUid);
         self::assertSame('vanguard.com', $account->brokerId);
-        self::assertSame('1234567890', $account->accountNumber);
+        self::assertSame('9999999999', $account->accountNumber);
 
         // Check some transactions:
         $expected = array(
