@@ -59,10 +59,7 @@ class TransactionBuilderTest extends TestCase
 XML;
         
         $element = simplexml_load_string($xml);
-        if ($element === false) {
-            $this->markTestSkipped('XML parsing not supported');
-            return;
-        }
+        $this->assertNotFalse($element, 'XML should parse successfully');
         
         try {
             $transactions = $this->builder->buildTransactions($element);

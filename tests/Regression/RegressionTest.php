@@ -5,7 +5,7 @@ namespace Tests\Regression;
 use DateTime;
 use DateTimeZone;
 use PHPUnit\Framework\TestCase;
-use KsfOfxParser\Parser;
+use OfxParser\Parser;
 use Tests\Builders\OFXEnvelopeBuilder;
 use Tests\Builders\TestScenarios;
 
@@ -55,10 +55,10 @@ class RegressionTest extends TestCase
                 'memo' => 'Large amount test',
             ])->build();
         
-        $parsed = $this->parser->loadOFXString($ofx);
+        $parsed = $this->parser->loadFromString($ofx);
         $txn = $parsed->getTransactions()[0];
         
-        $this->assertEquals(999999999999.99, $txn->getAmount());
+        $this->assertEquals(999999999999.99, $txn->amount);
     }
     
     /**
@@ -80,11 +80,11 @@ class RegressionTest extends TestCase
                 'memo' => 'Zero amount',
             ])->build();
         
-        $parsed = $this->parser->loadOFXString($ofx);
+        $parsed = $this->parser->loadFromString($ofx);
         $txn = $parsed->getTransactions()[0];
         
-        $this->assertNotNull($txn->getAmount());
-        $this->assertEquals(0.0, $txn->getAmount());
+        $this->assertNotNull($txn->amount);
+        $this->assertEquals(0.0, $txn->amount);
     }
     
     /**
@@ -106,11 +106,11 @@ class RegressionTest extends TestCase
                 'memo' => 'Debit transaction',
             ])->build();
         
-        $parsed = $this->parser->loadOFXString($ofx);
+        $parsed = $this->parser->loadFromString($ofx);
         $txn = $parsed->getTransactions()[0];
         
-        $this->assertLessThan(0, $txn->getAmount());
-        $this->assertEquals(-150.75, $txn->getAmount());
+        $this->assertLessThan(0, $txn->amount);
+        $this->assertEquals(-150.75, $txn->amount);
     }
     
     /**
@@ -132,10 +132,10 @@ class RegressionTest extends TestCase
                 'memo' => 'Old transaction',
             ])->build();
         
-        $parsed = $this->parser->loadOFXString($ofx);
+        $parsed = $this->parser->loadFromString($ofx);
         $txn = $parsed->getTransactions()[0];
         
-        $this->assertEquals('1995-06-15', $txn->getDate()->format('Y-m-d'));
+        $this->assertEquals('1995-06-15', $txn->date->format('Y-m-d'));
     }
     
     /**
@@ -160,10 +160,10 @@ class RegressionTest extends TestCase
                     'memo' => "Leap year {$year}",
                 ])->build();
             
-            $parsed = $this->parser->loadOFXString($ofx);
+            $parsed = $this->parser->loadFromString($ofx);
             $txn = $parsed->getTransactions()[0];
             
-            $this->assertEquals("{$year}-02-29", $txn->getDate()->format('Y-m-d'));
+            $this->assertEquals("{$year}-02-29", $txn->date->format('Y-m-d'));
         }
     }
     
@@ -193,11 +193,11 @@ class RegressionTest extends TestCase
                     'memo' => "Precision test: {$input}",
                 ])->build();
             
-            $parsed = $this->parser->loadOFXString($ofx);
+            $parsed = $this->parser->loadFromString($ofx);
             $txn = $parsed->getTransactions()[0];
             
             // Amount should be handled consistently
-            $this->assertIsFloat($txn->getAmount());
+            $this->assertIsFloat($txn->amount);
         }
     }
     
@@ -221,11 +221,11 @@ class RegressionTest extends TestCase
                 'payee' => 'Smith & Sons Inc',
             ])->build();
         
-        $parsed = $this->parser->loadOFXString($ofx);
+        $parsed = $this->parser->loadFromString($ofx);
         $txn = $parsed->getTransactions()[0];
         
         // Entities should be decoded
-        $this->assertStringContainsString('&', $txn->getMemo());
+        $this->assertStringContainsString('&', $txn->memo);
     }
     
     /**
@@ -249,11 +249,11 @@ class RegressionTest extends TestCase
                 'memo' => 'Long ID transaction',
             ])->build();
         
-        $parsed = $this->parser->loadOFXString($ofx);
+        $parsed = $this->parser->loadFromString($ofx);
         $txn = $parsed->getTransactions()[0];
         
         // Should have some form of ID
-        $this->assertNotNull($txn->getId());
+        $this->assertNotNull($txn->uniqueId);
     }
     
     /**
@@ -275,16 +275,16 @@ class RegressionTest extends TestCase
                 ['id' => '3', 'type' => 'CREDIT', 'amount' => '75.00', 'date' => $date, 'memo' => 'Third'],
             ])->build();
         
-        $parsed = $this->parser->loadOFXString($ofx);
+        $parsed = $this->parser->loadFromString($ofx);
         $txns = $parsed->getTransactions();
         
         // Should have correct count
         $this->assertCount(3, $txns);
         
         // IDs should be in original order or sorted by amount
-        $this->assertNotNull($txns[0]->getId());
-        $this->assertNotNull($txns[1]->getId());
-        $this->assertNotNull($txns[2]->getId());
+        $this->assertNotNull($txns[0]->uniqueId);
+        $this->assertNotNull($txns[1]->uniqueId);
+        $this->assertNotNull($txns[2]->uniqueId);
     }
     
     /**
@@ -300,7 +300,7 @@ class RegressionTest extends TestCase
         $ofx = TestScenarios::largeStatement(500)->build();
         
         // Should parse without memory errors
-        $parsed = $this->parser->loadOFXString($ofx);
+        $parsed = $this->parser->loadFromString($ofx);
         
         $this->assertNotNull($parsed);
         $this->assertCount(500, $parsed->getTransactions());
@@ -326,14 +326,15 @@ class RegressionTest extends TestCase
             ])->build();
         
         // Parse same document twice
-        $parsed1 = $this->parser->loadOFXString($ofx);
-        $parsed2 = $this->parser->loadOFXString($ofx);
+        $parsed1 = $this->parser->loadFromString($ofx);
+        $parsed2 = $this->parser->loadFromString($ofx);
         
         $txn1 = $parsed1->getTransactions()[0];
         $txn2 = $parsed2->getTransactions()[0];
         
         // Should get identical results
-        $this->assertEquals($txn1->getAmount(), $txn2->getAmount());
-        $this->assertEquals($txn1->getId(), $txn2->getId());
+        $this->assertEquals($txn1->amount, $txn2->amount);
+        $this->assertEquals($txn1->uniqueId, $txn2->uniqueId);
     }
 }
+

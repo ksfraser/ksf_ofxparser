@@ -1,8 +1,16 @@
 <?php
 
-namespace OfxParser\Entities;
+namespace OfxParserTest\Entities;
 
 use PHPUnit\Framework\TestCase;
+use OfxParser\Entities\Transaction;
+use OfxParser\Entities\BankAccount;
+use OfxParser\Entities\Statement;
+use OfxParser\Entities\SignOn;
+use OfxParser\Entities\Status;
+use OfxParser\Entities\Institute;
+use OfxParser\Entities\Payee;
+use OfxParser\Entities\AccountInfo;
 
 /**
  * Test Entity Structure and Properties

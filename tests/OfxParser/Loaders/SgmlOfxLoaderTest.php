@@ -1,8 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace OfxParser\Loaders;
+namespace OfxParserTest\Loaders;
 
 use PHPUnit\Framework\TestCase;
+use OfxParser\Loaders\SgmlOfxLoader;
 
 /**
  * Test SgmlOfxLoader SGML parsing and header handling

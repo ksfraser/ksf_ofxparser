@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace OfxParser\Entities\Investment\Transaction\Traits;
+namespace OfxParserTest\Entities\Investment\Transaction\Traits;
 
 use PHPUnit\Framework\TestCase;
 use OfxParser\Entities\Investment\Transaction\BuyStock;

@@ -1,8 +1,9 @@
 <?php
 
-namespace OfxParser;
+namespace OfxParserTest;
 
 use PHPUnit\Framework\TestCase;
+use OfxParser\Parser;
 use OfxParser\Config\DefensiveParsingConfig;
 
 /**
@@ -94,7 +95,7 @@ HEADER;
     public function testDefensiveParsingWithCustomConfig()
     {
         $config = new DefensiveParsingConfig();
-        $config->continueOnError = true;
+        $config->setContinueOnError(true);
         
         $parser = new Parser();
         $parser->withDefensiveParsing($config);

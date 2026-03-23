@@ -1,6 +1,6 @@
 <?php
 
-namespace OfxParser\Parsers;
+namespace OfxParserTest\Parsers;
 
 use OfxParser\Parser;
 use PHPUnit\Framework\TestCase;

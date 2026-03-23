@@ -1,6 +1,6 @@
 <?php
 
-namespace OfxParser\Sgml\Tests;
+namespace Tests\Sgml;
 
 use PHPUnit\Framework\TestCase;
 use OfxParser\Sgml\Tokenizer;

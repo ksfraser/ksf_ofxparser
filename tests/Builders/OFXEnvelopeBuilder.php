@@ -161,19 +161,35 @@ class OFXEnvelopeBuilder
         $transactionsXml = '';
         foreach ($this->transactions as $trx) {
             $dateStr = $trx['date']->format('Ymd');
+            // Escape XML special characters in content
+            $type = htmlspecialchars($trx['type'], ENT_XML1, 'UTF-8');
+            $id = htmlspecialchars($trx['id'], ENT_XML1, 'UTF-8');
+            $amount = htmlspecialchars($trx['amount'], ENT_XML1, 'UTF-8');
+            $memo = htmlspecialchars($trx['memo'], ENT_XML1, 'UTF-8');
+            $payee = isset($trx['payee']) ? htmlspecialchars($trx['payee'], ENT_XML1, 'UTF-8') : '';
+            
             $transactionsXml .= "<STMTTRN>\n";
-            $transactionsXml .= "<TRNTYPE>{$trx['type']}\n";
-            $transactionsXml .= "<DTPOSTED>{$dateStr}\n";
-            $transactionsXml .= "<TRNAMT>{$trx['amount']}\n";
-            $transactionsXml .= "<FITID>{$trx['id']}\n";
-            if ($trx['payee']) {
-                $transactionsXml .= "<NAME>{$trx['payee']}\n";
+            $transactionsXml .= "<TRNTYPE>{$type}</TRNTYPE>\n";
+            $transactionsXml .= "<DTPOSTED>{$dateStr}</DTPOSTED>\n";
+            $transactionsXml .= "<TRNAMT>{$amount}</TRNAMT>\n";
+            $transactionsXml .= "<FITID>{$id}</FITID>\n";
+            $transactionsXml .= "<MEMO>{$memo}</MEMO>\n";
+            if ($payee) {
+                $transactionsXml .= "<PAYEE>\n";
+                $transactionsXml .= "<NAME>{$payee}</NAME>\n";
+                $transactionsXml .= "</PAYEE>\n";
             }
-            $transactionsXml .= "<MEMO>{$trx['memo']}\n";
             $transactionsXml .= "</STMTTRN>\n";
         }
         
         // Build complete OFX envelope
+        // Escape values that might contain special characters
+        $currency = htmlspecialchars($this->currency, ENT_XML1, 'UTF-8');
+        $bankId = htmlspecialchars($this->bankId, ENT_XML1, 'UTF-8');
+        $accountId = htmlspecialchars($this->accountId, ENT_XML1, 'UTF-8');
+        $accountType = htmlspecialchars($this->accountType, ENT_XML1, 'UTF-8');
+        $balanceAmount = htmlspecialchars((string)$this->balanceAmount, ENT_XML1, 'UTF-8');
+        
         $ofx = <<<XML
 <?xml version="1.0" encoding="UTF-8"?>
 <OFX>
@@ -199,20 +215,20 @@ XML;
                 $ofx .= "<SEVERITY>INFO</SEVERITY>\n";
                 $ofx .= "</STATUS>\n";
                 $ofx .= "<STMTRS>\n";
-                $ofx .= "<CURDEF>{$this->currency}\n";
+                $ofx .= "<CURDEF>{$currency}</CURDEF>\n";
                 $ofx .= "<BANKTRANLIST>\n";
-                $ofx .= "<DTSTART>{$statementStartStr}\n";
-                $ofx .= "<DTEND>{$statementEndStr}\n";
+                $ofx .= "<DTSTART>{$statementStartStr}</DTSTART>\n";
+                $ofx .= "<DTEND>{$statementEndStr}</DTEND>\n";
                 $ofx .= $transactionsXml;
                 $ofx .= "</BANKTRANLIST>\n";
                 $ofx .= "<LEDGERBAL>\n";
-                $ofx .= "<BALAMT>{$this->balanceAmount}\n";
-                $ofx .= "<DTASOF>{$balanceDateStr}\n";
+                $ofx .= "<BALAMT>{$balanceAmount}</BALAMT>\n";
+                $ofx .= "<DTASOF>{$balanceDateStr}</DTASOF>\n";
                 $ofx .= "</LEDGERBAL>\n";
                 $ofx .= "<BANKACCTFROM>\n";
-                $ofx .= "<BANKID>{$this->bankId}\n";
-                $ofx .= "<ACCTID>{$this->accountId}\n";
-                $ofx .= "<ACCTTYPE>{$this->accountType}\n";
+                $ofx .= "<BANKID>{$bankId}</BANKID>\n";
+                $ofx .= "<ACCTID>{$accountId}</ACCTID>\n";
+                $ofx .= "<ACCTTYPE>{$accountType}</ACCTTYPE>\n";
                 $ofx .= "</BANKACCTFROM>\n";
                 $ofx .= "</STMTRS>\n";
                 $ofx .= "</STMTTRNRS>\n";
@@ -227,18 +243,18 @@ XML;
                 $ofx .= "<SEVERITY>INFO</SEVERITY>\n";
                 $ofx .= "</STATUS>\n";
                 $ofx .= "<CCSTMTRS>\n";
-                $ofx .= "<CURDEF>{$this->currency}\n";
+                $ofx .= "<CURDEF>{$currency}</CURDEF>\n";
                 $ofx .= "<BANKTRANLIST>\n";
-                $ofx .= "<DTSTART>{$statementStartStr}\n";
-                $ofx .= "<DTEND>{$statementEndStr}\n";
+                $ofx .= "<DTSTART>{$statementStartStr}</DTSTART>\n";
+                $ofx .= "<DTEND>{$statementEndStr}</DTEND>\n";
                 $ofx .= $transactionsXml;
                 $ofx .= "</BANKTRANLIST>\n";
                 $ofx .= "<LEDGERBAL>\n";
-                $ofx .= "<BALAMT>{$this->balanceAmount}\n";
-                $ofx .= "<DTASOF>{$balanceDateStr}\n";
+                $ofx .= "<BALAMT>{$balanceAmount}</BALAMT>\n";
+                $ofx .= "<DTASOF>{$balanceDateStr}</DTASOF>\n";
                 $ofx .= "</LEDGERBAL>\n";
                 $ofx .= "<CCACCTFROM>\n";
-                $ofx .= "<ACCTID>{$this->accountId}\n";
+                $ofx .= "<ACCTID>{$accountId}</ACCTID>\n";
                 $ofx .= "</CCACCTFROM>\n";
                 $ofx .= "</CCSTMTRS>\n";
                 $ofx .= "</CCSTMTTRNRS>\n";

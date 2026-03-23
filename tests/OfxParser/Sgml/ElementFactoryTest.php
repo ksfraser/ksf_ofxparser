@@ -1,8 +1,13 @@
 <?php declare(strict_types=1);
 
-namespace OfxParser\Sgml;
+namespace OfxParserTest\Sgml;
 
 use PHPUnit\Framework\TestCase;
+use OfxParser\Sgml\ElementFactory;
+use OfxParser\Sgml\Elements\ValueElement;
+use OfxParser\Sgml\Elements\ContainerElement;
+use OfxParser\Sgml\Elements\UnknownElement;
+use OfxParser\Sgml\Elements\CurrencyElement;
 
 /**
  * Test ElementFactory element creation and type detection
@@ -23,7 +28,7 @@ class ElementFactoryTest extends TestCase
     {
         $element = $this->factory->createElement('TRNTYPE');
         
-        $this->assertInstanceOf(Elements\ValueElement::class, $element);
+        $this->assertInstanceOf(ValueElement::class, $element);
         $this->assertEquals('TRNTYPE', $element->getTagName());
     }
     
@@ -34,7 +39,7 @@ class ElementFactoryTest extends TestCase
     {
         $element = $this->factory->createElement('BANKTRANLIST');
         
-        $this->assertInstanceOf(Elements\ContainerElement::class, $element);
+        $this->assertInstanceOf(ContainerElement::class, $element);
         $this->assertEquals('BANKTRANLIST', $element->getTagName());
     }
     
@@ -45,7 +50,7 @@ class ElementFactoryTest extends TestCase
     {
         $element = $this->factory->createElement('UNKNOWNTAG');
         
-        $this->assertInstanceOf(Elements\UnknownElement::class, $element);
+        $this->assertInstanceOf(UnknownElement::class, $element);
         $this->assertEquals('UNKNOWNTAG', $element->getTagName());
     }
     
@@ -143,7 +148,7 @@ class ElementFactoryTest extends TestCase
         $this->assertTrue($this->factory->isValueElement('CUSTOMFIELD'));
         
         $element = $this->factory->createElement('CUSTOMFIELD');
-        $this->assertInstanceOf(Elements\ValueElement::class, $element);
+        $this->assertInstanceOf(ValueElement::class, $element);
     }
     
     /**
@@ -172,7 +177,7 @@ class ElementFactoryTest extends TestCase
         $this->assertTrue($this->factory->isContainerElement('CUSTOMCONTAINER'));
         
         $element = $this->factory->createElement('CUSTOMCONTAINER');
-        $this->assertInstanceOf(Elements\ContainerElement::class, $element);
+        $this->assertInstanceOf(ContainerElement::class, $element);
     }
     
     /**
@@ -194,7 +199,7 @@ class ElementFactoryTest extends TestCase
     {
         $element = $this->factory->createElement('TRNTYPE', 10, 5);
         
-        $this->assertInstanceOf(Elements\ValueElement::class, $element);
+        $this->assertInstanceOf(ValueElement::class, $element);
         // Line and column should be tracked (test via element if it exposes them)
     }
     
@@ -209,8 +214,8 @@ class ElementFactoryTest extends TestCase
         $cursym = $this->factory->createElement('CURSYM');
         $currate = $this->factory->createElement('CURRATE');
         
-        $this->assertInstanceOf(Elements\ValueElement::class, $cursym);
-        $this->assertInstanceOf(Elements\ValueElement::class, $currate);
+        $this->assertInstanceOf(ValueElement::class, $cursym);
+        $this->assertInstanceOf(ValueElement::class, $currate);
     }
     
     /**
@@ -232,8 +237,8 @@ class ElementFactoryTest extends TestCase
         $currency = $this->factory->createElement('CURRENCY');
         $origCurrency = $this->factory->createElement('ORIGCURRENCY');
         
-        $this->assertInstanceOf(Elements\CurrencyElement::class, $currency);
-        $this->assertInstanceOf(Elements\ContainerElement::class, $origCurrency);
+        $this->assertInstanceOf(CurrencyElement::class, $currency);
+        $this->assertInstanceOf(ContainerElement::class, $origCurrency);
     }
     
     /**
@@ -298,7 +303,8 @@ class ElementFactoryTest extends TestCase
             $this->assertTrue($this->factory->isValueElement($field), "$field should be a value element");
             
             $element = $this->factory->createElement($field);
-            $this->assertInstanceOf(Elements\ValueElement::class, $element);
+            $this->assertInstanceOf(ValueElement::class, $element);
         }
     }
 }
+

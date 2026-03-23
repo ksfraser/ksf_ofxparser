@@ -1,8 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace OfxParser\Builder;
+namespace OfxParserTest\Builder;
 
 use PHPUnit\Framework\TestCase;
+use OfxParser\Builder\TransactionBuilder;
 use OfxParser\Extraction\FieldExtractor;
 use OfxParser\Recovery\RecoveryContext;
 use OfxParser\Metrics\ParsingMetrics;

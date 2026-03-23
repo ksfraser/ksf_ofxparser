@@ -1,8 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace OfxParser\Ofx;
+namespace OfxParserTest\Ofx;
 
 use PHPUnit\Framework\TestCase;
+use OfxParser\Ofx\Investment;
 
 /**
  * Test Investment OFX parsing

@@ -5,8 +5,8 @@ namespace Tests\Unit;
 use DateTime;
 use DateTimeZone;
 use PHPUnit\Framework\TestCase;
-use KsfOfxParser\Parser;
-use KsfOfxParser\Entities\Transaction;
+use OfxParser\Parser;
+use OfxParser\Entities\Transaction;
 use Tests\Builders\EdgeCaseAmounts;
 use Tests\Builders\EdgeCaseDates;
 use Tests\Builders\OFXEnvelopeBuilder;
@@ -49,10 +49,10 @@ class EdgeCaseParsingTest extends TestCase
                 'memo' => 'Minimum',
             ])->build();
         
-        $parsed = $this->parser->loadOFXString($ofx);
+        $parsed = $this->parser->loadFromString($ofx);
         $txn = $parsed->getTransactions()[0];
         
-        $this->assertEquals(0.01, $txn->getAmount());
+        $this->assertEquals(0.01, $txn->amount);
     }
     
     /**
@@ -69,10 +69,10 @@ class EdgeCaseParsingTest extends TestCase
                 'memo' => 'Maximum',
             ])->build();
         
-        $parsed = $this->parser->loadOFXString($ofx);
+        $parsed = $this->parser->loadFromString($ofx);
         $txn = $parsed->getTransactions()[0];
         
-        $this->assertEquals(999999999999.99, $txn->getAmount());
+        $this->assertEquals(999999999999.99, $txn->amount);
     }
     
     /**
@@ -89,10 +89,10 @@ class EdgeCaseParsingTest extends TestCase
                 'memo' => 'Minimum negative',
             ])->build();
         
-        $parsed = $this->parser->loadOFXString($ofx);
+        $parsed = $this->parser->loadFromString($ofx);
         $txn = $parsed->getTransactions()[0];
         
-        $this->assertEquals(-0.01, $txn->getAmount());
+        $this->assertEquals(-0.01, $txn->amount);
     }
     
     /**
@@ -109,10 +109,10 @@ class EdgeCaseParsingTest extends TestCase
                 'memo' => 'Maximum negative',
             ])->build();
         
-        $parsed = $this->parser->loadOFXString($ofx);
+        $parsed = $this->parser->loadFromString($ofx);
         $txn = $parsed->getTransactions()[0];
         
-        $this->assertEquals(-999999999999.99, $txn->getAmount());
+        $this->assertEquals(-999999999999.99, $txn->amount);
     }
     
     /**
@@ -129,11 +129,11 @@ class EdgeCaseParsingTest extends TestCase
                 'memo' => 'Extra decimals',
             ])->build();
         
-        $parsed = $this->parser->loadOFXString($ofx);
+        $parsed = $this->parser->loadFromString($ofx);
         $txn = $parsed->getTransactions()[0];
         
         // Should handle precision appropriately
-        $this->assertIsFloat($txn->getAmount());
+        $this->assertIsFloat($txn->amount);
     }
     
     /**
@@ -150,10 +150,10 @@ class EdgeCaseParsingTest extends TestCase
                 'memo' => 'No decimal',
             ])->build();
         
-        $parsed = $this->parser->loadOFXString($ofx);
+        $parsed = $this->parser->loadFromString($ofx);
         $txn = $parsed->getTransactions()[0];
         
-        $this->assertEquals(100.0, $txn->getAmount());
+        $this->assertEquals(100.0, $txn->amount);
     }
     
     /**
@@ -173,10 +173,10 @@ class EdgeCaseParsingTest extends TestCase
                     'memo' => "Zero as: {$amount}",
                 ])->build();
             
-            $parsed = $this->parser->loadOFXString($ofx);
+            $parsed = $this->parser->loadFromString($ofx);
             $txn = $parsed->getTransactions()[0];
             
-            $this->assertEquals(0.0, $txn->getAmount());
+            $this->assertEquals(0.0, $txn->amount);
         }
     }
     
@@ -194,10 +194,10 @@ class EdgeCaseParsingTest extends TestCase
                 'memo' => 'Leading zeros',
             ])->build();
         
-        $parsed = $this->parser->loadOFXString($ofx);
+        $parsed = $this->parser->loadFromString($ofx);
         $txn = $parsed->getTransactions()[0];
         
-        $this->assertEquals(100.50, $txn->getAmount());
+        $this->assertEquals(100.50, $txn->amount);
     }
     
     // =================================================================
@@ -218,10 +218,10 @@ class EdgeCaseParsingTest extends TestCase
                 'memo' => 'Epoch',
             ])->build();
         
-        $parsed = $this->parser->loadOFXString($ofx);
+        $parsed = $this->parser->loadFromString($ofx);
         $txn = $parsed->getTransactions()[0];
         
-        $this->assertEquals('1970-01-01', $txn->getDate()->format('Y-m-d'));
+        $this->assertEquals('1970-01-01', $txn->date->format('Y-m-d'));
     }
     
     /**
@@ -238,10 +238,10 @@ class EdgeCaseParsingTest extends TestCase
                 'memo' => 'Y2K',
             ])->build();
         
-        $parsed = $this->parser->loadOFXString($ofx);
+        $parsed = $this->parser->loadFromString($ofx);
         $txn = $parsed->getTransactions()[0];
         
-        $this->assertEquals('2000-01-01', $txn->getDate()->format('Y-m-d'));
+        $this->assertEquals('2000-01-01', $txn->date->format('Y-m-d'));
     }
     
     /**
@@ -258,10 +258,10 @@ class EdgeCaseParsingTest extends TestCase
                 'memo' => 'Leap day',
             ])->build();
         
-        $parsed = $this->parser->loadOFXString($ofx);
+        $parsed = $this->parser->loadFromString($ofx);
         $txn = $parsed->getTransactions()[0];
         
-        $this->assertEquals('2024-02-29', $txn->getDate()->format('Y-m-d'));
+        $this->assertEquals('2024-02-29', $txn->date->format('Y-m-d'));
     }
     
     /**
@@ -278,10 +278,10 @@ class EdgeCaseParsingTest extends TestCase
                 'memo' => 'Year end',
             ])->build();
         
-        $parsed = $this->parser->loadOFXString($ofx);
+        $parsed = $this->parser->loadFromString($ofx);
         $txn = $parsed->getTransactions()[0];
         
-        $this->assertEquals('2026-12-31', $txn->getDate()->format('Y-m-d'));
+        $this->assertEquals('2026-12-31', $txn->date->format('Y-m-d'));
     }
     
     /**
@@ -298,10 +298,10 @@ class EdgeCaseParsingTest extends TestCase
                 'memo' => 'Far future',
             ])->build();
         
-        $parsed = $this->parser->loadOFXString($ofx);
+        $parsed = $this->parser->loadFromString($ofx);
         $txn = $parsed->getTransactions()[0];
         
-        $this->assertEquals('2099-12-31', $txn->getDate()->format('Y-m-d'));
+        $this->assertEquals('2099-12-31', $txn->date->format('Y-m-d'));
     }
     
     /**
@@ -318,10 +318,10 @@ class EdgeCaseParsingTest extends TestCase
                 'memo' => 'With time',
             ])->build();
         
-        $parsed = $this->parser->loadOFXString($ofx);
+        $parsed = $this->parser->loadFromString($ofx);
         $txn = $parsed->getTransactions()[0];
         
-        $date = $txn->getDate();
+        $date = $txn->date;
         $this->assertInstanceOf(DateTime::class, $date);
         $this->assertEquals('2026-03-13', $date->format('Y-m-d'));
     }
@@ -346,11 +346,11 @@ class EdgeCaseParsingTest extends TestCase
                 'memo' => 'Long ID',
             ])->build();
         
-        $parsed = $this->parser->loadOFXString($ofx);
+        $parsed = $this->parser->loadFromString($ofx);
         $txn = $parsed->getTransactions()[0];
         
         // Should preserve or handle gracefully
-        $this->assertNotNull($txn->getId());
+        $this->assertNotNull($txn->uniqueId);
     }
     
     /**
@@ -369,11 +369,11 @@ class EdgeCaseParsingTest extends TestCase
                 'memo' => $longMemo,
             ])->build();
         
-        $parsed = $this->parser->loadOFXString($ofx);
+        $parsed = $this->parser->loadFromString($ofx);
         $txn = $parsed->getTransactions()[0];
         
         // Should parse without error
-        $this->assertNotNull($txn->getMemo());
+        $this->assertNotNull($txn->memo);
     }
     
     /**
@@ -393,10 +393,10 @@ class EdgeCaseParsingTest extends TestCase
                 'payee' => $longPayee,
             ])->build();
         
-        $parsed = $this->parser->loadOFXString($ofx);
+        $parsed = $this->parser->loadFromString($ofx);
         $txn = $parsed->getTransactions()[0];
         
-        $this->assertNotNull($txn->getPayee());
+        $this->assertNotNull($txn->payee);
     }
     
     // =================================================================
@@ -418,10 +418,10 @@ class EdgeCaseParsingTest extends TestCase
                 'payee' => 'Smith & Sons',
             ])->build();
         
-        $parsed = $this->parser->loadOFXString($ofx);
+        $parsed = $this->parser->loadFromString($ofx);
         $txn = $parsed->getTransactions()[0];
         
-        $this->assertStringContainsString('&', $txn->getMemo());
+        $this->assertStringContainsString('&', $txn->memo);
     }
     
     /**
@@ -438,10 +438,10 @@ class EdgeCaseParsingTest extends TestCase
                 'memo' => 'Said "hello" to customer',
             ])->build();
         
-        $parsed = $this->parser->loadOFXString($ofx);
+        $parsed = $this->parser->loadFromString($ofx);
         $txn = $parsed->getTransactions()[0];
         
-        $this->assertStringContainsString('"', $txn->getMemo());
+        $this->assertStringContainsString('"', $txn->memo);
     }
     
     /**
@@ -458,12 +458,12 @@ class EdgeCaseParsingTest extends TestCase
                 'memo' => 'Amount < 100 & > 50',
             ])->build();
         
-        $parsed = $this->parser->loadOFXString($ofx);
+        $parsed = $this->parser->loadFromString($ofx);
         $txn = $parsed->getTransactions()[0];
         
-        $this->assertStringContainsString('<', $txn->getMemo());
-        $this->assertStringContainsString('>', $txn->getMemo());
-        $this->assertStringContainsString('&', $txn->getMemo());
+        $this->assertStringContainsString('<', $txn->memo);
+        $this->assertStringContainsString('>', $txn->memo);
+        $this->assertStringContainsString('&', $txn->memo);
     }
     
     /**
@@ -480,11 +480,11 @@ class EdgeCaseParsingTest extends TestCase
                 'memo' => "Line 1\nLine 2\nLine 3",
             ])->build();
         
-        $parsed = $this->parser->loadOFXString($ofx);
+        $parsed = $this->parser->loadFromString($ofx);
         $txn = $parsed->getTransactions()[0];
         
         // Should handle newlines
-        $this->assertNotNull($txn->getMemo());
+        $this->assertNotNull($txn->memo);
     }
     
     // =================================================================
@@ -508,10 +508,10 @@ class EdgeCaseParsingTest extends TestCase
                     'memo' => "Type: {$type}",
                 ])->build();
             
-            $parsed = $this->parser->loadOFXString($ofx);
+            $parsed = $this->parser->loadFromString($ofx);
             $txn = $parsed->getTransactions()[0];
             
-            $this->assertNotNull($txn->getType());
+            $this->assertNotNull($txn->type);
         }
     }
 }

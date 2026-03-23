@@ -1,6 +1,6 @@
 <?php
 
-namespace OfxParser\Builders;
+namespace OfxParserTest\Builders;
 
 use PHPUnit\Framework\TestCase;
 use OfxParser\Sgml\Parser as SgmlParser;

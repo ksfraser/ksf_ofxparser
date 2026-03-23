@@ -1,6 +1,6 @@
 <?php
 
-namespace OfxParser\Parsers;
+namespace OfxParserTest\Parsers;
 
 use PHPUnit\Framework\TestCase;
 use OfxParser\Parsers\Investment as InvestmentParser;

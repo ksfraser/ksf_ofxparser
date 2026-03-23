@@ -69,20 +69,35 @@ XML;
         $dtposted = $transactionData['date'] ?? '20260114';
         $memo = $transactionData['memo'] ?? 'Test Transaction';
         
+        // Escape XML special characters
+        $trntype = htmlspecialchars($trntype, ENT_XML1, 'UTF-8');
+        $trnamt = htmlspecialchars((string)$trnamt, ENT_XML1, 'UTF-8');
+        $memo = htmlspecialchars($memo, ENT_XML1, 'UTF-8');
+        $trnid = htmlspecialchars($trnid, ENT_XML1, 'UTF-8');
+        
         $content = "<STMTTRNRS>\n";
         $content .= "<STMTRS>\n";
-        $content .= "<CURDEF>USD\n";
+        $content .= "<CURDEF>USD</CURDEF>\n";
         $content .= "<BANKTRANLIST>\n";
-        $content .= "<DTSTART>20260101\n";
-        $content .= "<DTEND>20260131\n";
+        $content .= "<DTSTART>20260101</DTSTART>\n";
+        $content .= "<DTEND>20260131</DTEND>\n";
         $content .= "<STMTTRN>\n";
-        $content .= "<TRNTYPE>{$trntype}\n";
-        $content .= "<DTPOSTED>{$dtposted}\n";
-        $content .= "<TRNAMT>{$trnamt}\n";
-        $content .= "<FITID>{$trnid}\n";
-        $content .= "<MEMO>{$memo}\n";
+        $content .= "<TRNTYPE>{$trntype}</TRNTYPE>\n";
+        $content .= "<DTPOSTED>{$dtposted}</DTPOSTED>\n";
+        $content .= "<TRNAMT>{$trnamt}</TRNAMT>\n";
+        $content .= "<FITID>{$trnid}</FITID>\n";
+        $content .= "<MEMO>{$memo}</MEMO>\n";
         $content .= "</STMTTRN>\n";
         $content .= "</BANKTRANLIST>\n";
+        $content .= "<LEDGERBAL>\n";
+        $content .= "<BALAMT>5000.00</BALAMT>\n";
+        $content .= "<DTASOF>20260131</DTASOF>\n";
+        $content .= "</LEDGERBAL>\n";
+        $content .= "<BANKACCTFROM>\n";
+        $content .= "<BANKID>123456</BANKID>\n";
+        $content .= "<ACCTID>9876543</ACCTID>\n";
+        $content .= "<ACCTTYPE>CHECKING</ACCTTYPE>\n";
+        $content .= "</BANKACCTFROM>\n";
         $content .= "</STMTRS>\n";
         $content .= "</STMTTRNRS>\n";
         

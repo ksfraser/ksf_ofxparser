@@ -37,6 +37,11 @@ class DefensiveParsingConfig
     private $strictMode = false;
     
     /**
+     * @var bool
+     */
+    private $continueOnError = true;
+    
+    /**
      * Create default configuration
      */
     public static function createDefault(): self
@@ -157,6 +162,22 @@ class DefensiveParsingConfig
     public function setStrictMode(bool $strict): void
     {
         $this->strictMode = $strict;
+    }
+    
+    /**
+     * Check if should continue on error
+     */
+    public function shouldContinueOnError(): bool
+    {
+        return $this->continueOnError;
+    }
+    
+    /**
+     * Enable/disable continue on error
+     */
+    public function setContinueOnError(bool $continue): void
+    {
+        $this->continueOnError = $continue;
     }
     
     /**
