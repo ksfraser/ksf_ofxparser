@@ -1,8 +1,9 @@
 <?php
 
-namespace OfxParser\Builders;
+namespace OfxParserTest\Builders;
 
 use PHPUnit\Framework\TestCase;
+use OfxParser\Builders\SgmlOfxBuilder;
 
 /**
  * Test SGML Builder Date Parsing Edge Cases

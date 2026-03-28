@@ -1,0 +1,983 @@
+﻿PHPUnit 9.6.34 by Sebastian Bergmann and contributors.
+
+Runtime:       PHP 8.4.6
+Configuration: C:\Users\prote\Documents\software-devel\ksf_ofxparser\phpunit.xml
+
+...............................................................  63 / 708 (  8%)
+...........................................................SSSS 126 / 708 ( 17%)
+SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS........................... 189 / 708 ( 26%)
+........SSSSSSSSSSSSSSSSSSSS..............EEEEEEEEEEEEEEEEEEEEE 252 / 708 ( 35%)
+EEE.............EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE 315 / 708 ( 44%)
+EEEEEEEE...............................EEEEEEEEEEEEEEEE........ 378 / 708 ( 53%)
+............................................................... 441 / 708 ( 62%)
+......................EEEEEEEEEEE.............................. 504 / 708 ( 71%)
+..........................EEE........E.E.EEE....E.............. 567 / 708 ( 80%)
+........................................EEEEEEEE....SS.SSSSS... 630 / 708 ( 88%)
+.................................................S............. 693 / 708 ( 97%)
+...............                                                 708 / 708 (100%)
+
+Time: 00:39.628, Memory: 28.00 MB
+
+There were 123 errors:
+
+1) OfxParserTest\Builder\TransactionBuilderTest::testBuildTransactionsWithCompleteTransaction
+Error: Class "OfxParserTest\Builder\TransactionBuilder" not found
+
+C:\Users\prote\Documents\software-devel\ksf_ofxparser\tests\OfxParser\Builder\TransactionBuilderTest.php:36
+
+2) OfxParserTest\Builder\TransactionBuilderTest::testBuildTransactionsWithRequiredFieldsOnly
+Error: Class "OfxParserTest\Builder\TransactionBuilder" not found
+
+C:\Users\prote\Documents\software-devel\ksf_ofxparser\tests\OfxParser\Builder\TransactionBuilderTest.php:36
+
+3) OfxParserTest\Builder\TransactionBuilderTest::testBuildTransactionsWithMultipleMemos
+Error: Class "OfxParserTest\Builder\TransactionBuilder" not found
+
+C:\Users\prote\Documents\software-devel\ksf_ofxparser\tests\OfxParser\Builder\TransactionBuilderTest.php:36
+
+4) OfxParserTest\Builder\TransactionBuilderTest::testBuildTransactionsWithPayee
+Error: Class "OfxParserTest\Builder\TransactionBuilder" not found
+
+C:\Users\prote\Documents\software-devel\ksf_ofxparser\tests\OfxParser\Builder\TransactionBuilderTest.php:36
+
+5) OfxParserTest\Builder\TransactionBuilderTest::testBuildTransactionsWithPartialPayee
+Error: Class "OfxParserTest\Builder\TransactionBuilder" not found
+
+C:\Users\prote\Documents\software-devel\ksf_ofxparser\tests\OfxParser\Builder\TransactionBuilderTest.php:36
+
+6) OfxParserTest\Builder\TransactionBuilderTest::testBuildTransactionsWithBankAccountTo
+Error: Class "OfxParserTest\Builder\TransactionBuilder" not found
+
+C:\Users\prote\Documents\software-devel\ksf_ofxparser\tests\OfxParser\Builder\TransactionBuilderTest.php:36
+
+7) OfxParserTest\Builder\TransactionBuilderTest::testBuildTransactionsWithCreditCardAccountTo
+Error: Class "OfxParserTest\Builder\TransactionBuilder" not found
+
+C:\Users\prote\Documents\software-devel\ksf_ofxparser\tests\OfxParser\Builder\TransactionBuilderTest.php:36
+
+8) OfxParserTest\Builder\TransactionBuilderTest::testBuildTransactionsWithMissingTrnType
+Error: Class "OfxParserTest\Builder\TransactionBuilder" not found
+
+C:\Users\prote\Documents\software-devel\ksf_ofxparser\tests\OfxParser\Builder\TransactionBuilderTest.php:36
+
+9) OfxParserTest\Builder\TransactionBuilderTest::testBuildTransactionsWithMissingDatePosted
+Error: Class "OfxParserTest\Builder\TransactionBuilder" not found
+
+C:\Users\prote\Documents\software-devel\ksf_ofxparser\tests\OfxParser\Builder\TransactionBuilderTest.php:36
+
+10) OfxParserTest\Builder\TransactionBuilderTest::testBuildTransactionsWithMissingAmount
+Error: Class "OfxParserTest\Builder\TransactionBuilder" not found
+
+C:\Users\prote\Documents\software-devel\ksf_ofxparser\tests\OfxParser\Builder\TransactionBuilderTest.php:36
+
+11) OfxParserTest\Builder\TransactionBuilderTest::testBuildTransactionsWithMissingFitId
+Error: Class "OfxParserTest\Builder\TransactionBuilder" not found
+
+C:\Users\prote\Documents\software-devel\ksf_ofxparser\tests\OfxParser\Builder\TransactionBuilderTest.php:36
+
+12) OfxParserTest\Builder\TransactionBuilderTest::testBuildTransactionsWithMixedValidAndCorrupt
+Error: Class "OfxParserTest\Builder\TransactionBuilder" not found
+
+C:\Users\prote\Documents\software-devel\ksf_ofxparser\tests\OfxParser\Builder\TransactionBuilderTest.php:36
+
+13) OfxParserTest\Builder\TransactionBuilderTest::testBuildTransactionsWithPartialTransactionStrategy
+Error: Class "OfxParserTest\Builder\TransactionBuilder" not found
+
+C:\Users\prote\Documents\software-devel\ksf_ofxparser\tests\OfxParser\Builder\TransactionBuilderTest.php:36
+
+14) OfxParserTest\Builder\TransactionBuilderTest::testBuildTransactionsWithEmptyList
+Error: Class "OfxParserTest\Builder\TransactionBuilder" not found
+
+C:\Users\prote\Documents\software-devel\ksf_ofxparser\tests\OfxParser\Builder\TransactionBuilderTest.php:36
+
+15) OfxParserTest\Builder\TransactionBuilderTest::testBuildTransactionsWithMalformedPayee
+Error: Class "OfxParserTest\Builder\TransactionBuilder" not found
+
+C:\Users\prote\Documents\software-devel\ksf_ofxparser\tests\OfxParser\Builder\TransactionBuilderTest.php:36
+
+16) OfxParserTest\Builder\TransactionBuilderTest::testMetricsTrackingForMissingOptionalFields
+Error: Class "OfxParserTest\Builder\TransactionBuilder" not found
+
+C:\Users\prote\Documents\software-devel\ksf_ofxparser\tests\OfxParser\Builder\TransactionBuilderTest.php:36
+
+17) OfxParserTest\Builders\BankAccountParsingTest::testBankAccountWithAgencyNumber
+Error: Class "OfxParserTest\Builders\SgmlOfxBuilder" not found
+
+C:\Users\prote\Documents\software-devel\ksf_ofxparser\tests\OfxParser\Builders\BankAccountParsingTest.php:64
+
+18) OfxParserTest\Builders\BankAccountParsingTest::testNonStandardStmtrnrsTag
+Error: Class "OfxParserTest\Builders\SgmlOfxBuilder" not found
+
+C:\Users\prote\Documents\software-devel\ksf_ofxparser\tests\OfxParser\Builders\BankAccountParsingTest.php:114
+
+19) OfxParserTest\Builders\BankAccountParsingTest::testStatusWithMessage
+Error: Class "OfxParserTest\Builders\SgmlOfxBuilder" not found
+
+C:\Users\prote\Documents\software-devel\ksf_ofxparser\tests\OfxParser\Builders\BankAccountParsingTest.php:171
+
+20) OfxParserTest\Builders\BankAccountParsingTest::testTransactionWithUserInitiatedDate
+Error: Class "OfxParserTest\Builders\SgmlOfxBuilder" not found
+
+C:\Users\prote\Documents\software-devel\ksf_ofxparser\tests\OfxParser\Builders\BankAccountParsingTest.php:229
+
+21) OfxParserTest\Builders\BankAccountParsingTest::testVariousTransactionTypes
+Error: Class "OfxParserTest\Builders\SgmlOfxBuilder" not found
+
+C:\Users\prote\Documents\software-devel\ksf_ofxparser\tests\OfxParser\Builders\BankAccountParsingTest.php:384
+
+22) OfxParserTest\Builders\BankAccountParsingTest::testStatementDates
+Error: Class "OfxParserTest\Builders\SgmlOfxBuilder" not found
+
+C:\Users\prote\Documents\software-devel\ksf_ofxparser\tests\OfxParser\Builders\BankAccountParsingTest.php:442
+
+23) OfxParserTest\Builders\BankAccountParsingTest::testTransactionWithPayeeAndPayeeId
+Error: Class "OfxParserTest\Builders\SgmlOfxBuilder" not found
+
+C:\Users\prote\Documents\software-devel\ksf_ofxparser\tests\OfxParser\Builders\BankAccountParsingTest.php:508
+
+24) OfxParserTest\Builders\BankAccountParsingTest::testMultipleStmtRsSiblings
+Error: Class "OfxParserTest\Builders\SgmlOfxBuilder" not found
+
+C:\Users\prote\Documents\software-devel\ksf_ofxparser\tests\OfxParser\Builders\BankAccountParsingTest.php:574
+
+25) OfxParserTest\Builders\SgmlBuilderHelpersTest::testParseDateTimeComplete
+Error: Class "OfxParserTest\Builders\SgmlOfxBuilder" not found
+
+C:\Users\prote\Documents\software-devel\ksf_ofxparser\tests\OfxParser\Builders\SgmlBuilderHelpersTest.php:21
+
+26) OfxParserTest\Builders\SgmlBuilderHelpersTest::testParseDateTimeWithoutTime
+Error: Class "OfxParserTest\Builders\SgmlOfxBuilder" not found
+
+C:\Users\prote\Documents\software-devel\ksf_ofxparser\tests\OfxParser\Builders\SgmlBuilderHelpersTest.php:21
+
+27) OfxParserTest\Builders\SgmlBuilderHelpersTest::testParseDateTimeWithTimezone
+Error: Class "OfxParserTest\Builders\SgmlOfxBuilder" not found
+
+C:\Users\prote\Documents\software-devel\ksf_ofxparser\tests\OfxParser\Builders\SgmlBuilderHelpersTest.php:21
+
+28) OfxParserTest\Builders\SgmlBuilderHelpersTest::testParseDateTimeEmptyString
+Error: Class "OfxParserTest\Builders\SgmlOfxBuilder" not found
+
+C:\Users\prote\Documents\software-devel\ksf_ofxparser\tests\OfxParser\Builders\SgmlBuilderHelpersTest.php:21
+
+29) OfxParserTest\Builders\SgmlBuilderHelpersTest::testBuildStatementWithEmptyTransactionList
+Error: Class "OfxParserTest\Builders\SgmlOfxBuilder" not found
+
+C:\Users\prote\Documents\software-devel\ksf_ofxparser\tests\OfxParser\Builders\SgmlBuilderHelpersTest.php:21
+
+30) OfxParserTest\Builders\SgmlBuilderHelpersTest::testAccountNumberTrimming
+Error: Class "OfxParserTest\Builders\SgmlOfxBuilder" not found
+
+C:\Users\prote\Documents\software-devel\ksf_ofxparser\tests\OfxParser\Builders\SgmlBuilderHelpersTest.php:21
+
+31) OfxParserTest\Builders\SgmlBuilderHelpersTest::testParseDateTimeMalformed
+Error: Class "OfxParserTest\Builders\SgmlOfxBuilder" not found
+
+C:\Users\prote\Documents\software-devel\ksf_ofxparser\tests\OfxParser\Builders\SgmlBuilderHelpersTest.php:21
+
+32) OfxParserTest\Builders\SgmlBuilderHelpersTest::testParseDateTimeLeapYear
+Error: Class "OfxParserTest\Builders\SgmlOfxBuilder" not found
+
+C:\Users\prote\Documents\software-devel\ksf_ofxparser\tests\OfxParser\Builders\SgmlBuilderHelpersTest.php:21
+
+33) OfxParserTest\Builders\SgmlOfxBuilderCoverageTest::testBuildCurrencyWithNullCode
+Error: Class "OfxParserTest\Builders\SgmlOfxBuilder" not found
+
+C:\Users\prote\Documents\software-devel\ksf_ofxparser\tests\OfxParser\Builders\SgmlOfxBuilderCoverageTest.php:74
+
+34) OfxParserTest\Builders\SgmlOfxBuilderCoverageTest::testBuildCurrencyWithNullRate
+Error: Class "OfxParserTest\Builders\SgmlOfxBuilder" not found
+
+C:\Users\prote\Documents\software-devel\ksf_ofxparser\tests\OfxParser\Builders\SgmlOfxBuilderCoverageTest.php:132
+
+35) OfxParserTest\Builders\SgmlOfxBuilderCoverageTest::testBuildPayeeWithEmptyAddressLines
+Error: Class "OfxParserTest\Builders\SgmlOfxBuilder" not found
+
+C:\Users\prote\Documents\software-devel\ksf_ofxparser\tests\OfxParser\Builders\SgmlOfxBuilderCoverageTest.php:194
+
+36) OfxParserTest\Builders\SgmlOfxBuilderCoverageTest::testBuildPayeeWithOnlyAddr2
+Error: Class "OfxParserTest\Builders\SgmlOfxBuilder" not found
+
+C:\Users\prote\Documents\software-devel\ksf_ofxparser\tests\OfxParser\Builders\SgmlOfxBuilderCoverageTest.php:257
+
+37) OfxParserTest\Builders\SgmlOfxBuilderCoverageTest::testTransactionWithEmptyStringOptionalFields
+Error: Class "OfxParserTest\Builders\SgmlOfxBuilder" not found
+
+C:\Users\prote\Documents\software-devel\ksf_ofxparser\tests\OfxParser\Builders\SgmlOfxBuilderCoverageTest.php:318
+
+38) OfxParserTest\Builders\SgmlOfxBuilderCoverageTest::testOfxWithOnlySignOn
+Error: Class "OfxParserTest\Builders\SgmlOfxBuilder" not found
+
+C:\Users\prote\Documents\software-devel\ksf_ofxparser\tests\OfxParser\Builders\SgmlOfxBuilderCoverageTest.php:352
+
+39) OfxParserTest\Builders\SgmlOfxBuilderCoverageTest::testOfxWithMultipleBankAccounts
+Error: Class "OfxParserTest\Builders\SgmlOfxBuilder" not found
+
+C:\Users\prote\Documents\software-devel\ksf_ofxparser\tests\OfxParser\Builders\SgmlOfxBuilderCoverageTest.php:417
+
+40) OfxParserTest\Builders\SgmlOfxBuilderCoverageTest::testDateTimeFieldsAlreadyDateTime
+Error: Class "OfxParserTest\Builders\SgmlOfxBuilder" not found
+
+C:\Users\prote\Documents\software-devel\ksf_ofxparser\tests\OfxParser\Builders\SgmlOfxBuilderCoverageTest.php:477
+
+41) OfxParserTest\Builders\SgmlOfxBuilderErrorHandlingTest::testParseDateTimeWithYyyyMmDdOnly
+Error: Class "OfxParserTest\Builders\SgmlOfxBuilder" not found
+
+C:\Users\prote\Documents\software-devel\ksf_ofxparser\tests\OfxParser\Builders\SgmlOfxBuilderErrorHandlingTest.php:66
+
+42) OfxParserTest\Builders\SgmlOfxBuilderErrorHandlingTest::testParseDateTimeWithTimezoneAndMilliseconds
+Error: Class "OfxParserTest\Builders\SgmlOfxBuilder" not found
+
+C:\Users\prote\Documents\software-devel\ksf_ofxparser\tests\OfxParser\Builders\SgmlOfxBuilderErrorHandlingTest.php:114
+
+43) OfxParserTest\Builders\SgmlOfxBuilderErrorHandlingTest::testAccountNumbersAreTrimmed
+Error: Class "OfxParserTest\Builders\SgmlOfxBuilder" not found
+
+C:\Users\prote\Documents\software-devel\ksf_ofxparser\tests\OfxParser\Builders\SgmlOfxBuilderErrorHandlingTest.php:162
+
+44) OfxParserTest\Builders\SgmlOfxBuilderErrorHandlingTest::testEmptyTransactionList
+Error: Class "OfxParserTest\Builders\SgmlOfxBuilder" not found
+
+C:\Users\prote\Documents\software-devel\ksf_ofxparser\tests\OfxParser\Builders\SgmlOfxBuilderErrorHandlingTest.php:210
+
+45) OfxParserTest\Builders\SgmlOfxBuilderErrorHandlingTest::testMissingStatusElement
+Error: Class "OfxParserTest\Builders\SgmlOfxBuilder" not found
+
+C:\Users\prote\Documents\software-devel\ksf_ofxparser\tests\OfxParser\Builders\SgmlOfxBuilderErrorHandlingTest.php:255
+
+46) OfxParserTest\Builders\SgmlOfxBuilderErrorHandlingTest::testMissingFiElement
+Error: Class "OfxParserTest\Builders\SgmlOfxBuilder" not found
+
+C:\Users\prote\Documents\software-devel\ksf_ofxparser\tests\OfxParser\Builders\SgmlOfxBuilderErrorHandlingTest.php:300
+
+47) OfxParserTest\Builders\SgmlOfxBuilderErrorHandlingTest::testTransactionWithMissingAmount
+Error: Class "OfxParserTest\Builders\SgmlOfxBuilder" not found
+
+C:\Users\prote\Documents\software-devel\ksf_ofxparser\tests\OfxParser\Builders\SgmlOfxBuilderErrorHandlingTest.php:352
+
+48) OfxParserTest\Builders\SgmlOfxBuilderErrorHandlingTest::testBalanceWithNullString
+Error: Class "OfxParserTest\Builders\SgmlOfxBuilder" not found
+
+C:\Users\prote\Documents\software-devel\ksf_ofxparser\tests\OfxParser\Builders\SgmlOfxBuilderErrorHandlingTest.php:401
+
+49) OfxParserTest\Builders\SgmlOfxBuilderErrorHandlingTest::testCreditCardAccount
+Error: Class "OfxParserTest\Builders\SgmlOfxBuilder" not found
+
+C:\Users\prote\Documents\software-devel\ksf_ofxparser\tests\OfxParser\Builders\SgmlOfxBuilderErrorHandlingTest.php:447
+
+50) OfxParserTest\Builders\SgmlOfxBuilderErrorHandlingTest::testMixedBankAndCreditCardAccounts
+Error: Class "OfxParserTest\Builders\SgmlOfxBuilder" not found
+
+C:\Users\prote\Documents\software-devel\ksf_ofxparser\tests\OfxParser\Builders\SgmlOfxBuilderErrorHandlingTest.php:513
+
+51) OfxParserTest\Builders\SgmlOfxBuilderErrorHandlingTest::testPricingDataWithEmptyStrings
+Error: Class "OfxParserTest\Builders\SgmlOfxBuilder" not found
+
+C:\Users\prote\Documents\software-devel\ksf_ofxparser\tests\OfxParser\Builders\SgmlOfxBuilderErrorHandlingTest.php:571
+
+52) OfxParserTest\Builders\SgmlOfxBuilderErrorHandlingTest::testInvestmentAccountWithoutTransactionList
+Error: Class "OfxParserTest\Builders\SgmlOfxBuilder" not found
+
+C:\Users\prote\Documents\software-devel\ksf_ofxparser\tests\OfxParser\Builders\SgmlOfxBuilderErrorHandlingTest.php:614
+
+53) OfxParserTest\Builders\SgmlOfxBuilderErrorHandlingTest::testBuildHeaderWithEmptyArray
+Error: Class "OfxParserTest\Builders\SgmlOfxBuilder" not found
+
+C:\Users\prote\Documents\software-devel\ksf_ofxparser\tests\OfxParser\Builders\SgmlOfxBuilderErrorHandlingTest.php:642
+
+54) OfxParserTest\EdgeCasesTest::testOfxWithBom
+Error: Class "OfxParserTest\Parser" not found
+
+C:\Users\prote\Documents\software-devel\ksf_ofxparser\tests\OfxParser\EdgeCasesTest.php:49
+
+55) OfxParserTest\EdgeCasesTest::testTransactionWithNegativeZero
+Error: Class "OfxParserTest\Parser" not found
+
+C:\Users\prote\Documents\software-devel\ksf_ofxparser\tests\OfxParser\EdgeCasesTest.php:122
+
+56) OfxParserTest\EdgeCasesTest::testTransactionWithLargeAmount
+Error: Class "OfxParserTest\Parser" not found
+
+C:\Users\prote\Documents\software-devel\ksf_ofxparser\tests\OfxParser\EdgeCasesTest.php:197
+
+57) OfxParserTest\EdgeCasesTest::testDateAtY2kBoundary
+Error: Class "OfxParserTest\Parser" not found
+
+C:\Users\prote\Documents\software-devel\ksf_ofxparser\tests\OfxParser\EdgeCasesTest.php:270
+
+58) OfxParserTest\EdgeCasesTest::testVeryLongTransactionName
+Error: Class "OfxParserTest\Parser" not found
+
+C:\Users\prote\Documents\software-devel\ksf_ofxparser\tests\OfxParser\EdgeCasesTest.php:346
+
+59) OfxParserTest\EdgeCasesTest::testAccountNumberWithLeadingZeros
+Error: Class "OfxParserTest\Parser" not found
+
+C:\Users\prote\Documents\software-devel\ksf_ofxparser\tests\OfxParser\EdgeCasesTest.php:412
+
+60) OfxParserTest\EdgeCasesTest::testEmptyStatement
+Error: Class "OfxParserTest\Parser" not found
+
+C:\Users\prote\Documents\software-devel\ksf_ofxparser\tests\OfxParser\EdgeCasesTest.php:479
+
+61) OfxParserTest\EdgeCasesTest::testStatusCodeWithLeadingZeros
+Error: Class "OfxParserTest\Parser" not found
+
+C:\Users\prote\Documents\software-devel\ksf_ofxparser\tests\OfxParser\EdgeCasesTest.php:520
+
+62) OfxParserTest\EdgeCasesTest::testCurrencyRateOfOne
+Error: Class "OfxParserTest\Parser" not found
+
+C:\Users\prote\Documents\software-devel\ksf_ofxparser\tests\OfxParser\EdgeCasesTest.php:597
+
+63) OfxParserTest\EdgeCasesTest::testMultipleBankAccounts
+Error: Class "OfxParserTest\Parser" not found
+
+C:\Users\prote\Documents\software-devel\ksf_ofxparser\tests\OfxParser\EdgeCasesTest.php:687
+
+64) OfxParserTest\Entities\EntityStructureTest::testTransactionEntityStructure
+Error: Class "OfxParserTest\Entities\Transaction" not found
+
+C:\Users\prote\Documents\software-devel\ksf_ofxparser\tests\OfxParser\Entities\EntityStructureTest.php:24
+
+65) OfxParserTest\Entities\EntityStructureTest::testTransactionWithCurrency
+Error: Class "OfxParserTest\Entities\Transaction" not found
+
+C:\Users\prote\Documents\software-devel\ksf_ofxparser\tests\OfxParser\Entities\EntityStructureTest.php:50
+
+66) OfxParserTest\Entities\EntityStructureTest::testTransactionWithPayee
+Error: Class "OfxParserTest\Entities\Transaction" not found
+
+C:\Users\prote\Documents\software-devel\ksf_ofxparser\tests\OfxParser\Entities\EntityStructureTest.php:71
+
+67) OfxParserTest\Entities\EntityStructureTest::testBankAccountEntityStructure
+Error: Class "OfxParserTest\Entities\BankAccount" not found
+
+C:\Users\prote\Documents\software-devel\ksf_ofxparser\tests\OfxParser\Entities\EntityStructureTest.php:94
+
+68) OfxParserTest\Entities\EntityStructureTest::testStatementEntityStructure
+Error: Class "OfxParserTest\Entities\Statement" not found
+
+C:\Users\prote\Documents\software-devel\ksf_ofxparser\tests\OfxParser\Entities\EntityStructureTest.php:118
+
+69) OfxParserTest\Entities\EntityStructureTest::testSignOnEntityStructure
+Error: Class "OfxParserTest\Entities\SignOn" not found
+
+C:\Users\prote\Documents\software-devel\ksf_ofxparser\tests\OfxParser\Entities\EntityStructureTest.php:147
+
+70) OfxParserTest\Entities\EntityStructureTest::testStatusEntity
+Error: Class "OfxParserTest\Entities\Status" not found
+
+C:\Users\prote\Documents\software-devel\ksf_ofxparser\tests\OfxParser\Entities\EntityStructureTest.php:175
+
+71) OfxParserTest\Entities\EntityStructureTest::testInstituteEntity
+Error: Class "OfxParserTest\Entities\Institute" not found
+
+C:\Users\prote\Documents\software-devel\ksf_ofxparser\tests\OfxParser\Entities\EntityStructureTest.php:199
+
+72) OfxParserTest\Entities\EntityStructureTest::testPayeeEntityCompleteAddress
+Error: Class "OfxParserTest\Entities\Payee" not found
+
+C:\Users\prote\Documents\software-devel\ksf_ofxparser\tests\OfxParser\Entities\EntityStructureTest.php:212
+
+73) OfxParserTest\Entities\EntityStructureTest::testAccountInfoEntity
+Error: Class "OfxParserTest\Entities\AccountInfo" not found
+
+C:\Users\prote\Documents\software-devel\ksf_ofxparser\tests\OfxParser\Entities\EntityStructureTest.php:239
+
+74) OfxParserTest\Entities\EntityStructureTest::testTransactionWithBankAccountTo
+Error: Class "OfxParserTest\Entities\Transaction" not found
+
+C:\Users\prote\Documents\software-devel\ksf_ofxparser\tests\OfxParser\Entities\EntityStructureTest.php:252
+
+75) OfxParserTest\Entities\EntityStructureTest::testTransactionWithCardAccountTo
+Error: Class "OfxParserTest\Entities\Transaction" not found
+
+C:\Users\prote\Documents\software-devel\ksf_ofxparser\tests\OfxParser\Entities\EntityStructureTest.php:274
+
+76) OfxParserTest\Entities\EntityStructureTest::testTransactionAllDateFields
+Error: Class "OfxParserTest\Entities\Transaction" not found
+
+C:\Users\prote\Documents\software-devel\ksf_ofxparser\tests\OfxParser\Entities\EntityStructureTest.php:291
+
+77) OfxParserTest\Entities\EntityStructureTest::testBankAccountWithStatement
+Error: Class "OfxParserTest\Entities\BankAccount" not found
+
+C:\Users\prote\Documents\software-devel\ksf_ofxparser\tests\OfxParser\Entities\EntityStructureTest.php:311
+
+78) OfxParserTest\Entities\EntityStructureTest::testEmptyCollections
+Error: Class "OfxParserTest\Entities\Statement" not found
+
+C:\Users\prote\Documents\software-devel\ksf_ofxparser\tests\OfxParser\Entities\EntityStructureTest.php:332
+
+79) OfxParserTest\Entities\EntityStructureTest::testTransactionWithOriginalCurrency
+Error: Class "OfxParserTest\Entities\Transaction" not found
+
+C:\Users\prote\Documents\software-devel\ksf_ofxparser\tests\OfxParser\Entities\EntityStructureTest.php:345
+
+80) OfxParserTest\Loaders\SgmlOfxLoaderTest::testCanHandleWithSgmlHeader
+Error: Class "OfxParserTest\Loaders\SgmlOfxLoader" not found
+
+C:\Users\prote\Documents\software-devel\ksf_ofxparser\tests\OfxParser\Loaders\SgmlOfxLoaderTest.php:16
+
+81) OfxParserTest\Loaders\SgmlOfxLoaderTest::testCanHandleWithDataOfxsgml
+Error: Class "OfxParserTest\Loaders\SgmlOfxLoader" not found
+
+C:\Users\prote\Documents\software-devel\ksf_ofxparser\tests\OfxParser\Loaders\SgmlOfxLoaderTest.php:16
+
+82) OfxParserTest\Loaders\SgmlOfxLoaderTest::testCanHandleRejectsXmlHeader
+Error: Class "OfxParserTest\Loaders\SgmlOfxLoader" not found
+
+C:\Users\prote\Documents\software-devel\ksf_ofxparser\tests\OfxParser\Loaders\SgmlOfxLoaderTest.php:16
+
+83) OfxParserTest\Loaders\SgmlOfxLoaderTest::testCanHandleRejectsInvalidHeader
+Error: Class "OfxParserTest\Loaders\SgmlOfxLoader" not found
+
+C:\Users\prote\Documents\software-devel\ksf_ofxparser\tests\OfxParser\Loaders\SgmlOfxLoaderTest.php:16
+
+84) OfxParserTest\Loaders\SgmlOfxLoaderTest::testLoadWithValidSignOnMessage
+Error: Class "OfxParserTest\Loaders\SgmlOfxLoader" not found
+
+C:\Users\prote\Documents\software-devel\ksf_ofxparser\tests\OfxParser\Loaders\SgmlOfxLoaderTest.php:16
+
+85) OfxParserTest\Loaders\SgmlOfxLoaderTest::testLoadWithBankStatement
+Error: Class "OfxParserTest\Loaders\SgmlOfxLoader" not found
+
+C:\Users\prote\Documents\software-devel\ksf_ofxparser\tests\OfxParser\Loaders\SgmlOfxLoaderTest.php:16
+
+86) OfxParserTest\Loaders\SgmlOfxLoaderTest::testLoadWithCreditCardMessage
+Error: Class "OfxParserTest\Loaders\SgmlOfxLoader" not found
+
+C:\Users\prote\Documents\software-devel\ksf_ofxparser\tests\OfxParser\Loaders\SgmlOfxLoaderTest.php:16
+
+87) OfxParserTest\Loaders\SgmlOfxLoaderTest::testLoadWithInvestmentMessage
+Error: Class "OfxParserTest\Loaders\SgmlOfxLoader" not found
+
+C:\Users\prote\Documents\software-devel\ksf_ofxparser\tests\OfxParser\Loaders\SgmlOfxLoaderTest.php:16
+
+88) OfxParserTest\Loaders\SgmlOfxLoaderTest::testLoadWithMissingMessageSetsThrows
+Error: Class "OfxParserTest\Loaders\SgmlOfxLoader" not found
+
+C:\Users\prote\Documents\software-devel\ksf_ofxparser\tests\OfxParser\Loaders\SgmlOfxLoaderTest.php:16
+
+89) OfxParserTest\Loaders\SgmlOfxLoaderTest::testLoadWithOnlyBankMessage
+Error: Class "OfxParserTest\Loaders\SgmlOfxLoader" not found
+
+C:\Users\prote\Documents\software-devel\ksf_ofxparser\tests\OfxParser\Loaders\SgmlOfxLoaderTest.php:16
+
+90) OfxParserTest\Loaders\SgmlOfxLoaderTest::testGetFormatName
+Error: Class "OfxParserTest\Loaders\SgmlOfxLoader" not found
+
+C:\Users\prote\Documents\software-devel\ksf_ofxparser\tests\OfxParser\Loaders\SgmlOfxLoaderTest.php:16
+
+91) OfxParserTest\Loaders\SgmlOfxLoaderTest::testGetVersion
+Error: Class "OfxParserTest\Loaders\SgmlOfxLoader" not found
+
+C:\Users\prote\Documents\software-devel\ksf_ofxparser\tests\OfxParser\Loaders\SgmlOfxLoaderTest.php:16
+
+92) OfxParserTest\Loaders\SgmlOfxLoaderTest::testHeaderParsingWithMultipleFields
+Error: Class "OfxParserTest\Loaders\SgmlOfxLoader" not found
+
+C:\Users\prote\Documents\software-devel\ksf_ofxparser\tests\OfxParser\Loaders\SgmlOfxLoaderTest.php:16
+
+93) OfxParserTest\Loaders\SgmlOfxLoaderTest::testHeaderParsingWithWindowsLineEndings
+Error: Class "OfxParserTest\Loaders\SgmlOfxLoader" not found
+
+C:\Users\prote\Documents\software-devel\ksf_ofxparser\tests\OfxParser\Loaders\SgmlOfxLoaderTest.php:16
+
+94) OfxParserTest\Loaders\SgmlOfxLoaderTest::testLoadWithEmptyLinesInHeader
+Error: Class "OfxParserTest\Loaders\SgmlOfxLoader" not found
+
+C:\Users\prote\Documents\software-devel\ksf_ofxparser\tests\OfxParser\Loaders\SgmlOfxLoaderTest.php:16
+
+95) OfxParserTest\Loaders\SgmlOfxLoaderTest::testLoadWithConstructorDependencies
+Error: Class "OfxParserTest\Loaders\SgmlOfxLoader" not found
+
+C:\Users\prote\Documents\software-devel\ksf_ofxparser\tests\OfxParser\Loaders\SgmlOfxLoaderTest.php:16
+
+96) OfxParserTest\ParserUtilityTest::testParseHeader
+Error: Class "OfxParserTest\Parser" not found
+
+C:\Users\prote\Documents\software-devel\ksf_ofxparser\tests\OfxParser\ParserUtilityTest.php:36
+
+97) OfxParserTest\ParserUtilityTest::testParseHeaderWithWindowsLineEndings
+Error: Class "OfxParserTest\Parser" not found
+
+C:\Users\prote\Documents\software-devel\ksf_ofxparser\tests\OfxParser\ParserUtilityTest.php:59
+
+98) OfxParserTest\ParserUtilityTest::testDefensiveParsingConfiguration
+Error: Class "OfxParserTest\Parser" not found
+
+C:\Users\prote\Documents\software-devel\ksf_ofxparser\tests\OfxParser\ParserUtilityTest.php:76
+
+99) OfxParserTest\ParserUtilityTest::testDefensiveParsingWithCustomConfig
+Error: Cannot access private property OfxParser\Config\DefensiveParsingConfig::$continueOnError
+
+C:\Users\prote\Documents\software-devel\ksf_ofxparser\tests\OfxParser\ParserUtilityTest.php:97
+
+100) OfxParserTest\ParserUtilityTest::testParsingPathTracking
+Error: Class "OfxParserTest\Parser" not found
+
+C:\Users\prote\Documents\software-devel\ksf_ofxparser\tests\OfxParser\ParserUtilityTest.php:110
+
+101) OfxParserTest\ParserUtilityTest::testSgmlPathDetection
+Error: Class "OfxParserTest\Parser" not found
+
+C:\Users\prote\Documents\software-devel\ksf_ofxparser\tests\OfxParser\ParserUtilityTest.php:228
+
+102) OfxParserTest\ParserUtilityTest::testGetParsingPathInfo
+Error: Class "OfxParserTest\Parser" not found
+
+C:\Users\prote\Documents\software-devel\ksf_ofxparser\tests\OfxParser\ParserUtilityTest.php:240
+
+103) OfxParserTest\ParserUtilityTest::testOfxWithHeaderOnly
+Error: Class "OfxParserTest\Parser" not found
+
+C:\Users\prote\Documents\software-devel\ksf_ofxparser\tests\OfxParser\ParserUtilityTest.php:297
+
+104) OfxParserTest\ParserUtilityTest::testOfxWithIncompleteHeader
+Error: Class "OfxParserTest\Parser" not found
+
+C:\Users\prote\Documents\software-devel\ksf_ofxparser\tests\OfxParser\ParserUtilityTest.php:331
+
+105) OfxParserTest\ParserUtilityTest::testCustomLoadersConfiguration
+Error: Class "OfxParserTest\Parser" not found
+
+C:\Users\prote\Documents\software-devel\ksf_ofxparser\tests\OfxParser\ParserUtilityTest.php:349
+
+106) OfxParserTest\ParserUtilityTest::testHeaderAccessAfterParsing
+Error: Class "OfxParserTest\Parser" not found
+
+C:\Users\prote\Documents\software-devel\ksf_ofxparser\tests\OfxParser\ParserUtilityTest.php:387
+
+107) OfxParserTest\Sgml\ElementFactoryTest::testCreateElementWithKnownValueElement
+PHPUnit\Framework\InvalidArgumentException: Argument #1 of PHPUnit\Framework\Assert::assertInstanceOf() must be a class or interface name
+
+C:\Users\prote\Documents\software-devel\ksf_ofxparser\tests\OfxParser\Sgml\ElementFactoryTest.php:31
+
+108) OfxParserTest\Sgml\ElementFactoryTest::testCreateElementWithKnownContainerElement
+PHPUnit\Framework\InvalidArgumentException: Argument #1 of PHPUnit\Framework\Assert::assertInstanceOf() must be a class or interface name
+
+C:\Users\prote\Documents\software-devel\ksf_ofxparser\tests\OfxParser\Sgml\ElementFactoryTest.php:42
+
+109) OfxParserTest\Sgml\ElementFactoryTest::testCreateElementWithUnknownElement
+PHPUnit\Framework\InvalidArgumentException: Argument #1 of PHPUnit\Framework\Assert::assertInstanceOf() must be a class or interface name
+
+C:\Users\prote\Documents\software-devel\ksf_ofxparser\tests\OfxParser\Sgml\ElementFactoryTest.php:53
+
+110) OfxParserTest\Sgml\ElementFactoryTest::testRegisterValueElement
+PHPUnit\Framework\InvalidArgumentException: Argument #1 of PHPUnit\Framework\Assert::assertInstanceOf() must be a class or interface name
+
+C:\Users\prote\Documents\software-devel\ksf_ofxparser\tests\OfxParser\Sgml\ElementFactoryTest.php:151
+
+111) OfxParserTest\Sgml\ElementFactoryTest::testRegisterContainerElement
+PHPUnit\Framework\InvalidArgumentException: Argument #1 of PHPUnit\Framework\Assert::assertInstanceOf() must be a class or interface name
+
+C:\Users\prote\Documents\software-devel\ksf_ofxparser\tests\OfxParser\Sgml\ElementFactoryTest.php:180
+
+112) OfxParserTest\Sgml\ElementFactoryTest::testCreateElementWithLineAndColumn
+PHPUnit\Framework\InvalidArgumentException: Argument #1 of PHPUnit\Framework\Assert::assertInstanceOf() must be a class or interface name
+
+C:\Users\prote\Documents\software-devel\ksf_ofxparser\tests\OfxParser\Sgml\ElementFactoryTest.php:202
+
+113) OfxParserTest\Sgml\ElementFactoryTest::testCurrencyFieldsAreValueElements
+PHPUnit\Framework\InvalidArgumentException: Argument #1 of PHPUnit\Framework\Assert::assertInstanceOf() must be a class or interface name
+
+C:\Users\prote\Documents\software-devel\ksf_ofxparser\tests\OfxParser\Sgml\ElementFactoryTest.php:217
+
+114) OfxParserTest\Sgml\ElementFactoryTest::testCurrencyIsCurrencyElement
+PHPUnit\Framework\InvalidArgumentException: Argument #1 of PHPUnit\Framework\Assert::assertInstanceOf() must be a class or interface name
+
+C:\Users\prote\Documents\software-devel\ksf_ofxparser\tests\OfxParser\Sgml\ElementFactoryTest.php:240
+
+115) OfxParserTest\Sgml\ElementFactoryTest::testAllRequiredTransactionFields
+PHPUnit\Framework\InvalidArgumentException: Argument #1 of PHPUnit\Framework\Assert::assertInstanceOf() must be a class or interface name
+
+C:\Users\prote\Documents\software-devel\ksf_ofxparser\tests\OfxParser\Sgml\ElementFactoryTest.php:306
+
+116) OfxParserTest\XmlOfxParserTest::testXmlOfxWithCurrency
+Error: Class "OfxParserTest\Ofx" not found
+
+C:\Users\prote\Documents\software-devel\ksf_ofxparser\tests\OfxParser\XmlOfxParserTest.php:83
+
+117) OfxParserTest\XmlOfxParserTest::testXmlOfxWithIntuBid
+Error: Class "OfxParserTest\Ofx" not found
+
+C:\Users\prote\Documents\software-devel\ksf_ofxparser\tests\OfxParser\XmlOfxParserTest.php:151
+
+118) OfxParserTest\XmlOfxParserTest::testXmlOfxWithSignupAccountInfo
+Error: Class "OfxParserTest\Ofx" not found
+
+C:\Users\prote\Documents\software-devel\ksf_ofxparser\tests\OfxParser\XmlOfxParserTest.php:224
+
+119) OfxParserTest\XmlOfxParserTest::testXmlCreditCardAccount
+Error: Class "OfxParserTest\Ofx" not found
+
+C:\Users\prote\Documents\software-devel\ksf_ofxparser\tests\OfxParser\XmlOfxParserTest.php:290
+
+120) OfxParserTest\XmlOfxParserTest::testGetTransactionsHelper
+Error: Class "OfxParserTest\Ofx" not found
+
+C:\Users\prote\Documents\software-devel\ksf_ofxparser\tests\OfxParser\XmlOfxParserTest.php:367
+
+121) OfxParserTest\XmlOfxParserTest::testBuildHeader
+Error: Class "OfxParserTest\Ofx" not found
+
+C:\Users\prote\Documents\software-devel\ksf_ofxparser\tests\OfxParser\XmlOfxParserTest.php:427
+
+122) OfxParserTest\XmlOfxParserTest::testXmlWithAvailableBalance
+Error: Class "OfxParserTest\Ofx" not found
+
+C:\Users\prote\Documents\software-devel\ksf_ofxparser\tests\OfxParser\XmlOfxParserTest.php:504
+
+123) OfxParserTest\XmlOfxParserTest::testNullConstructor
+Error: Class "OfxParserTest\Ofx" not found
+
+C:\Users\prote\Documents\software-devel\ksf_ofxparser\tests\OfxParser\XmlOfxParserTest.php:517
+
+--
+
+There were 68 skipped tests:
+
+1) Tests\EdgeCases\BoundaryConditionTest::testLargeFileHandling
+BoundaryConditionTest - DateTime parsing issues in test helper (deferred)
+
+C:\Users\prote\Documents\software-devel\ksf_ofxparser\tests\EdgeCases\BoundaryConditionTest.php:20
+
+2) Tests\EdgeCases\BoundaryConditionTest::testManyTransactions
+BoundaryConditionTest - DateTime parsing issues in test helper (deferred)
+
+C:\Users\prote\Documents\software-devel\ksf_ofxparser\tests\EdgeCases\BoundaryConditionTest.php:20
+
+3) Tests\EdgeCases\BoundaryConditionTest::testManyAccounts
+BoundaryConditionTest - DateTime parsing issues in test helper (deferred)
+
+C:\Users\prote\Documents\software-devel\ksf_ofxparser\tests\EdgeCases\BoundaryConditionTest.php:20
+
+4) Tests\EdgeCases\BoundaryConditionTest::testMaximumFieldStringLength
+BoundaryConditionTest - DateTime parsing issues in test helper (deferred)
+
+C:\Users\prote\Documents\software-devel\ksf_ofxparser\tests\EdgeCases\BoundaryConditionTest.php:20
+
+5) Tests\EdgeCases\BoundaryConditionTest::testLargeAmountValue
+BoundaryConditionTest - DateTime parsing issues in test helper (deferred)
+
+C:\Users\prote\Documents\software-devel\ksf_ofxparser\tests\EdgeCases\BoundaryConditionTest.php:20
+
+6) Tests\EdgeCases\BoundaryConditionTest::testSmallFractionalAmount
+BoundaryConditionTest - DateTime parsing issues in test helper (deferred)
+
+C:\Users\prote\Documents\software-devel\ksf_ofxparser\tests\EdgeCases\BoundaryConditionTest.php:20
+
+7) Tests\EdgeCases\BoundaryConditionTest::testNegativeAmount
+BoundaryConditionTest - DateTime parsing issues in test helper (deferred)
+
+C:\Users\prote\Documents\software-devel\ksf_ofxparser\tests\EdgeCases\BoundaryConditionTest.php:20
+
+8) Tests\EdgeCases\BoundaryConditionTest::testZeroAmount
+BoundaryConditionTest - DateTime parsing issues in test helper (deferred)
+
+C:\Users\prote\Documents\software-devel\ksf_ofxparser\tests\EdgeCases\BoundaryConditionTest.php:20
+
+9) Tests\EdgeCases\BoundaryConditionTest::testVeryOldDate
+BoundaryConditionTest - DateTime parsing issues in test helper (deferred)
+
+C:\Users\prote\Documents\software-devel\ksf_ofxparser\tests\EdgeCases\BoundaryConditionTest.php:20
+
+10) Tests\EdgeCases\BoundaryConditionTest::testFutureDate
+BoundaryConditionTest - DateTime parsing issues in test helper (deferred)
+
+C:\Users\prote\Documents\software-devel\ksf_ofxparser\tests\EdgeCases\BoundaryConditionTest.php:20
+
+11) Tests\EdgeCases\BoundaryConditionTest::testMillisecondPrecisionDate
+BoundaryConditionTest - DateTime parsing issues in test helper (deferred)
+
+C:\Users\prote\Documents\software-devel\ksf_ofxparser\tests\EdgeCases\BoundaryConditionTest.php:20
+
+12) Tests\EdgeCases\BoundaryConditionTest::testTimezoneDateFormat
+BoundaryConditionTest - DateTime parsing issues in test helper (deferred)
+
+C:\Users\prote\Documents\software-devel\ksf_ofxparser\tests\EdgeCases\BoundaryConditionTest.php:20
+
+13) Tests\EdgeCases\BoundaryConditionTest::testMinimalTransactionID
+BoundaryConditionTest - DateTime parsing issues in test helper (deferred)
+
+C:\Users\prote\Documents\software-devel\ksf_ofxparser\tests\EdgeCases\BoundaryConditionTest.php:20
+
+14) Tests\EdgeCases\BoundaryConditionTest::testVeryLongTransactionID
+BoundaryConditionTest - DateTime parsing issues in test helper (deferred)
+
+C:\Users\prote\Documents\software-devel\ksf_ofxparser\tests\EdgeCases\BoundaryConditionTest.php:20
+
+15) Tests\EdgeCases\BoundaryConditionTest::testAccountIDSpecialCharacters
+BoundaryConditionTest - DateTime parsing issues in test helper (deferred)
+
+C:\Users\prote\Documents\software-devel\ksf_ofxparser\tests\EdgeCases\BoundaryConditionTest.php:20
+
+16) Tests\EdgeCases\BoundaryConditionTest::testEmptyStatementInAccount
+BoundaryConditionTest - DateTime parsing issues in test helper (deferred)
+
+C:\Users\prote\Documents\software-devel\ksf_ofxparser\tests\EdgeCases\BoundaryConditionTest.php:20
+
+17) Tests\EdgeCases\BoundaryConditionTest::testAccountWithNullBalance
+BoundaryConditionTest - DateTime parsing issues in test helper (deferred)
+
+C:\Users\prote\Documents\software-devel\ksf_ofxparser\tests\EdgeCases\BoundaryConditionTest.php:20
+
+18) Tests\EdgeCases\BoundaryConditionTest::testMaximumNestingDepth
+BoundaryConditionTest - DateTime parsing issues in test helper (deferred)
+
+C:\Users\prote\Documents\software-devel\ksf_ofxparser\tests\EdgeCases\BoundaryConditionTest.php:20
+
+19) Tests\EdgeCases\BoundaryConditionTest::testSingleTransaction
+BoundaryConditionTest - DateTime parsing issues in test helper (deferred)
+
+C:\Users\prote\Documents\software-devel\ksf_ofxparser\tests\EdgeCases\BoundaryConditionTest.php:20
+
+20) Tests\EdgeCases\BoundaryConditionTest::testStatementPeriodBoundary
+BoundaryConditionTest - DateTime parsing issues in test helper (deferred)
+
+C:\Users\prote\Documents\software-devel\ksf_ofxparser\tests\EdgeCases\BoundaryConditionTest.php:20
+
+21) Tests\EdgeCases\DataFormatVariationTest::testDateFormatYYYYMMDD
+DataFormatVariationTest - DateTime parsing issues in test helper (deferred)
+
+C:\Users\prote\Documents\software-devel\ksf_ofxparser\tests\EdgeCases\DataFormatVariationTest.php:20
+
+22) Tests\EdgeCases\DataFormatVariationTest::testDateFormatWithTime
+DataFormatVariationTest - DateTime parsing issues in test helper (deferred)
+
+C:\Users\prote\Documents\software-devel\ksf_ofxparser\tests\EdgeCases\DataFormatVariationTest.php:20
+
+23) Tests\EdgeCases\DataFormatVariationTest::testDateFormatFullTimestamp
+DataFormatVariationTest - DateTime parsing issues in test helper (deferred)
+
+C:\Users\prote\Documents\software-devel\ksf_ofxparser\tests\EdgeCases\DataFormatVariationTest.php:20
+
+24) Tests\EdgeCases\DataFormatVariationTest::testAmountWithLeadingZeros
+DataFormatVariationTest - DateTime parsing issues in test helper (deferred)
+
+C:\Users\prote\Documents\software-devel\ksf_ofxparser\tests\EdgeCases\DataFormatVariationTest.php:20
+
+25) Tests\EdgeCases\DataFormatVariationTest::testAmountWithCommaThousands
+DataFormatVariationTest - DateTime parsing issues in test helper (deferred)
+
+C:\Users\prote\Documents\software-devel\ksf_ofxparser\tests\EdgeCases\DataFormatVariationTest.php:20
+
+26) Tests\EdgeCases\DataFormatVariationTest::testAmountWithPeriodThousands
+DataFormatVariationTest - DateTime parsing issues in test helper (deferred)
+
+C:\Users\prote\Documents\software-devel\ksf_ofxparser\tests\EdgeCases\DataFormatVariationTest.php:20
+
+27) Tests\EdgeCases\DataFormatVariationTest::testMultipleCurrencyCodes
+DataFormatVariationTest - DateTime parsing issues in test helper (deferred)
+
+C:\Users\prote\Documents\software-devel\ksf_ofxparser\tests\EdgeCases\DataFormatVariationTest.php:20
+
+28) Tests\EdgeCases\DataFormatVariationTest::testEmptyOptionalFields
+DataFormatVariationTest - DateTime parsing issues in test helper (deferred)
+
+C:\Users\prote\Documents\software-devel\ksf_ofxparser\tests\EdgeCases\DataFormatVariationTest.php:20
+
+29) Tests\EdgeCases\DataFormatVariationTest::testNullVsEmptyFields
+DataFormatVariationTest - DateTime parsing issues in test helper (deferred)
+
+C:\Users\prote\Documents\software-devel\ksf_ofxparser\tests\EdgeCases\DataFormatVariationTest.php:20
+
+30) Tests\EdgeCases\DataFormatVariationTest::testMixedCaseOFXTags
+DataFormatVariationTest - DateTime parsing issues in test helper (deferred)
+
+C:\Users\prote\Documents\software-devel\ksf_ofxparser\tests\EdgeCases\DataFormatVariationTest.php:20
+
+31) Tests\EdgeCases\DataFormatVariationTest::testWhitespaceVariations
+DataFormatVariationTest - DateTime parsing issues in test helper (deferred)
+
+C:\Users\prote\Documents\software-devel\ksf_ofxparser\tests\EdgeCases\DataFormatVariationTest.php:20
+
+32) Tests\EdgeCases\DataFormatVariationTest::testTabsAndMixedWhitespace
+DataFormatVariationTest - DateTime parsing issues in test helper (deferred)
+
+C:\Users\prote\Documents\software-devel\ksf_ofxparser\tests\EdgeCases\DataFormatVariationTest.php:20
+
+33) Tests\EdgeCases\DataFormatVariationTest::testCRLFLineEndings
+DataFormatVariationTest - DateTime parsing issues in test helper (deferred)
+
+C:\Users\prote\Documents\software-devel\ksf_ofxparser\tests\EdgeCases\DataFormatVariationTest.php:20
+
+34) Tests\EdgeCases\DataFormatVariationTest::testBooleanLikeValues
+DataFormatVariationTest - DateTime parsing issues in test helper (deferred)
+
+C:\Users\prote\Documents\software-devel\ksf_ofxparser\tests\EdgeCases\DataFormatVariationTest.php:20
+
+35) Tests\EdgeCases\DataFormatVariationTest::testNumericStringHandling
+DataFormatVariationTest - DateTime parsing issues in test helper (deferred)
+
+C:\Users\prote\Documents\software-devel\ksf_ofxparser\tests\EdgeCases\DataFormatVariationTest.php:20
+
+36) Tests\EdgeCases\DataFormatVariationTest::testSignIndicators
+DataFormatVariationTest - DateTime parsing issues in test helper (deferred)
+
+C:\Users\prote\Documents\software-devel\ksf_ofxparser\tests\EdgeCases\DataFormatVariationTest.php:20
+
+37) Tests\EdgeCases\DataFormatVariationTest::testScientificNotationAmounts
+DataFormatVariationTest - DateTime parsing issues in test helper (deferred)
+
+C:\Users\prote\Documents\software-devel\ksf_ofxparser\tests\EdgeCases\DataFormatVariationTest.php:20
+
+38) Tests\EdgeCases\DataFormatVariationTest::testMultipleDecimalSeparators
+DataFormatVariationTest - DateTime parsing issues in test helper (deferred)
+
+C:\Users\prote\Documents\software-devel\ksf_ofxparser\tests\EdgeCases\DataFormatVariationTest.php:20
+
+39) Tests\EdgeCases\DataFormatVariationTest::testTransactionTypeCodes
+DataFormatVariationTest - DateTime parsing issues in test helper (deferred)
+
+C:\Users\prote\Documents\software-devel\ksf_ofxparser\tests\EdgeCases\DataFormatVariationTest.php:20
+
+40) Tests\EdgeCases\DataFormatVariationTest::testAccountTypeVariations
+DataFormatVariationTest - DateTime parsing issues in test helper (deferred)
+
+C:\Users\prote\Documents\software-devel\ksf_ofxparser\tests\EdgeCases\DataFormatVariationTest.php:20
+
+41) Tests\Integration\DataIntegrityTest::testTransactionCountMatches
+Requires fixture file with known transaction count
+
+C:\Users\prote\Documents\software-devel\ksf_ofxparser\tests\Integration\DataIntegrityTest.php:20
+
+42) Tests\Integration\DataIntegrityTest::testAmountPreservation
+Requires fixture file with known amounts
+
+C:\Users\prote\Documents\software-devel\ksf_ofxparser\tests\Integration\DataIntegrityTest.php:32
+
+43) Tests\Integration\DataIntegrityTest::testDatePreservation
+Requires fixture file with known dates
+
+C:\Users\prote\Documents\software-devel\ksf_ofxparser\tests\Integration\DataIntegrityTest.php:49
+
+44) Tests\Integration\DataIntegrityTest::testMultiAccountSeparation
+Requires fixture with multiple accounts
+
+C:\Users\prote\Documents\software-devel\ksf_ofxparser\tests\Integration\DataIntegrityTest.php:69
+
+45) Tests\Integration\DataIntegrityTest::testTransactionOrdering
+Requires fixture with ordered transactions
+
+C:\Users\prote\Documents\software-devel\ksf_ofxparser\tests\Integration\DataIntegrityTest.php:91
+
+46) Tests\Integration\DataIntegrityTest::testAccountBalanceAccuracy
+Requires fixture with balance information
+
+C:\Users\prote\Documents\software-devel\ksf_ofxparser\tests\Integration\DataIntegrityTest.php:112
+
+47) Tests\Integration\DataIntegrityTest::testCreditCardAmountsSigned
+Requires credit card fixture
+
+C:\Users\prote\Documents\software-devel\ksf_ofxparser\tests\Integration\DataIntegrityTest.php:126
+
+48) Tests\Integration\DataIntegrityTest::testInvestmentQuantitiesPreserved
+Requires investment account fixture
+
+C:\Users\prote\Documents\software-devel\ksf_ofxparser\tests\Integration\DataIntegrityTest.php:144
+
+49) Tests\Integration\DataIntegrityTest::testMemoPreservation
+Requires fixture with memo fields
+
+C:\Users\prote\Documents\software-devel\ksf_ofxparser\tests\Integration\DataIntegrityTest.php:159
+
+50) Tests\Integration\DataIntegrityTest::testPayeePreservation
+Requires fixture with payee info
+
+C:\Users\prote\Documents\software-devel\ksf_ofxparser\tests\Integration\DataIntegrityTest.php:175
+
+51) Tests\Integration\DataIntegrityTest::testCheckNumberPreservation
+Requires bank fixture with checks
+
+C:\Users\prote\Documents\software-devel\ksf_ofxparser\tests\Integration\DataIntegrityTest.php:191
+
+52) Tests\Integration\DataIntegrityTest::testSecurityLinking
+Requires investment fixture
+
+C:\Users\prote\Documents\software-devel\ksf_ofxparser\tests\Integration\DataIntegrityTest.php:204
+
+53) Tests\Integration\DataIntegrityTest::testBalanceReconciliation
+Requires fixture with starting balance
+
+C:\Users\prote\Documents\software-devel\ksf_ofxparser\tests\Integration\DataIntegrityTest.php:222
+
+54) Tests\Integration\DataIntegrityTest::testCurrencyCodePreservation
+Requires multi-currency fixture
+
+C:\Users\prote\Documents\software-devel\ksf_ofxparser\tests\Integration\DataIntegrityTest.php:239
+
+55) Tests\Integration\DataIntegrityTest::testRequiredFieldsPresent
+Requires any valid fixture
+
+C:\Users\prote\Documents\software-devel\ksf_ofxparser\tests\Integration\DataIntegrityTest.php:256
+
+56) Tests\Integration\DataIntegrityTest::testSpecialCharacterHandling
+Requires fixture with special characters
+
+C:\Users\prote\Documents\software-devel\ksf_ofxparser\tests\Integration\DataIntegrityTest.php:275
+
+57) Tests\Integration\DataIntegrityTest::testNumericPrecision
+Requires fixture with decimal amounts
+
+C:\Users\prote\Documents\software-devel\ksf_ofxparser\tests\Integration\DataIntegrityTest.php:291
+
+58) Tests\Integration\DataIntegrityTest::testNoDuplicateTransactions
+Requires fixture
+
+C:\Users\prote\Documents\software-devel\ksf_ofxparser\tests\Integration\DataIntegrityTest.php:311
+
+59) Tests\Integration\DataIntegrityTest::testAccountTypeClassification
+Requires multi-type fixture
+
+C:\Users\prote\Documents\software-devel\ksf_ofxparser\tests\Integration\DataIntegrityTest.php:325
+
+60) Tests\Integration\DataIntegrityTest::testStatementPeriodValidity
+Requires fixture
+
+C:\Users\prote\Documents\software-devel\ksf_ofxparser\tests\Integration\DataIntegrityTest.php:342
+
+61) Tests\Performance\ParsingPerformanceTest::testParse1000TransactionsUnder5Seconds
+Performance benchmark - enable with large fixtures
+
+C:\Users\prote\Documents\software-devel\ksf_ofxparser\tests\Performance\ParsingPerformanceTest.php:20
+
+62) Tests\Performance\ParsingPerformanceTest::testParse10000TransactionsUnder30Seconds
+Performance benchmark - enable with large fixtures
+
+C:\Users\prote\Documents\software-devel\ksf_ofxparser\tests\Performance\ParsingPerformanceTest.php:56
+
+63) Tests\Performance\ParsingPerformanceTest::testXMLFasterThanSGML
+Comparative performance test
+
+C:\Users\prote\Documents\software-devel\ksf_ofxparser\tests\Performance\ParsingPerformanceTest.php:118
+
+64) Tests\Performance\ParsingPerformanceTest::testIncrementalParsingCapability
+Incremental parsing - if implemented
+
+C:\Users\prote\Documents\software-devel\ksf_ofxparser\tests\Performance\ParsingPerformanceTest.php:160
+
+65) Tests\Performance\ParsingPerformanceTest::testMemoryUsageFor1000Transactions
+Memory benchmark - enable to check RAM usage
+
+C:\Users\prote\Documents\software-devel\ksf_ofxparser\tests\Performance\ParsingPerformanceTest.php:190
+
+66) Tests\Performance\ParsingPerformanceTest::testMemoryScalingEfficiency
+Scaling analysis
+
+C:\Users\prote\Documents\software-devel\ksf_ofxparser\tests\Performance\ParsingPerformanceTest.php:225
+
+67) Tests\Performance\ParsingPerformanceTest::testLargeFileDoesntCrash
+Large file test - requires actual 100MB file
+
+C:\Users\prote\Documents\software-devel\ksf_ofxparser\tests\Performance\ParsingPerformanceTest.php:256
+
+68) Tests\TestOFXHelperTest::testSimpleOFXParsing
+TestOFXHelper DateTime parsing needs refinement
+
+C:\Users\prote\Documents\software-devel\ksf_ofxparser\tests\TestOFXHelperTest.php:22
+
+ERRORS!
+Tests: 708, Assertions: 1726, Errors: 123, Skipped: 68.

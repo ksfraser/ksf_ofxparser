@@ -14,10 +14,7 @@ class DataFormatVariationTest extends TestCase
 
     protected function setUp(): void
     {
-        // Skip all tests in this class - DateTime parsing issues in test OFX generation
-        // TODO: Fix DateTime handling in helper or refactor as unit tests
-        // See: https://github.com/ksfraser/ksf_ofxparser/issues/XXX
-        $this->markTestSkipped('DataFormatVariationTest - DateTime parsing issues in test helper (deferred)');
+        $this->parser = new Parser();
     }
 
     // EC3-001: Dates YYYYMMDD format
@@ -57,7 +54,7 @@ class DataFormatVariationTest extends TestCase
 </STMTTRNRS>
 </OFX>";
         
-        $ofx = $this->parser->loadFromString($content);
+        $ofx = $this->parseOFX($content);
         $this->assertNotNull($ofx);
     }
 
@@ -77,7 +74,7 @@ class DataFormatVariationTest extends TestCase
 </STMTTRNRS>
 </OFX>";
         
-        $ofx = $this->parser->loadFromString($content);
+        $ofx = $this->parseOFX($content);
         $this->assertNotNull($ofx);
     }
 
@@ -97,7 +94,7 @@ class DataFormatVariationTest extends TestCase
 </STMTTRNRS>
 </OFX>";
         
-        $ofx = $this->parser->loadFromString($content);
+        $ofx = $this->parseOFX($content);
         $this->assertNotNull($ofx);
     }
 
@@ -117,7 +114,7 @@ class DataFormatVariationTest extends TestCase
 </STMTTRNRS>
 </OFX>";
         
-        $ofx = $this->parser->loadFromString($content);
+        $ofx = $this->parseOFX($content);
         $this->assertNotNull($ofx);
     }
 
@@ -141,7 +138,7 @@ class DataFormatVariationTest extends TestCase
 </STMTTRNRS>
 </OFX>";
             
-            $ofx = $this->parser->loadFromString($content);
+            $ofx = $this->parseOFX($content);
             $this->assertNotNull($ofx);
         }
     }
@@ -165,7 +162,7 @@ class DataFormatVariationTest extends TestCase
 </STMTTRNRS>
 </OFX>";
         
-        $ofx = $this->parser->loadFromString($content);
+        $ofx = $this->parseOFX($content);
         $this->assertNotNull($ofx);
     }
 
@@ -187,7 +184,7 @@ class DataFormatVariationTest extends TestCase
 </STMTTRNRS>
 </OFX>";
         
-        $ofx = $this->parser->loadFromString($content);
+        $ofx = $this->parseOFX($content);
         $this->assertNotNull($ofx);
     }
 
@@ -208,7 +205,7 @@ class DataFormatVariationTest extends TestCase
 </OFX>";
         
         try {
-            $ofx = $this->parser->loadFromString($content);
+            $ofx = $this->parseOFX($content);
             $this->assertNotNull($ofx);
         } catch (\Exception $e) {
             // Case sensitivity may be enforced
@@ -235,7 +232,7 @@ class DataFormatVariationTest extends TestCase
 </STMTTRNRS>
 </OFX>";
         
-        $ofx = $this->parser->loadFromString($content);
+        $ofx = $this->parseOFX($content);
         $this->assertNotNull($ofx);
     }
 
@@ -255,7 +252,7 @@ class DataFormatVariationTest extends TestCase
 	</STMTTRNRS>
 </OFX>";
         
-        $ofx = $this->parser->loadFromString($content);
+        $ofx = $this->parseOFX($content);
         $this->assertNotNull($ofx);
     }
 
@@ -264,7 +261,7 @@ class DataFormatVariationTest extends TestCase
     {
         $content = "<?xml version=\"1.0\"?>\r\n<OFX>\r\n<STMTTRNRS>\r\n</STMTTRNRS>\r\n</OFX>";
         
-        $ofx = $this->parser->loadFromString($content);
+        $ofx = $this->parseOFX($content);
         $this->assertNotNull($ofx);
     }
 
@@ -282,7 +279,7 @@ class DataFormatVariationTest extends TestCase
 </STMTTRNRS>
 </OFX>";
         
-        $ofx = $this->parser->loadFromString($content);
+        $ofx = $this->parseOFX($content);
         $this->assertNotNull($ofx);
     }
 
@@ -304,7 +301,7 @@ class DataFormatVariationTest extends TestCase
 </STMTTRNRS>
 </OFX>";
         
-        $ofx = $this->parser->loadFromString($content);
+        $ofx = $this->parseOFX($content);
         $this->assertNotNull($ofx);
     }
 
@@ -327,7 +324,7 @@ class DataFormatVariationTest extends TestCase
 </STMTTRNRS>
 </OFX>";
         
-        $ofx = $this->parser->loadFromString($content);
+        $ofx = $this->parseOFX($content);
         $this->assertNotNull($ofx);
     }
 
@@ -348,7 +345,7 @@ class DataFormatVariationTest extends TestCase
 </OFX>";
         
         try {
-            $ofx = $this->parser->loadFromString($content);
+            $ofx = $this->parseOFX($content);
             $this->assertNotNull($ofx);
         } catch (\Exception $e) {
             // Scientific notation may not be supported
@@ -373,7 +370,7 @@ class DataFormatVariationTest extends TestCase
 </OFX>";
         
         try {
-            $ofx = $this->parser->loadFromString($content);
+            $ofx = $this->parseOFX($content);
             // May parse as-is
             $this->assertTrue(true);
         } catch (\Exception $e) {
@@ -401,7 +398,7 @@ class DataFormatVariationTest extends TestCase
 </STMTTRNRS>
 </OFX>";
             
-            $ofx = $this->parser->loadFromString($content);
+            $ofx = $this->parseOFX($content);
             $this->assertNotNull($ofx);
         }
     }
@@ -423,7 +420,7 @@ class DataFormatVariationTest extends TestCase
 </STMTTRNRS>
 </OFX>";
             
-            $ofx = $this->parser->loadFromString($content);
+            $ofx = $this->parseOFX($content);
             $this->assertNotNull($ofx);
         }
     }
